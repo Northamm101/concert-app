@@ -1,1 +1,480 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GigBook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0a0a0c;--surface:#111116;--surface2:#18181f;--surface3:#1e1e28;--cyan:#00e5c8;--cyan-dim:#00b39c;--amber:#f5a623;--white:#f0eee8;--muted:#6b6b7a;--border:#2a2a38;--red:#ff4d6a;--green:#00c978;--purple:#c084fc;--sport:#38bdf8;--wrestling:#fb923c;--kids:#f472b6;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--black);color:var(--white);font-family:"DM Sans",sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:"";position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox=%270 0 256 256%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27 opacity=%270.04%27/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4;}
+.app{display:flex;flex-direction:column;min-height:100vh;max-width:440px;margin:0 auto;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 10px;position:sticky;top:0;z-index:100;background:linear-gradient(to bottom,var(--black) 70%,transparent);}
+.logo{font-family:"Bebas Neue",sans-serif;font-size:26px;letter-spacing:2px;line-height:1;}
+.logo span{color:var(--cyan);}
+.topbar-right{display:flex;gap:10px;}
+.icon-btn{width:36px;height:36px;border:1px solid var(--border);background:var(--surface);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--muted);}
+.icon-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,200,.06);}
+.ribbon{display:flex;gap:6px;padding:0 20px 14px;overflow-x:auto;scrollbar-width:none;}
+.ribbon::-webkit-scrollbar{display:none;}
+.ribbon-tab{flex-shrink:0;padding:7px 13px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:"DM Sans",sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.ribbon-tab.active{background:var(--cyan);color:var(--black);border-color:var(--cyan);font-weight:600;}
+.ribbon-tab:hover:not(.active){border-color:var(--cyan-dim);color:var(--white);}
+.stat-strip{display:flex;gap:1px;margin:0 20px 16px;border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+.stat{flex:1;background:var(--surface);padding:12px 8px;text-align:center;position:relative;}
+.stat::after{content:"";position:absolute;right:0;top:20%;height:60%;width:1px;background:var(--border);}
+.stat:last-child::after{display:none;}
+.stat-num{font-family:"Bebas Neue",sans-serif;font-size:24px;color:var(--cyan);line-height:1;display:block;}
+.stat-num.am{color:var(--amber);}
+.stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:3px;font-family:"DM Mono",monospace;}
+.up-scroll{display:flex;gap:12px;padding:0 20px 4px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;}
+.up-scroll::-webkit-scrollbar{display:none;}
+.upcoming-card{flex-shrink:0;width:calc(100% - 40px);scroll-snap-align:start;background:linear-gradient(135deg,var(--surface2),rgba(0,229,200,.05));border:1px solid rgba(0,229,200,.25);border-radius:16px;padding:16px;position:relative;overflow:hidden;}
+.upcoming-card::before{content:"UPCOMING";position:absolute;top:12px;right:14px;font-family:"DM Mono",monospace;font-size:9px;color:var(--cyan);letter-spacing:1.5px;border:1px solid rgba(0,229,200,.3);padding:2px 7px;border-radius:4px;background:rgba(0,229,200,.06);}
+.up-date{font-family:"Bebas Neue",sans-serif;font-size:13px;letter-spacing:2px;color:var(--cyan);margin-bottom:4px;}
+.up-artist{font-size:20px;font-weight:700;margin-bottom:2px;line-height:1.2;padding-right:90px;}
+.up-openers{font-size:12px;color:var(--muted);margin-bottom:3px;min-height:1.2em;}
+.up-venue{font-size:10px;color:var(--muted);margin-bottom:14px;font-family:"DM Mono",monospace;}
+.up-actions{display:flex;gap:8px;}
+.up-btn{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--white);font-size:11px;font-family:"DM Sans",sans-serif;font-weight:500;cursor:pointer;transition:all .2s;}
+.up-btn.primary{background:rgba(0,229,200,.12);border-color:rgba(0,229,200,.3);color:var(--cyan);}
+.sec-label{padding:0 20px 10px;font-family:"DM Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);display:flex;align-items:center;gap:10px;}
+.sec-label::after{content:"";flex:1;height:1px;background:var(--border);}
+.year-div{padding:8px 20px 10px;margin-top:8px;font-family:"Bebas Neue",sans-serif;font-size:20px;letter-spacing:3px;color:var(--surface3);display:flex;align-items:center;gap:12px;}
+.year-div::after{content:"";flex:1;height:1px;background:var(--surface3);}
+.gig-list{padding:0 20px;display:flex;flex-direction:column;gap:10px;}
+.gig-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;cursor:pointer;transition:all .2s;}
+.gig-card:hover{border-color:rgba(0,229,200,.25);transform:translateX(2px);box-shadow:-3px 0 16px rgba(0,229,200,.06);}
+.gig-card.concert{border-left:3px solid var(--cyan);}
+.gig-card.sport{border-left:3px solid var(--sport);}
+.gig-card.wrestling{border-left:3px solid var(--wrestling);}
+.gig-card.festival{border-left:3px solid var(--purple);}
+.gig-card.comedy{border-left:3px solid #facc15;}
+.gig-card.theatre{border-left:3px solid #fb923c;}
+.gig-card.kids{border-left:3px solid var(--kids);}
+.gig-card.curling{border-left:3px solid var(--green);}
+.gig-card.cancelled{border-left:3px solid var(--red);opacity:.6;}
+.gig-card.cancelled:hover{opacity:.8;}
+.gig-poster{width:70px;flex-shrink:0;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:28px;position:relative;overflow:hidden;}
+.gig-poster-bg{position:absolute;inset:0;opacity:.2;background-size:cover;background-position:center;}
+.gig-poster-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:0;transition:opacity .4s;}
+.gig-poster-img.loaded{opacity:1;}
+.gig-poster-emoji{position:relative;z-index:1;transition:opacity .3s;}
+.gig-poster-img.loaded~.gig-poster-emoji{opacity:0;}
+.gig-poster.shim::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.04),transparent);background-size:200% 100%;animation:shim 1.5s infinite;}
+@keyframes shim{from{background-position:-200% 0}to{background-position:200% 0}}
+.gig-info{flex:1;padding:11px 12px 10px;min-width:0;}
+.gig-artist{font-size:14px;font-weight:600;color:var(--white);line-height:1.2;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gig-openers{font-size:11px;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gig-meta{font-size:10px;color:var(--muted);font-family:"DM Mono",monospace;margin-bottom:6px;}
+.gig-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.tag{font-size:9px;padding:2px 7px;border-radius:5px;font-family:"DM Mono",monospace;font-weight:500;}
+.tc{background:rgba(0,229,200,.1);color:var(--cyan);border:1px solid rgba(0,229,200,.2);}
+.ta{background:rgba(245,166,35,.1);color:var(--amber);border:1px solid rgba(245,166,35,.2);}
+.tr{background:rgba(255,77,106,.15);color:var(--red);border:1px solid rgba(255,77,106,.25);}
+.tp{background:rgba(192,132,252,.1);color:var(--purple);border:1px solid rgba(192,132,252,.2);}
+.ty{background:rgba(250,204,21,.1);color:#facc15;border:1px solid rgba(250,204,21,.2);}
+.to{background:rgba(251,146,60,.1);color:#fb923c;border:1px solid rgba(251,146,60,.2);}
+.tb{background:rgba(56,189,248,.1);color:var(--sport);border:1px solid rgba(56,189,248,.2);}
+.tg{background:rgba(0,201,120,.1);color:var(--green);border:1px solid rgba(0,201,120,.2);}
+.tk{background:rgba(244,114,182,.1);color:var(--kids);border:1px solid rgba(244,114,182,.2);}
+.gig-right{padding:11px 10px;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;min-width:44px;}
+.gig-arrow{color:var(--muted);font-size:14px;transition:color .2s,transform .2s;}
+.gig-card:hover .gig-arrow{color:var(--cyan);transform:translateX(2px);}
+.gig-num{font-family:"DM Mono",monospace;font-size:10px;color:var(--muted);background:var(--surface2);padding:3px 6px;border-radius:5px;}
+.search-bar{display:none;margin:0 20px 14px;position:relative;}
+.search-bar.vis{display:block;}
+.search-input{width:100%;background:var(--surface2);border:1px solid var(--cyan);border-radius:12px;padding:11px 14px 11px 40px;color:var(--white);font-family:"DM Sans",sans-serif;font-size:14px;outline:none;}
+.search-input::placeholder{color:var(--muted);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px);}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{width:100%;max-width:440px;margin:0 auto;background:var(--surface);border-radius:24px 24px 0 0;border:1px solid var(--border);border-bottom:none;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.16,1,.3,1);scrollbar-width:none;}
+.modal::-webkit-scrollbar{display:none;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-drag{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0;}
+.modal-poster{height:200px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:var(--surface2);}
+.mpi{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;opacity:0;transition:opacity .5s;}
+.mpi.loaded{opacity:1;}
+.mp-ov{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.1),rgba(0,0,0,.6));z-index:1;}
+.mp-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 80%,rgba(0,229,200,.15),transparent 70%);z-index:2;pointer-events:none;}
+.mp-ej{position:relative;z-index:3;font-size:72px;transition:opacity .4s;}
+.mpi.loaded~.mp-ej{opacity:0;}
+.modal-close{position:absolute;top:56px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.6);border:1px solid var(--border);color:var(--white);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;}
+.mcontent{padding:18px 18px 8px;}
+.m-artist{font-family:"Bebas Neue",sans-serif;font-size:32px;letter-spacing:2px;line-height:1;margin-bottom:2px;}
+.m-sub{font-size:13px;color:var(--muted);margin-bottom:3px;}
+.m-venue{font-size:11px;color:var(--muted);margin-bottom:14px;font-family:"DM Mono",monospace;}
+.msec{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;}
+.msec-title{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:10px;}
+.irow{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);gap:12px;}
+.irow:last-child{border-bottom:none;}
+.ikey{color:var(--muted);font-family:"DM Mono",monospace;font-size:11px;flex-shrink:0;}
+.ival{text-align:right;font-weight:500;font-size:12px;}
+.bottom-nav{position:sticky;bottom:0;background:rgba(10,10,12,.92);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding:10px 0 16px;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:5px 0;color:var(--muted);font-size:9px;font-family:"DM Mono",monospace;text-transform:uppercase;letter-spacing:.8px;border:none;background:none;transition:color .2s;}
+.nav-item.active{color:var(--cyan);}
+.nav-icon{font-size:19px;}
+.spacer{height:28px;}
+.fi{animation:fadeUp .35s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface2);border:1px solid var(--cyan);color:var(--cyan);padding:10px 20px;border-radius:12px;font-size:13px;font-family:"DM Mono",monospace;z-index:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="topbar">
+  <div class="logo">Gig<span>Book</span></div>
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="toggleSearch()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+    <button class="icon-btn" onclick="toast('⚙️ Settings coming in v1.0')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/></svg></button>
+  </div>
+</div>
+<div class="ribbon">
+  <button class="ribbon-tab active" onclick="setTab(this,'all')">All</button>
+  <button class="ribbon-tab" onclick="setTab(this,'concert')">🎸 Concerts</button>
+  <button class="ribbon-tab" onclick="setTab(this,'sport')">🏒 Sports</button>
+  <button class="ribbon-tab" onclick="setTab(this,'wrestling')">🤼 Wrestling</button>
+  <button class="ribbon-tab" onclick="setTab(this,'festival')">🎡 Festivals</button>
+  <button class="ribbon-tab" onclick="setTab(this,'comedy')">😂 Comedy</button>
+  <button class="ribbon-tab" onclick="setTab(this,'theatre')">🎭 Theatre</button>
+  <button class="ribbon-tab" onclick="setTab(this,'kids')">🧸 Kids</button>
+  <button class="ribbon-tab" onclick="setTab(this,'curling')">🥌 Curling</button>
+  <button class="ribbon-tab" onclick="setTab(this,'cancelled')">❌ Cancelled</button>
+</div>
+<div class="stat-strip fi">
+  <div class="stat"><span class="stat-num" id="sT">—</span><span class="stat-label">Events</span></div>
+  <div class="stat"><span class="stat-num am" id="sC">—</span><span class="stat-label">Cancelled</span></div>
+  <div class="stat"><span class="stat-num" id="sV">—</span><span class="stat-label">Venues</span></div>
+  <div class="stat"><span class="stat-num" id="sY">—</span><span class="stat-label">Years</span></div>
+</div>
+<div class="search-bar" id="sb">
+  <span class="search-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+  <input class="search-input" id="si" type="text" placeholder="Search events, venues, artists…" oninput="doSearch(this.value)">
+</div>
+<div class="sec-label" style="margin-top:4px">Upcoming</div>
+<div class="up-scroll">
+    <div class="upcoming-card">
+      <div class="up-date">MON · SEP 15 · 2026</div>
+      <div class="up-artist">Foo Fighters</div>
+      <div class="up-openers">With Queens of the Stone Age & Mannequin Pussy</div>
+      <div class="up-venue">MOSAIC STADIUM · REGINA, SK</div>
+      <div class="up-actions">
+        <button class="up-btn primary" onclick="toast('📸 Friends Group!')">Friends</button>
+        <button class="up-btn" onclick="toast('🎵 Setlist!')">Setlist</button>
+        <button class="up-btn" onclick="toast('🗺 Map!')">Map</button>
+      </div>
+    </div>
+    <div class="upcoming-card">
+      <div class="up-date">TUE · JUL 14 · 2026</div>
+      <div class="up-artist">Creed</div>
+      <div class="up-openers">With Mammoth & Big Wreck</div>
+      <div class="up-venue">CANADA LIFE CENTRE · WINNIPEG, MB</div>
+      <div class="up-actions">
+        <button class="up-btn primary" onclick="toast('📸 Friends Group!')">Friends</button>
+        <button class="up-btn" onclick="toast('🎵 Setlist!')">Setlist</button>
+        <button class="up-btn" onclick="toast('🗺 Map!')">Map</button>
+      </div>
+    </div>
+    <div class="upcoming-card">
+      <div class="up-date">FRI · APR 17 · 2026</div>
+      <div class="up-artist">The Sheepdogs</div>
+      <div class="up-openers">With Surf Hat</div>
+      <div class="up-venue">BURTON CUMMINGS THEATRE · WINNIPEG, MB</div>
+      <div class="up-actions">
+        <button class="up-btn primary" onclick="toast('📸 Friends Group!')">Friends</button>
+        <button class="up-btn" onclick="toast('🎵 Setlist!')">Setlist</button>
+        <button class="up-btn" onclick="toast('🗺 Map!')">Map</button>
+      </div>
+    </div>
+    <div class="upcoming-card">
+      <div class="up-date">MON · MAR 31 · 2026</div>
+      <div class="up-artist">WPW: Fight at the Museum</div>
+      <div class="up-openers" style="min-height:1.2em"></div>
+      <div class="up-venue">MANITOBA MUSEUM · WINNIPEG, MB</div>
+      <div class="up-actions">
+        <button class="up-btn primary" onclick="toast('📸 Friends Group!')">Friends</button>
+        <button class="up-btn" onclick="toast('🎵 Setlist!')">Setlist</button>
+        <button class="up-btn" onclick="toast('🗺 Map!')">Map</button>
+      </div>
+    </div>
+    <div class="upcoming-card">
+      <div class="up-date">MON · MAR 23 · 2026</div>
+      <div class="up-artist">Black Label Society</div>
+      <div class="up-openers">With Zakk Sabbath & Dark Chapel</div>
+      <div class="up-venue">BURTON CUMMINGS THEATRE · WINNIPEG, MB</div>
+      <div class="up-actions">
+        <button class="up-btn primary" onclick="toast('📸 Friends Group!')">Friends</button>
+        <button class="up-btn" onclick="toast('🎵 Setlist!')">Setlist</button>
+        <button class="up-btn" onclick="toast('🗺 Map!')">Map</button>
+      </div>
+    </div>
+</div>
+<div class="sec-label" style="margin-top:20px">Past Events</div>
+<div class="gig-list fi" id="gl"></div>
+<div class="spacer"></div>
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="setNav(this)"><span class="nav-icon">🎟</span>Shows</button>
+  <button class="nav-item" onclick="setNav(this)"><span class="nav-icon">🗺</span>Map</button>
+  <button class="nav-item" onclick="setNav(this)"><span class="nav-icon">📊</span>Stats</button>
+  <button class="nav-item" onclick="setNav(this)"><span class="nav-icon">📖</span>Book</button>
+  <button class="nav-item" onclick="setNav(this)"><span class="nav-icon">👤</span>Profile</button>
+</nav>
+</div>
+<div class="modal-overlay" id="mo">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-poster" id="mPoster">
+      <img class="mpi" id="mpi" alt="">
+      <div class="mp-ov"></div><div class="mp-glow"></div>
+      <span class="mp-ej" id="mpej">🎸</span>
+    </div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="mcontent">
+      <div class="m-artist" id="mTitle"></div>
+      <div class="m-sub" id="mSub"></div>
+      <div class="m-venue" id="mVenue"></div>
+      <div id="mBody"></div>
+    </div>
+    <div style="height:24px"></div>
+  </div>
+</div>
+<div class="toast" id="te"></div>
+<script>
+const S=[
+{a:"Live",o:"With Big Wreck & Econoline Crush",d:"MAR 2 \u00b7 2026",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb8",g:"#051a10,#0d0520",tags:[["tc", "Concert"], ["tr", "Alt Rock"]],y:2026},
+{a:"WPW: Rumble at The Burt",o:"",d:"OCT 19 \u00b7 2025",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83e\udd3c",g:"#1a0800,#0a0a0a",tags:[["to", "Wrestling"], ["ta", "Local"]],y:2025,"img":"professional wrestling"},
+{a:"Korn",o:"With Gojira & Loathe",d:"SEP 25 \u00b7 2025",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83e\udd18",g:"#1a0505,#0d1a0d",tags:[["tc", "Concert"], ["tr", "Metal"]],y:2025},
+{a:"WPW: I Still Know Who You Pinned Last Summer",o:"",d:"JUL 18 \u00b7 2025",v:"BLUE NOTE PARK \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83e\udd3c",g:"#1a0800,#0a0a0a",tags:[["to", "Wrestling"], ["ta", "Outdoor"]],y:2025,"img":"professional wrestling"},
+{a:"Bush",o:"With Shinedown",d:"APR 29 \u00b7 2025",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb8",g:"#0d1520,#1a0d05",tags:[["tc", "Concert"], ["ta", "90s Rock"]],y:2025},
+{a:"WPW: Rumble at The Burt",o:"",d:"OCT 24 \u00b7 2024",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83e\udd3c",g:"#1a0800,#0a0a0a",tags:[["to", "Wrestling"], ["ta", "Local"]],y:2024,"img":"professional wrestling"},
+{a:"Carrie Underwood",o:"",d:"AUG 16 \u00b7 2024",v:"RESORTS WORLD LAS VEGAS",t:"concert",e:"\ud83c\udf1f",g:"#1a1005,#200520",tags:[["tc", "Concert"], ["ta", "Las Vegas"]],y:2024},
+{a:"Mat Franco",o:"",d:"AUG 14 \u00b7 2024",v:"THE LINQ \u00b7 LAS VEGAS, NV",t:"theatre",e:"\ud83c\udfa9",g:"#05051a,#1a051a",tags:[["to", "Magic"], ["ta", "Las Vegas"]],y:2024,"img":"magician"},
+{a:"AEW: Dynamite & Rampage",o:"",d:"MAY 1 \u00b7 2024",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83c\udfc6",g:"#1a0500,#00051a",tags:[["to", "Wrestling"], ["tb", "AEW"]],y:2024,"img":"All Elite Wrestling"},
+{a:"NHL: Colorado Avalanche vs Winnipeg Jets \u2014 Game 2",o:"",d:"APR 23 \u00b7 2024",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#1a0020",tags:[["tb", "NHL Playoffs"], ["ta", "Home"]],y:2024,"img":"Winnipeg Jets"},
+{a:"Queens of the Stone Age",o:"With The Struts",d:"APR 5 \u00b7 2024",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udd25",g:"#200505,#0d0520",tags:[["tc", "Concert"], ["tr", "Rock"]],y:2024},
+{a:"Cirque du Soleil: Corteo",o:"",d:"DEC 8 \u00b7 2023",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"theatre",e:"\ud83c\udfaa",g:"#05051a,#1a0505",tags:[["to", "Cirque"], ["tp", "Theatre"]],y:2023,"img":"Cirque du Soleil"},
+{a:"KISS",o:"With Crown Lands",d:"NOV 15 \u00b7 2023",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc8b",g:"#1a0a00,#0a0a1a",tags:[["tc", "Concert"], ["tr", "Farewell Tour"]],y:2023},
+{a:"MLB: Detroit Tigers vs Minnesota Twins",o:"",d:"AUG 15 \u00b7 2023",v:"TARGET FIELD \u00b7 MINNEAPOLIS, MN",t:"sport",e:"\u26be",g:"#001a15,#1a1000",tags:[["tb", "MLB"], ["ta", "Road Trip"]],y:2023,"img":"baseball stadium"},
+{a:"Ed Sheeran",o:"With Khalid & Cat Burns",d:"AUG 12 \u00b7 2023",v:"US BANK STADIUM \u00b7 MINNEAPOLIS, MN",t:"concert",e:"\ud83c\udfb5",g:"#1a1000,#0d1a0d",tags:[["tc", "Concert"], ["ta", "Stadium"]],y:2023},
+{a:"AEW: Forbidden Door",o:"",d:"JUN 25 \u00b7 2023",v:"SCOTIABANK ARENA \u00b7 TORONTO, ON",t:"wrestling",e:"\ud83d\udeaa",g:"#1a0500,#00051a",tags:[["to", "Wrestling"], ["tb", "AEW PPV"], ["ta", "Road Trip"]],y:2023,"img":"All Elite Wrestling"},
+{a:"MLB: Oakland Athletics vs Toronto Blue Jays",o:"",d:"JUN 25 \u00b7 2023",v:"ROGERS CENTRE \u00b7 TORONTO, ON",t:"sport",e:"\u26be",g:"#001a15,#1a1000",tags:[["tb", "MLB"], ["ta", "Road Trip"]],y:2023,"img":"Toronto Blue Jays"},
+{a:"NHL: Vegas Golden Knights vs Winnipeg Jets \u2014 Game 4",o:"",d:"APR 24 \u00b7 2023",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#1a0a00",tags:[["tb", "NHL Playoffs"], ["ta", "Home"]],y:2023,"img":"Winnipeg Jets"},
+{a:"Rage Against the Machine",o:"With Run the Jewels",d:"MAR 16 \u00b7 2023",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"cancelled",e:"\u270a",g:"#200505,#050520",tags:[["tr", "CANCELLED"]],y:2023},
+{a:"AEW: Dynamite & Rampage",o:"",d:"MAR 15 \u00b7 2023",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83c\udfc6",g:"#1a0500,#00051a",tags:[["to", "Wrestling"], ["tb", "AEW"]],y:2023,"img":"All Elite Wrestling"},
+{a:"The Sheepdogs",o:"With Boy Golden",d:"NOV 22 \u00b7 2022",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc15",g:"#0d1505,#1a0d05",tags:[["tc", "Concert"], ["ta", "Local Venue"]],y:2022},
+{a:"AEW: Rampage",o:"",d:"OCT 13 \u00b7 2022",v:"COCA COLA COLISEUM \u00b7 TORONTO, ON",t:"wrestling",e:"\ud83c\udfc6",g:"#1a0500,#00051a",tags:[["to", "Wrestling"], ["tb", "AEW"], ["ta", "Road Trip"]],y:2022,"img":"All Elite Wrestling"},
+{a:"AEW: Dynamite",o:"",d:"OCT 12 \u00b7 2022",v:"COCA COLA COLISEUM \u00b7 TORONTO, ON",t:"wrestling",e:"\ud83c\udfc6",g:"#1a0500,#00051a",tags:[["to", "Wrestling"], ["tb", "AEW"], ["ta", "Road Trip"]],y:2022,"img":"All Elite Wrestling"},
+{a:"Michael Bubl\u00e9",o:"",d:"OCT 7 \u00b7 2022",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb7",g:"#050d1a,#1a1005",tags:[["tc", "Concert"], ["ta", "Jazz/Pop"]],y:2022,"img":"Michael Buble"},
+{a:"Foo Fighters",o:"",d:"SEP 21 \u00b7 2022",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"cancelled",e:"\ud83e\udd41",g:"#1a0505,#050a1a",tags:[["tr", "CANCELLED"]],y:2022},
+{a:"Greta Van Fleet",o:"With The Pretty Reckless & Hannah Wicklund",d:"AUG 22 \u00b7 2022",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udd25",g:"#1a0800,#0d0020",tags:[["tc", "Concert"], ["tr", "Rock"]],y:2022},
+{a:"The Glorious Sons",o:"With JJ Wilde",d:"JUN 16 \u00b7 2022",v:"CANADA LIFE CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb8",g:"#1a0505,#051a05",tags:[["tc", "Concert"], ["ta", "Canadian Rock"]],y:2022},
+{a:"AEW: Double or Nothing",o:"",d:"MAY 29 \u00b7 2022",v:"T-MOBILE ARENA \u00b7 LAS VEGAS, NV",t:"wrestling",e:"\ud83c\udfc6",g:"#1a0500,#00051a",tags:[["to", "Wrestling"], ["tb", "AEW PPV"], ["ta", "Las Vegas"]],y:2022,"img":"All Elite Wrestling"},
+{a:"The Sheepdogs",o:"With Said the Whale",d:"AUG 21 \u00b7 2021",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc15",g:"#0d1505,#1a0d05",tags:[["tc", "Concert"], ["ta", "Post-COVID"]],y:2021},
+{a:"Kidz Bop World Tour",o:"",d:"FEB 28 \u00b7 2020",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"kids",e:"\ud83c\udfa4",g:"#1a0520,#051a15",tags:[["tk", "Kids Show"]],y:2020,"img":"Kidz Bop"},
+{a:"WWE: Monday Night Raw",o:"",d:"FEB 24 \u00b7 2020",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83e\udd3c",g:"#1a0000,#0a0a1a",tags:[["to", "Wrestling"], ["tr", "WWE"]],y:2020,"img":"WWE wrestling"},
+{a:"KISS",o:"With David Lee Roth",d:"FEB 22 \u00b7 2020",v:"ALERUS CENTER \u00b7 GRAND FORKS, ND",t:"concert",e:"\ud83d\udc8b",g:"#1a0a00,#0a0a1a",tags:[["tc", "Concert"], ["ta", "Road Trip"]],y:2020},
+{a:"NHL: Heritage Classic \u2014 Calgary Flames vs Winnipeg Jets",o:"",d:"OCT 26 \u00b7 2019",v:"MOSAIC STADIUM \u00b7 REGINA, SK",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#1a0505",tags:[["tb", "NHL"], ["tg", "Heritage Classic"]],y:2019,"img":"Winnipeg Jets"},
+{a:"Cirque du Soleil \u2014 Amaluna",o:"",d:"OCT 6 \u00b7 2019",v:"KENASTON & STERLING LYON FIELD \u00b7 WINNIPEG, MB",t:"theatre",e:"\ud83c\udfaa",g:"#05051a,#1a0505",tags:[["to", "Cirque"], ["tp", "Theatre"]],y:2019,"img":"Cirque du Soleil"},
+{a:"Elton John",o:"",d:"OCT 4 \u00b7 2019",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb9",g:"#1a1000,#1a0020",tags:[["tc", "Concert"], ["ta", "Farewell Tour"]],y:2019},
+{a:"NFL: Oakland Raiders vs Green Bay Packers \u2014 Preseason",o:"",d:"AUG 22 \u00b7 2019",v:"IG FIELD \u00b7 WINNIPEG, MB",t:"sport",e:"\ud83c\udfc8",g:"#0a1500,#1a0500",tags:[["tb", "NFL Preseason"], ["tg", "Home"]],y:2019,"img":"NFL football"},
+{a:"Rob Zombie",o:"With Marilyn Manson",d:"AUG 7 \u00b7 2019",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83e\udddf",g:"#1a0000,#0a001a",tags:[["tc", "Concert"], ["tr", "Metal"]],y:2019},
+{a:"MLB: Los Angeles Dodgers vs Boston Red Sox",o:"",d:"JUL 13 \u00b7 2019",v:"FENWAY PARK \u00b7 BOSTON, MA",t:"sport",e:"\u26be",g:"#1a0000,#001a05",tags:[["tb", "MLB"], ["tr", "Bucket List"], ["ta", "Fenway"]],y:2019,"img":"Fenway Park baseball"},
+{a:"WWE: House Show",o:"",d:"JUN 14 \u00b7 2019",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83e\udd3c",g:"#1a0000,#0a0a1a",tags:[["to", "Wrestling"], ["tr", "WWE"]],y:2019,"img":"WWE wrestling"},
+{a:"Cher",o:"",d:"MAY 21 \u00b7 2019",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"cancelled",e:"\ud83d\udc83",g:"#1a0020,#200010",tags:[["tr", "CANCELLED"]],y:2019},
+{a:"The Tea Party",o:"With The Proud Sons",d:"APR 24 \u00b7 2019",v:"CLUB REGENT EVENT CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udf75",g:"#0d1505,#1a0505",tags:[["tc", "Concert"], ["ta", "Canadian Rock"]],y:2019},
+{a:"Michael Bubl\u00e9",o:"",d:"APR 19 \u00b7 2019",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb7",g:"#050d1a,#1a1005",tags:[["tc", "Concert"]],y:2019,"img":"Michael Buble"},
+{a:"NHL: St. Louis Blues vs Winnipeg Jets \u2014 Game 2",o:"",d:"APR 12 \u00b7 2019",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#1a0020",tags:[["tb", "NHL Playoffs"], ["ta", "Home"]],y:2019,"img":"Winnipeg Jets"},
+{a:"Russell Peters",o:"",d:"NOV 13 \u00b7 2018",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"comedy",e:"\ud83c\udfa4",g:"#1a1505,#051a15",tags:[["ty", "Comedy"]],y:2018},
+{a:"Cirque du Soleil \u2014 Crystal",o:"",d:"OCT 6 \u00b7 2018",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"theatre",e:"\u2744\ufe0f",g:"#05101a,#0a051a",tags:[["to", "Cirque"], ["tp", "Theatre"]],y:2018,"img":"Cirque du Soleil"},
+{a:"Paul McCartney",o:"",d:"SEP 28 \u00b7 2018",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb8",g:"#0d1a05,#1a0d1a",tags:[["tc", "Concert"], ["ta", "Legend"]],y:2018},
+{a:"NFL: Buffalo Bills vs Minnesota Vikings",o:"",d:"SEP 23 \u00b7 2018",v:"US BANK STADIUM \u00b7 MINNEAPOLIS, MN",t:"sport",e:"\ud83c\udfc8",g:"#0a1500,#1a0500",tags:[["tb", "NFL"], ["ta", "Road Trip"]],y:2018,"img":"NFL football"},
+{a:"Metallica",o:"",d:"SEP 13 \u00b7 2018",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"concert",e:"\u26a1",g:"#1a1a00,#0a0a0a",tags:[["tc", "Concert"], ["tr", "Metal"]],y:2018},
+{a:"Queens of the Stone Age",o:"Rescheduled \u2014 Couldn't Attend New Date",d:"MAY 20 \u00b7 2018",v:"RESCHEDULED",t:"cancelled",e:"\ud83d\udd25",g:"#200505,#0d0520",tags:[["tr", "COULDN'T ATTEND"]],y:2018},
+{a:"NHL: Nashville Predators vs Winnipeg Jets \u2014 Game 6",o:"",d:"MAY 7 \u00b7 2018",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#1a0a00",tags:[["tb", "NHL Playoffs"], ["ta", "Home"]],y:2018,"img":"Winnipeg Jets"},
+{a:"NHL: Minnesota Wild vs Winnipeg Jets \u2014 Game 2",o:"",d:"APR 13 \u00b7 2018",v:"BELL MTS PLACE \u00b7 WINNIPEG, MB",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#1a0a00",tags:[["tb", "NHL Playoffs"], ["ta", "Home"]],y:2018,"img":"Winnipeg Jets"},
+{a:"2018 World Men's Curling Championships",o:"",d:"MAR 31 \u2013 APR 8 \u00b7 2018",v:"ORLEANS ARENA \u00b7 LAS VEGAS, NV",t:"curling",e:"\ud83e\udd4c",g:"#051a15,#1a0510",tags:[["tg", "Curling"], ["tb", "World Championship"], ["ta", "Las Vegas"]],y:2018,"img":"curling sport"},
+{a:"The Sheepdogs",o:"With Sam Coffey and the Iron Lungs",d:"FEB 24 \u00b7 2018",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc15",g:"#0d1505,#1a0d05",tags:[["tc", "Concert"]],y:2018},
+{a:"Chris D'Elia",o:"",d:"FEB 10 \u00b7 2018",v:"CLUB REGENT EVENT CENTRE \u00b7 WINNIPEG, MB",t:"comedy",e:"\ud83d\ude02",g:"#1a1505,#051a15",tags:[["ty", "Comedy"]],y:2018},
+{a:"NFL: New Orleans Saints vs Minnesota Vikings \u2014 Divisional Round",o:"",d:"JAN 14 \u00b7 2018",v:"US BANK STADIUM \u00b7 MINNEAPOLIS, MN",t:"sport",e:"\ud83c\udfc8",g:"#0a1500,#1a0500",tags:[["tb", "NFL Playoffs"], ["tr", "Miracle"], ["ta", "Road Trip"]],y:2018,"img":"NFL football"},
+{a:"NHL: Winnipeg Jets vs Minnesota Wild",o:"",d:"JAN 13 \u00b7 2018",v:"XCEL ENERGY CENTER \u00b7 ST. PAUL, MN",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#1a0020",tags:[["tb", "NHL"], ["ta", "Road Trip"]],y:2018,"img":"Winnipeg Jets"},
+{a:"Demetri Martin",o:"",d:"NOV 17 \u00b7 2017",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"comedy",e:"\u270f\ufe0f",g:"#1a1505,#051a15",tags:[["ty", "Comedy"]],y:2017},
+{a:"Roger Waters",o:"",d:"OCT 23 \u00b7 2017",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfa9",g:"#05051a,#1a0505",tags:[["tc", "Concert"], ["tp", "Pink Floyd"]],y:2017},
+{a:"NFL: New Orleans Saints vs Minnesota Vikings",o:"",d:"SEP 11 \u00b7 2017",v:"US BANK STADIUM \u00b7 MINNEAPOLIS, MN",t:"sport",e:"\ud83c\udfc8",g:"#0a1500,#1a0500",tags:[["tb", "NFL"], ["tg", "Stadium Opener"], ["ta", "Road Trip"]],y:2017,"img":"NFL football"},
+{a:"Guns N' Roses",o:"With Our Lady Peace",d:"AUG 24 \u00b7 2017",v:"INVESTORS GROUP FIELD \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udf39",g:"#1a0800,#0d001a",tags:[["tc", "Concert"], ["tr", "Rock"], ["ta", "Reunion"]],y:2017,"img":"Guns N Roses"},
+{a:"The Offspring",o:"With Sublime with Rome",d:"JUL 12 \u00b7 2017",v:"RBC CONVENTION CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83e\udd1f",g:"#1a0505,#051510",tags:[["tc", "Concert"], ["tr", "Punk Rock"]],y:2017},
+{a:"Kurios \u2014 Cirque du Soleil: Cabinet of Curiosities",o:"",d:"JUN 4 \u00b7 2017",v:"KENASTON & STERLING LYON FIELD \u00b7 WINNIPEG, MB",t:"theatre",e:"\u2699\ufe0f",g:"#0d1015,#15100d",tags:[["to", "Cirque"], ["tp", "Theatre"]],y:2017,"img":"Cirque du Soleil"},
+{a:"Red Hot Chili Peppers",o:"With Trombone Shorty & Orleans Avenue",d:"MAY 26 \u00b7 2017",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udf36",g:"#1a0505,#050d20",tags:[["tc", "Concert"], ["tr", "Rock"]],y:2017},
+{a:"Stomp",o:"",d:"MAY 6 \u00b7 2017",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"theatre",e:"\ud83e\udd41",g:"#0a0a0a,#1a0a05",tags:[["to", "Theatre"], ["tp", "Performance"]],y:2017,"img":"Stomp performance"},
+{a:"David Copperfield",o:"",d:"MAR 29 \u00b7 2017",v:"MGM GRAND \u00b7 LAS VEGAS, NV",t:"theatre",e:"\ud83c\udfa9",g:"#05051a,#1a051a",tags:[["to", "Magic"], ["ta", "Las Vegas"]],y:2017},
+{a:"Jerry Seinfeld",o:"",d:"DEC 17 \u00b7 2016",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"comedy",e:"\ud83d\ude04",g:"#1a1505,#051a15",tags:[["ty", "Comedy"]],y:2016},
+{a:"Cirque Musica Holiday Spectacular",o:"",d:"NOV 30 \u00b7 2016",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"theatre",e:"\ud83c\udf84",g:"#051a05,#1a0505",tags:[["to", "Cirque"], ["tp", "Theatre"]],y:2016,"img":"Cirque du Soleil"},
+{a:"NHL: Heritage Classic \u2014 Edmonton Oilers vs Winnipeg Jets",o:"",d:"OCT 23 \u00b7 2016",v:"INVESTORS GROUP FIELD \u00b7 WINNIPEG, MB",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#1a0800",tags:[["tb", "NHL"], ["tg", "Heritage Classic"]],y:2016,"img":"Winnipeg Jets"},
+{a:"Alice Cooper",o:"",d:"OCT 11 \u00b7 2016",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc0d",g:"#0d0505,#1a0505",tags:[["tc", "Concert"], ["tr", "Rock"]],y:2016},
+{a:"Cirque du Soleil: Toruk \u2014 The First Flight",o:"",d:"OCT 7 \u00b7 2016",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"theatre",e:"\ud83d\udc32",g:"#05101a,#0a1a05",tags:[["to", "Cirque"], ["ta", "Avatar"]],y:2016,"img":"Cirque du Soleil"},
+{a:"I Mother Earth",o:"With The Standstills",d:"OCT 6 \u00b7 2016",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udf0d",g:"#051a0a,#0d0520",tags:[["tc", "Concert"], ["ta", "Canadian Rock"]],y:2016},
+{a:"Metallica",o:"With Avenged Sevenfold & Volbeat",d:"AUG 20 \u00b7 2016",v:"US BANK STADIUM \u00b7 MINNEAPOLIS, MN",t:"concert",e:"\u26a1",g:"#1a1a00,#0a0a0a",tags:[["tc", "Concert"], ["tr", "Metal"], ["ta", "Road Trip"]],y:2016},
+{a:"Chris Cornell",o:"With Fantastic Negrito",d:"JUL 27 \u00b7 2016",v:"CENTENNIAL CONCERT HALL \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udda4",g:"#0a0a0a,#1a0505",tags:[["tc", "Concert"], ["ta", "Intimate"]],y:2016},
+{a:"WWE: House Show",o:"",d:"MAY 28 \u00b7 2016",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83e\udd3c",g:"#1a0000,#0a0a1a",tags:[["to", "Wrestling"], ["tr", "WWE"]],y:2016,"img":"WWE wrestling"},
+{a:"The Who",o:"With Slydigs",d:"MAY 4 \u00b7 2016",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udd0a",g:"#050d1a,#1a0505",tags:[["tc", "Concert"], ["ta", "Legend"]],y:2016},
+{a:"Death From Above 1979",o:"With Eagles of Death Metal",d:"MAY 1 \u00b7 2016",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc80",g:"#1a0505,#051a1a",tags:[["tc", "Concert"], ["tr", "Punk"]],y:2016},
+{a:"Kevin Nealon & Norm MacDonald",o:"",d:"APR 15 \u00b7 2016",v:"CLUB REGENT EVENT CENTRE \u00b7 WINNIPEG, MB",t:"comedy",e:"\ud83d\ude02",g:"#1a1505,#051a15",tags:[["ty", "Comedy"], ["ta", "Double Bill"]],y:2016},
+{a:"The Sheepdogs",o:"With Beat Cops",d:"FEB 29 \u00b7 2016",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc15",g:"#0d1505,#1a0d05",tags:[["tc", "Concert"], ["ta", "Leap Day!"]],y:2016},
+{a:"Darcy Oake",o:"",d:"DEC 4 \u00b7 2015",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"theatre",e:"\ud83c\udfa9",g:"#05051a,#1a051a",tags:[["to", "Magic"], ["ta", "Canadian"]],y:2015},
+{a:"The Price is Right: Live",o:"",d:"OCT 17 \u00b7 2015",v:"CLUB REGENT EVENT CENTRE \u00b7 WINNIPEG, MB",t:"theatre",e:"\ud83d\udcb0",g:"#1a1000,#051a10",tags:[["to", "Live Show"], ["ty", "Game Show"]],y:2015,"img":"The Price is Right"},
+{a:"Slipknot",o:"With Suicidal Tendencies",d:"OCT 14 \u00b7 2015",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfad",g:"#1a0505,#0a0a0a",tags:[["tc", "Concert"], ["tr", "Metal"]],y:2015},
+{a:"Bubble Guppies Live!",o:"",d:"OCT 10 \u00b7 2015",v:"CENTENNIAL CONCERT HALL \u00b7 WINNIPEG, MB",t:"kids",e:"\ud83d\udc1f",g:"#051a15,#05051a",tags:[["tk", "Kids Show"]],y:2015,"img":"Bubble Guppies"},
+{a:"AC/DC",o:"With Vintage Trouble",d:"SEP 17 \u00b7 2015",v:"IG FIELD \u00b7 WINNIPEG, MB",t:"concert",e:"\u26a1",g:"#1a0000,#0a0a0a",tags:[["tc", "Concert"], ["ta", "Stadium"], ["tr", "Rock"]],y:2015},
+{a:"Chris D'Elia",o:"",d:"JUL 26 \u00b7 2015",v:"CLUB REGENT EVENT CENTRE \u00b7 WINNIPEG, MB",t:"comedy",e:"\ud83d\ude02",g:"#1a1505,#051a15",tags:[["ty", "Comedy"]],y:2015},
+{a:"Cirque du Soleil: Varekai",o:"",d:"JUN 24 \u00b7 2015",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"theatre",e:"\ud83c\udfaa",g:"#05051a,#1a0505",tags:[["to", "Cirque"], ["tp", "Theatre"]],y:2015,"img":"Cirque du Soleil"},
+{a:"NHL: Anaheim Ducks vs Winnipeg Jets \u2014 Game 3",o:"",d:"APR 20 \u00b7 2015",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#1a0520",tags:[["tb", "NHL Playoffs"], ["ta", "Home"]],y:2015,"img":"Winnipeg Jets"},
+{a:"2015 Men's World Junior Championship",o:"",d:"DEC 31 \u2013 JAN 5 \u00b7 2014/15",v:"AIR CANADA CENTRE \u00b7 TORONTO, ON",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#051a15",tags:[["tb", "World Juniors"], ["ta", "Road Trip"]],y:2014,"img":"hockey arena"},
+{a:"Norm MacDonald",o:"",d:"NOV 7 \u00b7 2014",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"comedy",e:"\ud83d\ude10",g:"#1a1505,#051a15",tags:[["ty", "Comedy"]],y:2014},
+{a:"Godsmack",o:"With Seether",d:"OCT 1 \u00b7 2014",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udd25",g:"#1a0505,#0d1505",tags:[["tc", "Concert"], ["tr", "Metal"]],y:2014},
+{a:"Jersey Boys",o:"",d:"SEP 2 \u00b7 2014",v:"LE THEATRE DES ARTS \u00b7 LAS VEGAS, NV",t:"theatre",e:"\ud83c\udfb5",g:"#1a1000,#051a05",tags:[["to", "Musical"], ["ta", "Las Vegas"]],y:2014,"img":"Jersey Boys musical"},
+{a:"Tom Petty",o:"With Steve Winwood",d:"AUG 21 \u00b7 2014",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udf3b",g:"#1a1000,#0d1a05",tags:[["tc", "Concert"], ["ta", "Legend"]],y:2014},
+{a:"Michael Bubl\u00e9",o:"With Naturally 7",d:"JUN 26 \u00b7 2014",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb7",g:"#050d1a,#1a1005",tags:[["tc", "Concert"]],y:2014,"img":"Michael Buble"},
+{a:"WWE: House Show",o:"",d:"MAR 7 \u00b7 2014",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83e\udd3c",g:"#1a0000,#0a0a1a",tags:[["to", "Wrestling"], ["tr", "WWE"]],y:2014,"img":"WWE wrestling"},
+{a:"Black Sabbath",o:"With Reignwolf",d:"APR 16 \u00b7 2014",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udda4",g:"#0a0a0a,#1a0505",tags:[["tc", "Concert"], ["tr", "Metal"], ["ta", "Legend"]],y:2014},
+{a:"Cirque du Soleil: Love",o:"",d:"NOV 1 \u00b7 2013",v:"LOVE THEATRE \u00b7 LAS VEGAS, NV",t:"theatre",e:"\ud83d\udc97",g:"#1a051a,#1a1000",tags:[["to", "Cirque"], ["ta", "Beatles Las Vegas"]],y:2013,"img":"Cirque du Soleil Love"},
+{a:"Paul McCartney",o:"",d:"AUG 12 \u00b7 2013",v:"IG FIELD \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb8",g:"#0d1a05,#1a0d1a",tags:[["tc", "Concert"], ["ta", "Stadium Legend"]],y:2013},
+{a:"MLB: Atlanta Braves vs Chicago White Sox",o:"",d:"JUL 20 \u00b7 2013",v:"U.S. CELLULAR FIELD \u00b7 CHICAGO, IL",t:"sport",e:"\u26be",g:"#001a05,#1a0000",tags:[["tb", "MLB"], ["ta", "Road Trip"]],y:2013,"img":"baseball stadium"},
+{a:"Pearl Jam",o:"",d:"JUL 19 \u00b7 2013",v:"WRIGLEY FIELD \u00b7 CHICAGO, IL",t:"concert",e:"\ud83c\udf0a",g:"#051a10,#050d1a",tags:[["tc", "Concert"], ["ta", "Wrigley Field"], ["tr", "Grunge"]],y:2013},
+{a:"Marilyn Manson",o:"With Butcher Babies",d:"FEB 4 \u00b7 2013",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfad",g:"#1a0505,#050520",tags:[["tc", "Concert"], ["tr", "Shock Rock"]],y:2013},
+{a:"Bob Dylan",o:"With Mark Knopfler",d:"OCT 5 \u00b7 2012",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfa4",g:"#0d1505,#1a0d05",tags:[["tc", "Concert"], ["ta", "Legend"]],y:2012},
+{a:"Buddy Guy",o:"With Jonny Lang",d:"SEP 21 \u00b7 2012",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb8",g:"#1a0a00,#0a0510",tags:[["tc", "Concert"], ["ta", "Blues"]],y:2012},
+{a:"Slash with Myles Kennedy",o:"With Monster Truck",d:"JUL 21 \u00b7 2012",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfa9",g:"#0a0a0a,#1a0505",tags:[["tc", "Concert"], ["ta", "Intimate"]],y:2012,"img":"Slash guitarist"},
+{a:"Roger Waters",o:"",d:"JUN 1 \u00b7 2012",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfa9",g:"#05051a,#1a0505",tags:[["tc", "Concert"], ["tp", "The Wall"]],y:2012},
+{a:"Rammstein",o:"With Joe Letz",d:"MAY 10 \u00b7 2012",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udd25",g:"#1a0505,#0a0a0a",tags:[["tc", "Concert"], ["tr", "Industrial Metal"]],y:2012},
+{a:"Pearl Jam",o:"With Mudhoney",d:"SEP 19 \u00b7 2011",v:"CREDIT UNION CENTRE \u00b7 SASKATOON, SK",t:"concert",e:"\ud83c\udf0a",g:"#051a10,#050d1a",tags:[["tc", "Concert"], ["ta", "Road Trip"]],y:2011},
+{a:"U2",o:"With The Fray",d:"MAY 29 \u00b7 2011",v:"WINNIPEG STADIUM \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfdf",g:"#050d1a,#1a0505",tags:[["tc", "Concert"], ["ta", "Stadium"], ["tp", "360 Tour"]],y:2011},
+{a:"WWE: Raw World Tour",o:"",d:"MAY 27 \u00b7 2011",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83e\udd3c",g:"#1a0000,#0a0a1a",tags:[["to", "Wrestling"], ["tr", "WWE"]],y:2011,"img":"WWE wrestling"},
+{a:"WWE: Supershow",o:"",d:"OCT 23 \u00b7 2010",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83e\udd3c",g:"#1a0000,#0a0a1a",tags:[["to", "Wrestling"], ["tr", "WWE"]],y:2010,"img":"WWE wrestling"},
+{a:"NFL: Dallas Cowboys vs Minnesota Vikings",o:"",d:"OCT 17 \u00b7 2010",v:"MALL OF AMERICA FIELD \u00b7 MINNEAPOLIS, MN",t:"sport",e:"\ud83c\udfc8",g:"#0a1500,#1a0500",tags:[["tb", "NFL"], ["ta", "Road Trip"]],y:2010,"img":"NFL football"},
+{a:"NHL: Columbus Blue Jackets vs Minnesota Wild",o:"",d:"OCT 16 \u00b7 2010",v:"XCEL ENERGY CENTER \u00b7 ST. PAUL, MN",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#1a0020",tags:[["tb", "NHL"], ["ta", "Road Trip"]],y:2010,"img":"NHL hockey"},
+{a:"Black Label Society",o:"With Children of Bodom, Clutch & 2Cents",d:"SEP 28 \u00b7 2010",v:"WINNIPEG CONVENTION CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\u26a1",g:"#0a0a0a,#1a0505",tags:[["tc", "Concert"], ["tr", "Metal"]],y:2010},
+{a:"Slash with Myles Kennedy",o:"",d:"SEP 24 \u00b7 2010",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfa9",g:"#0a0a0a,#1a0505",tags:[["tc", "Concert"], ["ta", "Intimate"]],y:2010,"img":"Slash guitarist"},
+{a:"Tool",o:"With d\u00e4lek",d:"JUL 4 \u00b7 2010",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udd27",g:"#050a1a,#0a0a0a",tags:[["tc", "Concert"], ["tr", "Progressive Metal"]],y:2010},
+{a:"Korn",o:"With Five Finger Death Punch",d:"APR 3 \u00b7 2010",v:"WINNIPEG CONVENTION CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83e\udd18",g:"#1a0505,#0d1a0d",tags:[["tc", "Concert"], ["tr", "Nu-Metal"]],y:2010},
+{a:"NBA: Detroit Pistons vs Toronto Raptors",o:"",d:"DEC 27 \u00b7 2009",v:"AIR CANADA CENTRE \u00b7 TORONTO, ON",t:"sport",e:"\ud83c\udfc0",g:"#1a0500,#001a10",tags:[["tb", "NBA"], ["ta", "Road Trip"]],y:2009,"img":"NBA basketball"},
+{a:"NHL: Montreal Canadiens vs Toronto Maple Leafs",o:"",d:"DEC 26 \u00b7 2009",v:"AIR CANADA CENTRE \u00b7 TORONTO, ON",t:"sport",e:"\ud83c\udfd2",g:"#001a00,#1a0505",tags:[["tb", "NHL"], ["tr", "Classic Rivalry"], ["ta", "Road Trip"]],y:2009,"img":"NHL hockey"},
+{a:"Stone Temple Pilots",o:"",d:"NOV 15 \u00b7 2009",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83e\udea8",g:"#0d1505,#1a0d05",tags:[["tc", "Concert"], ["tr", "Grunge"]],y:2009},
+{a:"KISS",o:"With Buckcherry",d:"NOV 9 \u00b7 2009",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc8b",g:"#1a0a00,#0a0a1a",tags:[["tc", "Concert"], ["ta", "Glam Rock"]],y:2009},
+{a:"Metallica",o:"With Lamb of God & Gojira",d:"OCT 12 \u00b7 2009",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\u26a1",g:"#1a1a00,#0a0a0a",tags:[["tc", "Concert"], ["tr", "Metal"]],y:2009},
+{a:"AC/DC",o:"With The Answer",d:"AUG 22 \u00b7 2009",v:"WINNIPEG STADIUM \u00b7 WINNIPEG, MB",t:"concert",e:"\u26a1",g:"#1a0000,#0a0a0a",tags:[["tc", "Concert"], ["ta", "Stadium"]],y:2009},
+{a:"No Fear Energy Tour",o:"Lamb of God, As I Lay Dying, Children of Bodom, God Forbid, Municipal Waste",d:"APR 13 \u00b7 2009",v:"WINNIPEG CONVENTION CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83e\udd18",g:"#1a0505,#051a05",tags:[["tc", "Concert"], ["tr", "Metal Festival"]],y:2009,"img":"Lamb of God"},
+{a:"NFL: Green Bay Packers vs Minnesota Vikings",o:"",d:"NOV 9 \u00b7 2008",v:"H.H.H. METRODOME \u00b7 MINNEAPOLIS, MN",t:"sport",e:"\ud83c\udfc8",g:"#0a1500,#1a0500",tags:[["tb", "NFL"], ["ta", "Road Trip"]],y:2008,"img":"NFL football"},
+{a:"Tom Petty",o:"With Steve Winwood",d:"AUG 9 \u00b7 2008",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udf3b",g:"#1a1000,#0d1a05",tags:[["tc", "Concert"], ["ta", "Legend"]],y:2008},
+{a:"Slayer",o:"",d:"JUL 30 \u00b7 2008",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\u2694\ufe0f",g:"#1a0000,#0a000a",tags:[["tc", "Concert"], ["tr", "Thrash Metal"]],y:2008},
+{a:"Megadeth",o:"With In Flames, Children of Bodom, Job for a Cowboy & High on Fire",d:"MAY 10 \u00b7 2008",v:"WINNIPEG CONVENTION CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc80",g:"#1a0a00,#0a0a0a",tags:[["tc", "Concert"], ["tr", "Thrash Metal"]],y:2008},
+{a:"Foo Fighters",o:"With Against Me!",d:"MAR 25 \u00b7 2008",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83e\udd41",g:"#1a0505,#050a1a",tags:[["tc", "Concert"], ["tr", "Rock"]],y:2008},
+{a:"Collective Soul",o:"",d:"FEB 9 \u00b7 2008",v:"BURTON CUMMINGS THEATRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb8",g:"#050d1a,#1a051a",tags:[["tc", "Concert"], ["ta", "Intimate"]],y:2008},
+{a:"Velvet Revolver",o:"With Sparta",d:"OCT 14 \u00b7 2007",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udd2b",g:"#1a0505,#0d0520",tags:[["tc", "Concert"], ["tr", "Rock Supergroup"]],y:2007},
+{a:"Queens of the Stone Age",o:"With Cage the Elephant",d:"AUG 26 \u00b7 2007",v:"WINNIPEG CONVENTION CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udd25",g:"#200505,#0d0520",tags:[["tc", "Concert"], ["tr", "Rock"]],y:2007},
+{a:"Rise Against",o:"With Silverstein, Comeback Kid & Holy Roman Empire",d:"JUL 16 \u00b7 2007",v:"WINNIPEG CONVENTION CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\u270a",g:"#1a0505,#051a05",tags:[["tc", "Concert"], ["tr", "Punk Rock"]],y:2007},
+{a:"Weird Al",o:"",d:"JUN 20 \u00b7 2007",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"comedy",e:"\ud83e\ude97",g:"#1a1505,#051a15",tags:[["ty", "Comedy"], ["ta", "Parody"]],y:2007},
+{a:"Sam Roberts",o:"",d:"NOV 17 \u00b7 2006",v:"WINNIPEG CONVENTION CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb8",g:"#0d1505,#1a0d05",tags:[["tc", "Concert"], ["ta", "Canadian"]],y:2006},
+{a:"NFL: Carolina Panthers vs Minnesota Vikings",o:"",d:"SEP 17 \u00b7 2006",v:"H.H.H. METRODOME \u00b7 MINNEAPOLIS, MN",t:"sport",e:"\ud83c\udfc8",g:"#0a1500,#1a0500",tags:[["tb", "NFL"], ["ta", "Road Trip"]],y:2006,"img":"NFL football"},
+{a:"Black Eyed Peas",o:"",d:"SEP 30 \u00b7 2006",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfa4",g:"#1a0d1a,#050d1a",tags:[["tc", "Concert"], ["tp", "Pop/Hip-Hop"]],y:2006},
+{a:"Sounds of the Underground 2006",o:"GWAR, As I Lay Dying, In Flames, Trivium, Cannibal Corpse, Terror, The Black Dahlia Murder, Behemoth, The Chariot, Through the Eyes of the Dead",d:"AUG 6 \u00b7 2006",v:"WINNIPEG CONVENTION CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc80",g:"#1a0505,#05051a",tags:[["tc", "Concert"], ["tr", "Metal Festival"]],y:2006,"img":"GWAR"},
+{a:"Godsmack",o:"With X Engine X",d:"JUN 17 \u00b7 2006",v:"WINNIPEG CONVENTION CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udd25",g:"#1a0505,#0d1505",tags:[["tc", "Concert"], ["tr", "Metal"]],y:2006},
+{a:"Aerosmith",o:"With Lenny Kravitz",d:"DEC 8 \u00b7 2005",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\ude80",g:"#1a0a00,#051a15",tags:[["tc", "Concert"], ["tr", "Rock"], ["ta", "Legend"]],y:2005},
+{a:"Nine Inch Nails",o:"With Queens of the Stone Age",d:"NOV 14 \u00b7 2005",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udd29",g:"#0a0a0a,#1a0505",tags:[["tc", "Concert"], ["tr", "Industrial"]],y:2005},
+{a:"Audioslave",o:"With Thirty Seconds to Mars & Seether",d:"OCT 4 \u00b7 2005",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb8",g:"#0d0510,#1a0505",tags:[["tc", "Concert"], ["tr", "Rock"]],y:2005},
+{a:"NFL: Tampa Bay Buccaneers vs Minnesota Vikings",o:"",d:"SEP 11 \u00b7 2005",v:"H.H.H. METRODOME \u00b7 MINNEAPOLIS, MN",t:"sport",e:"\ud83c\udfc8",g:"#0a1500,#1a0500",tags:[["tb", "NFL"], ["ta", "Road Trip"]],y:2005,"img":"NFL football"},
+{a:"Pearl Jam",o:"With Supersuckers",d:"SEP 8 \u00b7 2005",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udf0a",g:"#051a10,#050d1a",tags:[["tc", "Concert"], ["tr", "Grunge"]],y:2005},
+{a:"Foo Fighters",o:"With Sloan & Constantines",d:"AUG 10 \u00b7 2005",v:"MTS CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83e\udd41",g:"#1a0505,#050a1a",tags:[["tc", "Concert"], ["tr", "Rock"]],y:2005},
+{a:"Velvet Revolver",o:"",d:"MAR 27 \u00b7 2005",v:"CREDIT UNION CENTRE \u00b7 SASKATOON, SK",t:"concert",e:"\ud83d\udd2b",g:"#1a0505,#0d0520",tags:[["tc", "Concert"], ["ta", "Road Trip"]],y:2005},
+{a:"NFL: Jacksonville Jaguars vs Minnesota Vikings",o:"",d:"NOV 28 \u00b7 2004",v:"H.H.H. METRODOME \u00b7 MINNEAPOLIS, MN",t:"sport",e:"\ud83c\udfc8",g:"#0a1500,#1a0500",tags:[["tb", "NFL"], ["ta", "Road Trip"]],y:2004,"img":"NFL football"},
+{a:"WWF: Monday Night Raw",o:"",d:"JUL 5 \u00b7 2004",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"wrestling",e:"\ud83e\udd3c",g:"#1a0000,#0a0a1a",tags:[["to", "Wrestling"], ["tr", "WWE"]],y:2004,"img":"WWE wrestling"},
+{a:"Aerosmith",o:"With Cheap Trick",d:"MAY 14 \u00b7 2004",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\ude80",g:"#1a0a00,#051a15",tags:[["tc", "Concert"], ["ta", "Legend"]],y:2004},
+{a:"NFL: Detroit Lions vs Minnesota Vikings",o:"",d:"NOV 23 \u00b7 2003",v:"H.H.H. METRODOME \u00b7 MINNEAPOLIS, MN",t:"sport",e:"\ud83c\udfc8",g:"#0a1500,#1a0500",tags:[["tb", "NFL"], ["ta", "Road Trip"]],y:2003,"img":"NFL football"},
+{a:"Aerosmith",o:"With KISS",d:"NOV 8 \u00b7 2003",v:"ALERUS CENTRE \u00b7 GRAND FORKS, ND",t:"concert",e:"\ud83d\ude80",g:"#1a0a00,#0a001a",tags:[["tc", "Concert"], ["ta", "Road Trip"], ["tr", "Double Headliner"]],y:2003},
+{a:"NHL: New York Rangers vs Tampa Bay Lightning",o:"",d:"DEC 29 \u00b7 2002",v:"ST. PETE TIMES FORUM \u00b7 TAMPA, FL",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#051a15",tags:[["tb", "NHL"], ["tg", "Sun Trip"], ["ta", "Road Trip"]],y:2002,"img":"NHL hockey"},
+{a:"Nickelback",o:"With Default",d:"JAN 29 \u00b7 2002",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb8",g:"#0d1505,#1a0d05",tags:[["tc", "Concert"], ["ta", "Canadian Rock"]],y:2002},
+{a:"NFL: New York Giants vs Minnesota Vikings",o:"",d:"NOV 21 \u00b7 2001",v:"H.H.H. METRODOME \u00b7 MINNEAPOLIS, MN",t:"sport",e:"\ud83c\udfc8",g:"#0a1500,#1a0500",tags:[["tb", "NFL"], ["ta", "Road Trip"]],y:2001,"img":"NFL football"},
+{a:"Summer Sault",o:"Our Lady Peace, Finger Eleven, A Perfect Circle, Foo Fighters, Smashing Pumpkins, Sum 41, Catherine Wheel, Eve 6, Treble Charger, I Mother Earth",d:"AUG 9 \u00b7 2000",v:"WINNIPEG STADIUM \u00b7 WINNIPEG, MB",t:"festival",e:"\u2600\ufe0f",g:"#1a1000,#051a10",tags:[["tp", "Festival"], ["ta", "Stadium"], ["tr", "Legendary"]],y:2000,"img":"Foo Fighters"},
+{a:"Korn",o:"With Papa Roach & Powerman 5000",d:"JUL 24 \u00b7 2000",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83e\udd18",g:"#1a0505,#0d1a0d",tags:[["tc", "Concert"], ["tr", "Nu-Metal"]],y:2000},
+{a:"KISS",o:"With Ted Nugent",d:"JUL 16 \u00b7 2000",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc8b",g:"#1a0a00,#0a0a1a",tags:[["tc", "Concert"], ["ta", "Pyro"]],y:2000},
+{a:"ECW on TNN",o:"",d:"MAY 6 \u00b7 2000",v:"SPORTS PAVILION \u00b7 MINNEAPOLIS, MN",t:"wrestling",e:"\ud83d\udcfa",g:"#1a0000,#0a0510",tags:[["to", "Wrestling"], ["tr", "ECW"]],y:2000,"img":"ECW wrestling"},
+{a:"Nickelback",o:"With X Engine X",d:"FEB 10 \u00b7 2000",v:"THE ZOO (BAR) \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfb8",g:"#0d1505,#1a0d05",tags:[["tc", "Concert"], ["ta", "Club Show"]],y:2000},
+{a:"The Tea Party",o:"With Edwin",d:"NOV 19 \u00b7 1999",v:"WINNIPEG CONVENTION CENTRE \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udf75",g:"#0d1505,#1a0505",tags:[["tc", "Concert"], ["ta", "Canadian Rock"]],y:1999},
+{a:"WWF: SummerSlam 1999",o:"",d:"AUG 22 \u00b7 1999",v:"TARGET CENTER \u00b7 MINNEAPOLIS, MN",t:"wrestling",e:"\ud83e\udd3c",g:"#1a0000,#0a0a1a",tags:[["to", "Wrestling"], ["tr", "WWF PPV"], ["ta", "Road Trip"]],y:1999,"img":"WWE wrestling"},
+{a:"WCW: Monday Nitro",o:"",d:"APR 26 \u00b7 1999",v:"FARGODOME \u00b7 FARGO, ND",t:"wrestling",e:"\ud83d\udd25",g:"#1a0000,#0a050a",tags:[["to", "Wrestling"], ["tr", "WCW"], ["ta", "Road Trip"]],y:1999,"img":"WCW wrestling"},
+{a:"WCW: Thunder",o:"",d:"AUG 20 \u00b7 1998",v:"FARGODOME \u00b7 FARGO, ND",t:"wrestling",e:"\u26a1",g:"#1a0000,#0a050a",tags:[["to", "Wrestling"], ["tr", "WCW"], ["ta", "Road Trip"]],y:1998,"img":"WCW wrestling"},
+{a:"Classic Rock Weekend",o:"Alice Cooper, Randy Bachman, Pat Benatar, REO Speedwagon, Loverboy, Streetheart, Foreigner, April Wine, Toronto, Harlequin, Trooper, Burton Cummings",d:"AUG LONG \u00b7 1998",v:"MINNEDOSA, MB",t:"festival",e:"\ud83c\udfb8",g:"#1a0800,#051a05",tags:[["tp", "Festival"], ["ta", "Outdoor"]],y:1998,"img":"Alice Cooper"},
+{a:"EdgeFest",o:"Creed, The Tea Party, Foo Fighters, Green Day, The Watchmen, Econoline Crush, Bif Naked, Sloan, Matthew Good Band, The Killjoys",d:"JUL 4 \u00b7 1998",v:"WINNIPEG STADIUM \u00b7 WINNIPEG, MB",t:"festival",e:"\u26a1",g:"#050d1a,#1a0505",tags:[["tp", "Festival"], ["ta", "Stadium"]],y:1998,"img":"Foo Fighters"},
+{a:"EdgeFest",o:"Silverchair, Our Lady Peace, Finger Eleven, Collective Soul, The Tea Party, I Mother Earth, Econoline Crush, Philosopher Kings, Age of Electric, Sara Craig, Glueleg, Holly McNarland, The Verve Pipe, Dodgy",d:"SEP 1 \u00b7 1997",v:"WINNIPEG STADIUM \u00b7 WINNIPEG, MB",t:"festival",e:"\u26a1",g:"#050d1a,#1a0505",tags:[["tp", "Festival"], ["ta", "Stadium"]],y:1997,"img":"Silverchair"},
+{a:"Bush",o:"With Veruca Salt",d:"JUN 25 \u00b7 1997",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udf3f",g:"#0d1520,#1a0d05",tags:[["tc", "Concert"], ["ta", "90s Rock"]],y:1997},
+{a:"U2",o:"With Fun Lovin' Criminals",d:"JUN 12 \u00b7 1997",v:"WINNIPEG STADIUM \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udfdf",g:"#050d1a,#1a0505",tags:[["tc", "Concert"], ["ta", "Stadium"], ["tp", "PopMart Tour"]],y:1997},
+{a:"KISS",o:"With Econoline Crush",d:"APR 30 \u00b7 1997",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udc8b",g:"#1a0a00,#0a0a1a",tags:[["tc", "Concert"], ["ta", "Reunion"]],y:1997},
+{a:"Our Lady Peace",o:"With Chantal Kreviazuk",d:"MAR 7 \u00b7 1997",v:"UNIVERSITY OF MANITOBA \u00b7 WINNIPEG, MB",t:"concert",e:"\u262e\ufe0f",g:"#051a15,#0d0520",tags:[["tc", "Concert"], ["ta", "Campus Show"]],y:1997},
+{a:"Metallica",o:"With Corrosion of Conformity",d:"FEB 14 \u00b7 1997",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\u26a1",g:"#1a1a00,#0a0a0a",tags:[["tc", "Concert"], ["tr", "Metal"]],y:1997},
+{a:"Smashing Pumpkins",o:"With Grant Lee Buffalo",d:"SEP 24 \u00b7 1996",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83c\udf83",g:"#1a0505,#050d1a",tags:[["tc", "Concert"], ["tr", "Alternative"]],y:1996},
+{a:"AC/DC",o:"",d:"AUG 6 \u00b7 1996",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\u26a1",g:"#1a0000,#0a0a0a",tags:[["tc", "Concert"], ["ta", "Legend"]],y:1996},
+{a:"Scorpions",o:"With Alice Cooper",d:"JUL 11 \u00b7 1996",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83e\udd82",g:"#1a0505,#05051a",tags:[["tc", "Concert"], ["tr", "Rock"], ["ta", "Double Bill"]],y:1996},
+{a:"Ozzy Osbourne",o:"With Filter",d:"JUN 11 \u00b7 1996",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83e\udd87",g:"#0a0a0a,#1a0505",tags:[["tc", "Concert"], ["tr", "Metal"], ["ta", "Legend"]],y:1996},
+{a:"NHL: Detroit Red Wings vs Winnipeg Jets \u2014 Game 3",o:"",d:"APR 21 \u00b7 1996",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"sport",e:"\ud83c\udfd2",g:"#001a10,#1a0505",tags:[["tb", "NHL Playoffs"], ["ta", "Home"], ["tr", "Last Jets Season"]],y:1996,"img":"Winnipeg Jets"},
+{a:"Green Day",o:"With The Riverdales",d:"OCT 23 \u00b7 1995",v:"WINNIPEG ARENA \u00b7 WINNIPEG, MB",t:"concert",e:"\ud83d\udfe2",g:"#051a05,#0d0a1a",tags:[["tc", "Concert"], ["tr", "Punk"], ["ta", "Dookie Era"]],y:1995}
+];
+const IC={};
+async function getImg(s){
+  const k=s.a;
+  if(IC[k]!==undefined)return IC[k];
+  const t=s.img||s.a;let u=null;
+  try{const r=await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(t)}&media=music&entity=musicArtist&limit=1`,{signal:AbortSignal.timeout(4000)});const d=await r.json();if(d.results?.[0]?.artworkUrl100)u=d.results[0].artworkUrl100.replace("100x100","600x600");}catch(e){}
+  if(!u){try{const r=await fetch(`https://ws.audioscrobbler.com/2.0/?method=artist.search&artist=${encodeURIComponent(t)}&api_key=3a98c11594fa2a4c22f0a3faeddb8f32&format=json&limit=1`,{signal:AbortSignal.timeout(4000)});const d=await r.json();const m=d?.results?.artistmatches?.artist;if(m?.length){const xl=m[0].image?.find(i=>i.size==="extralarge"||i.size==="large");if(xl?.["#text"]?.length>10)u=xl["#text"];}}catch(e){}}
+  IC[k]=u||"none";return u;
+}
+function applyImg(u,cid,modal){
+  if(cid){const el=document.getElementById(cid);if(!el)return;const img=el.querySelector(".gig-poster-img");if(!img)return;el.classList.remove("shim");img.onload=()=>img.classList.add("loaded");img.src=u;}
+  if(modal){const img=document.getElementById("mpi");if(!img)return;img.onload=()=>{img.classList.add("loaded");document.getElementById("mpej").style.opacity="0";};img.src=u;}
+}
+async function loadImg(s,cid,modal){const u=await getImg(s);if(u&&u!=="none")applyImg(u,cid,modal);else if(cid){const el=document.getElementById(cid);if(el)el.classList.remove("shim");}}
+function updateStats(a){
+  document.getElementById("sT").textContent=a.length;
+  document.getElementById("sC").textContent=a.filter(s=>s.t==="cancelled").length;
+  document.getElementById("sV").textContent=new Set(a.map(s=>s.v.split("·")[0].trim())).size;
+  document.getElementById("sY").textContent=new Set(a.map(s=>s.y)).size;
+}
+let cF="all",cQ="";
+function render(){
+  const list=document.getElementById("gl");list.innerHTML="";let cY=null;
+  const vis=S.filter(s=>{const tm=cF==="all"||s.t===cF;const sm=!cQ||s.a.toLowerCase().includes(cQ)||s.v.toLowerCase().includes(cQ)||(s.o&&s.o.toLowerCase().includes(cQ))||String(s.y).includes(cQ);return tm&&sm;});
+  updateStats(vis);
+  if(!vis.length){list.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px">No events found</div>`;return;}
+  vis.forEach(s=>{
+    const idx=S.indexOf(s);
+    if(s.y!==cY){cY=s.y;const d=document.createElement("div");d.className="year-div";d.textContent=s.y;list.appendChild(d);}
+    const num=S.length-idx,cid=`p${idx}`;
+    const card=document.createElement("div");card.className=`gig-card ${s.t}`;
+    card.innerHTML=`<div class="gig-poster shim" id="${cid}"><div class="gig-poster-bg" style="background:linear-gradient(135deg,${s.g})"></div><img class="gig-poster-img" alt=""><span class="gig-poster-emoji">${s.e}</span></div><div class="gig-info"><div class="gig-artist">${s.a}</div>${s.o?`<div class="gig-openers">${s.o}</div>`:""}<div class="gig-meta">${s.d} · ${s.v.split("·")[0].trim()}</div><div class="gig-tags">${s.tags.map(t=>`<span class="tag ${t[0]}">${t[1]}</span>`).join("")}</div></div><div class="gig-right"><span class="gig-arrow">→</span><div class="gig-num">#${num}</div></div>`;
+    card.onclick=()=>openModal(s,num);list.appendChild(card);loadImg(s,cid,false);
+  });
+}
+function openModal(s,num){
+  document.getElementById("mpej").textContent=s.e;document.getElementById("mpej").style.opacity="1";
+  document.getElementById("mTitle").textContent=s.a;document.getElementById("mSub").textContent=s.o||"";
+  document.getElementById("mVenue").textContent=`${s.d} · ${s.v}`;
+  document.getElementById("mPoster").style.background=`linear-gradient(135deg,${s.g})`;
+  const mi=document.getElementById("mpi");mi.classList.remove("loaded");mi.src="";loadImg(s,null,true);
+  const tl={concert:"Concert",sport:"Sport",wrestling:"Wrestling",festival:"Festival",comedy:"Comedy",theatre:"Theatre",kids:"Kids Show",curling:"Curling",cancelled:"Cancelled"};
+  document.getElementById("mBody").innerHTML=`<div class="msec"><div class="msec-title">Event Details</div><div class="irow"><span class="ikey">Date</span><span class="ival">${s.d}</span></div><div class="irow"><span class="ikey">Venue</span><span class="ival">${s.v}</span></div>${s.o?`<div class="irow"><span class="ikey">Support</span><span class="ival">${s.o}</span></div>`:""}<div class="irow"><span class="ikey">Category</span><span class="ival">${tl[s.t]||s.t}</span></div><div class="irow"><span class="ikey">Entry</span><span class="ival" style="color:var(--cyan)">#${num} in GigBook</span></div></div><div class="msec"><div class="msec-title">Tags</div><div style="display:flex;flex-wrap:wrap;gap:6px">${s.tags.map(t=>`<span class="tag ${t[0]}" style="font-size:11px;padding:4px 10px">${t[1]}</span>`).join("")}</div></div><div class="msec" style="display:flex;gap:10px"><div onclick="toast('📷 Photos — coming!')" style="flex:1;background:rgba(0,229,200,.08);border:1px solid rgba(0,229,200,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px">📷</div><div style="font-size:11px;color:var(--cyan);font-family:'DM Mono',monospace;margin-top:4px">Photos</div></div><div onclick="toast('🎟 Ticket — coming!')" style="flex:1;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px">🎟</div><div style="font-size:11px;color:var(--amber);font-family:'DM Mono',monospace;margin-top:4px">Ticket</div></div><div onclick="toast('📝 Notes — coming!')" style="flex:1;background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px">📝</div><div style="font-size:11px;color:var(--purple);font-family:'DM Mono',monospace;margin-top:4px">Notes</div></div></div>`;
+  document.getElementById("mo").classList.add("open");document.body.style.overflow="hidden";
+}
+function closeModal(){document.getElementById("mo").classList.remove("open");document.body.style.overflow="";}
+document.getElementById("mo").addEventListener("click",e=>{if(e.target===document.getElementById("mo"))closeModal();});
+function setTab(el,t){document.querySelectorAll(".ribbon-tab").forEach(x=>x.classList.remove("active"));el.classList.add("active");cF=t;render();}
+function toggleSearch(){const b=document.getElementById("sb");b.classList.toggle("vis");if(b.classList.contains("vis"))document.getElementById("si").focus();else{document.getElementById("si").value="";cQ="";render();}}
+function doSearch(v){cQ=v.toLowerCase();render();}
+function setNav(el){document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));el.classList.add("active");const i=Array.from(el.parentNode.children).indexOf(el);if(i>0)toast(["","🗺 Map","📊 Stats","📖 Photo Book","👤 Profile"][i]+" — coming in v1.0!");}
+function toast(m){const t=document.getElementById("te");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2500);}
+render();
+</script>
+</body>
+</html>
