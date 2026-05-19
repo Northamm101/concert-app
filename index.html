@@ -67,35 +67,11 @@
       </div>
 
       <div class="sec-label" style="margin-top:4px">Upcoming</div>
-
-      <div class="up-scroll">
-        <div class="upcoming-card">
-          <div class="up-date">MON · SEP 15 · 2026</div>
-          <div class="up-artist">Foo Fighters</div>
-          <div class="up-openers">With Queens of the Stone Age & Mannequin Pussy</div>
-          <div class="up-venue">MOSAIC STADIUM · REGINA, SK</div>
-          <div class="up-actions">
-            <button class="up-btn primary" onclick="toast('📸 Friends Group!')">Friends</button>
-            <button class="up-btn" onclick="toast('🎵 Setlist!')">Setlist</button>
-            <button class="up-btn" onclick="switchScreen('map')">Map</button>
-          </div>
-        </div>
-
-        <div class="upcoming-card">
-          <div class="up-date">TUE · JUL 14 · 2026</div>
-          <div class="up-artist">Creed</div>
-          <div class="up-openers">With Mammoth & Big Wreck</div>
-          <div class="up-venue">CANADA LIFE CENTRE · WINNIPEG, MB</div>
-          <div class="up-actions">
-            <button class="up-btn primary" onclick="toast('📸 Friends Group!')">Friends</button>
-            <button class="up-btn" onclick="toast('🎵 Setlist!')">Setlist</button>
-            <button class="up-btn" onclick="switchScreen('map')">Map</button>
-          </div>
-        </div>
-      </div>
+      <div class="up-scroll" id="upcomingList"></div>
 
       <div class="sec-label" style="margin-top:20px">Past Events</div>
       <div class="gig-list fi" id="gl"></div>
+
       <div class="spacer"></div>
     </main>
 
@@ -194,7 +170,7 @@
 
         <div class="add-form">
           <label class="form-label">Event / Artist Name</label>
-          <input id="aeTitle" class="form-input" type="text" placeholder="Santana">
+          <input id="aeTitle" class="form-input" type="text" placeholder="Enter event or artist name">
 
           <label class="form-label">Support / Openers</label>
           <input id="aeSupport" class="form-input" type="text" placeholder="Optional">
@@ -203,10 +179,10 @@
           <input id="aeDate" class="form-input" type="date">
 
           <label class="form-label">Venue</label>
-          <input id="aeVenue" class="form-input" type="text" placeholder="Mystic Lake Amphitheatre">
+          <input id="aeVenue" class="form-input" type="text" placeholder="Enter venue name">
 
           <label class="form-label">City / Region</label>
-          <input id="aeLocation" class="form-input" type="text" placeholder="Shakopee, MN">
+          <input id="aeLocation" class="form-input" type="text" placeholder="Enter city, region">
 
           <label class="form-label">Category</label>
           <select id="aeCategory" class="form-input">
@@ -222,7 +198,7 @@
           </select>
 
           <label class="form-label">Notes / Tags</label>
-          <input id="aeTag" class="form-input" type="text" placeholder="Example: Road Trip">
+          <input id="aeTag" class="form-input" type="text" placeholder="Optional tag">
 
           <div class="form-actions">
             <button class="up-btn" onclick="closeAddEventModal()">Cancel</button>
