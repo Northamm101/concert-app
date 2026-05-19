@@ -3,6 +3,11 @@ let cF = "all";
 let cQ = "";
 let activeScreen = "shows";
 
+const VENUE_ALIASES = {
+  "MTS CENTRE": "CANADA LIFE CENTRE",
+  "BELL MTS PLACE": "CANADA LIFE CENTRE"
+};
+
 const VENUE_COORDS = {
   "CANADA LIFE CENTRE": { lat: 49.8927, lng: -97.1437 },
   "BURTON CUMMINGS THEATRE": { lat: 49.8915, lng: -97.1466 },
@@ -27,9 +32,6 @@ const VENUE_COORDS = {
   "WINNIPEG STADIUM": { lat: 49.8725, lng: -97.1701 },
   "WINNIPEG CONVENTION CENTRE": { lat: 49.8894, lng: -97.1430 },
   "RBC CONVENTION CENTRE": { lat: 49.8894, lng: -97.1430 },
-  "MTS CENTRE": { lat: 49.8927, lng: -97.1437 },
-  "BELL MTS PLACE": { lat: 49.8927, lng: -97.1437 },
-  "WINNIPEG ARENA": { lat: 49.8942, lng: -97.1674 },
   "FENWAY PARK": { lat: 42.3467, lng: -71.0972 },
   "WRIGLEY FIELD": { lat: 41.9484, lng: -87.6553 },
   "U.S. CELLULAR FIELD": { lat: 41.8299, lng: -87.6338 },
@@ -47,13 +49,21 @@ const VENUE_COORDS = {
 };
 
 function normalizeVenueName(venueString) {
-  return venueString.split("·")[0].trim().toUpperCase();
+  const raw = venueString.split("·")[0].trim().toUpperCase();
+  return VENUE_ALIASES[raw] || raw;
 }
 
 function extractVenueLocation(venueString) {
   const parts = venueString.split("·").map(p => p.trim());
+  let displayName = parts[0] || venueString;
+  const normalized = normalizeVenueName(venueString);
+
+  if (normalized === "CANADA LIFE CENTRE") {
+    displayName = "Canada Life Centre";
+  }
+
   return {
-    name: parts[0] || venueString,
+    name: displayName,
     location: parts[1] || ""
   };
 }
@@ -167,6 +177,7 @@ function render() {
 
   vis.forEach(s => {
     const idx = S.indexOf(s);
+
     if (s.y !== cY) {
       cY = s.y;
       const d = document.createElement("div");
@@ -212,7 +223,7 @@ function openModal(s, num) {
   document.getElementById("mpej").style.opacity = "1";
   document.getElementById("mTitle").textContent = s.a;
   document.getElementById("mSub").textContent = s.o || "";
-  document.getElementById("mVenue").textContent = `${s.d} · ${s.v}`;
+  document.getElementById("mVenue").textContent = `${s.d} · ${extractVenueLocation(s.v).name}${extractVenueLocation(s.v).location ? " · " + extractVenueLocation(s.v).location : ""}`;
   document.getElementById("mPoster").style.background = `linear-gradient(135deg,${s.g})`;
 
   const mi = document.getElementById("mpi");
@@ -236,7 +247,7 @@ function openModal(s, num) {
     <div class="msec">
       <div class="msec-title">Event Details</div>
       <div class="irow"><span class="ikey">Date</span><span class="ival">${s.d}</span></div>
-      <div class="irow"><span class="ikey">Venue</span><span class="ival">${s.v}</span></div>
+      <div class="irow"><span class="ikey">Venue</span><span class="ival">${extractVenueLocation(s.v).name}${extractVenueLocation(s.v).location ? " · " + extractVenueLocation(s.v).location : ""}</span></div>
       ${s.o ? `<div class="irow"><span class="ikey">Support</span><span class="ival">${s.o}</span></div>` : ""}
       <div class="irow"><span class="ikey">Category</span><span class="ival">${tl[s.t] || s.t}</span></div>
       <div class="irow"><span class="ikey">Entry</span><span class="ival" style="color:var(--cyan)">#${num} in GigBook</span></div>
@@ -329,13 +340,13 @@ function getVenueGroups() {
   const groups = {};
 
   getVisibleEvents().forEach(event => {
-    const venueName = normalizeVenueName(event.v);
+    const venueKey = normalizeVenueName(event.v);
     const venueParts = extractVenueLocation(event.v);
 
-    if (!groups[venueName]) {
-      const coords = VENUE_COORDS[venueName] || null;
-      groups[venueName] = {
-        key: venueName,
+    if (!groups[venueKey]) {
+      const coords = VENUE_COORDS[venueKey] || null;
+      groups[venueKey] = {
+        key: venueKey,
         displayName: venueParts.name,
         location: venueParts.location,
         coords,
@@ -343,7 +354,7 @@ function getVenueGroups() {
       };
     }
 
-    groups[venueName].events.push(event);
+    groups[venueKey].events.push(event);
   });
 
   return Object.values(groups)
@@ -420,11 +431,13 @@ function renderMap() {
 
 function renderVenueDetails(group) {
   const details = document.getElementById("mapVenueDetails");
+  const sortedEvents = [...group.events].sort((a, b) => b.y - a.y);
+
   details.innerHTML = `
     <div class="venue-title">${group.displayName}</div>
-    <div class="venue-meta">${group.location} · ${group.events.length} event${group.events.length === 1 ? "" : "s"}</div>
+    <div class="venue-meta">${group.location} · ${sortedEvents.length} event${sortedEvents.length === 1 ? "" : "s"}</div>
     <div class="venue-list">
-      ${group.events.map(e => `
+      ${sortedEvents.map(e => `
         <div class="venue-event">
           <div class="venue-event-title">${e.a}</div>
           <div class="venue-event-meta">${e.d} · ${e.t.toUpperCase()}</div>
@@ -445,7 +458,8 @@ function renderStats() {
 
   visible.forEach(e => {
     const venue = normalizeVenueName(e.v);
-    venueCounts[venue] = (venueCounts[venue] || 0) + 1;
+    const displayVenue = venue === "CANADA LIFE CENTRE" ? "Canada Life Centre" : venue;
+    venueCounts[displayVenue] = (venueCounts[displayVenue] || 0) + 1;
     artistCounts[e.a] = (artistCounts[e.a] || 0) + 1;
     categoryCounts[e.t] = (categoryCounts[e.t] || 0) + 1;
   });
@@ -555,12 +569,16 @@ function saveNewEvent() {
 
   const style = getCategoryStyle(category);
   const year = new Date(dateValue + "T12:00:00").getFullYear();
+  const venueUpper = venue.toUpperCase();
+  const locationUpper = location.toUpperCase();
+  const venueKey = VENUE_ALIASES[venueUpper] || venueUpper;
+  const displayVenue = venueKey === "CANADA LIFE CENTRE" ? "CANADA LIFE CENTRE" : venueUpper;
 
   const newEvent = {
     a: title,
     o: support,
     d: formatDateLabel(dateValue),
-    v: `${venue.toUpperCase()} · ${location.toUpperCase()}`,
+    v: `${displayVenue} · ${locationUpper}`,
     t: category,
     e: style.emoji,
     g: style.gradient,
@@ -579,6 +597,12 @@ function saveNewEvent() {
   switchScreen("shows");
   toast("Event added to GigBook");
 }
+
+document.getElementById("addEventOverlay").addEventListener("click", e => {
+  if (e.target === document.getElementById("addEventOverlay")) {
+    closeAddEventModal();
+  }
+});
 
 render();
 renderStats();
