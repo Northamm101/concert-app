@@ -68,6 +68,17 @@ function extractVenueLocation(venueString) {
   };
 }
 
+function eventSortableDate(s) {
+  if (s.isoDate) return new Date(`${s.isoDate}T12:00:00`);
+  return new Date(`${s.y}-01-01T12:00:00`);
+}
+
+function isFutureEvent(s) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return eventSortableDate(s) >= today;
+}
+
 async function getImg(s) {
   const k = s.a;
   if (IC[k] !== undefined) return IC[k];
@@ -124,7 +135,6 @@ function applyImg(u, cid, modal) {
       img.classList.add("loaded");
       document.getElementById("mpej").style.opacity = "0";
     };
-    img.onerror = () => {};
     img.src = u;
   }
 }
@@ -160,6 +170,37 @@ function updateStats(a) {
   document.getElementById("sY").textContent = new Set(a.map(s => s.y)).size;
 }
 
+function renderUpcoming(events) {
+  const upcomingList = document.getElementById("upcomingList");
+  if (!upcomingList) return;
+
+  upcomingList.innerHTML = "";
+
+  if (!events.length) {
+    upcomingList.innerHTML = `<div class="coming-card" style="margin:0 20px 0 20px;">No upcoming events yet.</div>`;
+    return;
+  }
+
+  events
+    .sort((a, b) => eventSortableDate(a) - eventSortableDate(b))
+    .forEach(s => {
+      const card = document.createElement("div");
+      card.className = "upcoming-card";
+      card.innerHTML = `
+        <div class="up-date">${s.d}</div>
+        <div class="up-artist">${s.a}</div>
+        <div class="up-openers">${s.o || ""}</div>
+        <div class="up-venue">${extractVenueLocation(s.v).name}${extractVenueLocation(s.v).location ? " · " + extractVenueLocation(s.v).location : ""}</div>
+        <div class="up-actions">
+          <button class="up-btn primary" onclick="toast('📸 Friends Group!')">Friends</button>
+          <button class="up-btn" onclick="toast('🎵 Setlist!')">Setlist</button>
+          <button class="up-btn" onclick="switchScreen('map')">Map</button>
+        </div>
+      `;
+      upcomingList.appendChild(card);
+    });
+}
+
 function render() {
   const list = document.getElementById("gl");
   list.innerHTML = "";
@@ -168,14 +209,20 @@ function render() {
   const vis = getVisibleEvents();
   updateStats(vis);
 
-  if (!vis.length) {
-    list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px">No events found</div>`;
+  const upcomingEvents = vis.filter(isFutureEvent);
+  const pastEvents = vis.filter(s => !isFutureEvent(s))
+    .sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
+
+  renderUpcoming(upcomingEvents);
+
+  if (!pastEvents.length) {
+    list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px">No past events found</div>`;
     renderStats();
     renderMap();
     return;
   }
 
-  vis.forEach(s => {
+  pastEvents.forEach(s => {
     const idx = S.indexOf(s);
 
     if (s.y !== cY) {
@@ -259,21 +306,6 @@ function openModal(s, num) {
         ${s.tags.map(t => `<span class="tag ${t[0]}" style="font-size:11px;padding:4px 10px">${t[1]}</span>`).join("")}
       </div>
     </div>
-
-    <div class="msec" style="display:flex;gap:10px">
-      <div onclick="toast('📷 Photos — coming!')" style="flex:1;background:rgba(0,229,200,.08);border:1px solid rgba(0,229,200,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer">
-        <div style="font-size:22px">📷</div>
-        <div style="font-size:11px;color:var(--cyan);font-family:'DM Mono',monospace;margin-top:4px">Photos</div>
-      </div>
-      <div onclick="toast('🎟 Ticket — coming!')" style="flex:1;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer">
-        <div style="font-size:22px">🎟</div>
-        <div style="font-size:11px;color:var(--amber);font-family:'DM Mono',monospace;margin-top:4px">Ticket</div>
-      </div>
-      <div onclick="toast('📝 Notes — coming!')" style="flex:1;background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer">
-        <div style="font-size:22px">📝</div>
-        <div style="font-size:11px;color:var(--purple);font-family:'DM Mono',monospace;margin-top:4px">Notes</div>
-      </div>
-    </div>
   `;
 
   document.getElementById("mo").classList.add("open");
@@ -316,7 +348,6 @@ function doSearch(v) {
 
 function switchScreen(screen, el) {
   activeScreen = screen;
-
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(`screen-${screen}`).classList.add("active");
 
@@ -431,7 +462,7 @@ function renderMap() {
 
 function renderVenueDetails(group) {
   const details = document.getElementById("mapVenueDetails");
-  const sortedEvents = [...group.events].sort((a, b) => b.y - a.y);
+  const sortedEvents = [...group.events].sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
 
   details.innerHTML = `
     <div class="venue-title">${group.displayName}</div>
@@ -510,6 +541,7 @@ function renderStats() {
 }
 
 function openAddEventModal() {
+  clearAddEventForm();
   document.getElementById("addEventOverlay").classList.add("open");
   document.body.style.overflow = "hidden";
 }
@@ -549,7 +581,6 @@ function getCategoryStyle(category) {
     curling: { emoji: "🥌", gradient: "#051a15,#1a0510", tagClass: "tg", tagText: "Curling" },
     cancelled: { emoji: "❌", gradient: "#200505,#050520", tagClass: "tr", tagText: "Cancelled" }
   };
-
   return map[category] || map.concert;
 }
 
@@ -578,6 +609,7 @@ function saveNewEvent() {
     a: title,
     o: support,
     d: formatDateLabel(dateValue),
+    isoDate: dateValue,
     v: `${displayVenue} · ${locationUpper}`,
     t: category,
     e: style.emoji,
