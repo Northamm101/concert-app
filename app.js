@@ -495,6 +495,91 @@ function renderStats() {
   `;
 }
 
+function openAddEventModal() {
+  document.getElementById("addEventOverlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeAddEventModal() {
+  document.getElementById("addEventOverlay").classList.remove("open");
+  document.body.style.overflow = "";
+  clearAddEventForm();
+}
+
+function clearAddEventForm() {
+  document.getElementById("aeTitle").value = "";
+  document.getElementById("aeSupport").value = "";
+  document.getElementById("aeDate").value = "";
+  document.getElementById("aeVenue").value = "";
+  document.getElementById("aeLocation").value = "";
+  document.getElementById("aeCategory").value = "concert";
+  document.getElementById("aeTag").value = "";
+}
+
+function formatDateLabel(dateValue) {
+  if (!dateValue) return "DATE TBD";
+  const d = new Date(dateValue + "T12:00:00");
+  const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+  return `${months[d.getMonth()]} ${d.getDate()} · ${d.getFullYear()}`;
+}
+
+function getCategoryStyle(category) {
+  const map = {
+    concert: { emoji: "🎸", gradient: "#051a10,#0d0520", tagClass: "tc", tagText: "Concert" },
+    sport: { emoji: "🏒", gradient: "#001a10,#1a0020", tagClass: "tb", tagText: "Sport" },
+    wrestling: { emoji: "🤼", gradient: "#1a0800,#0a0a0a", tagClass: "to", tagText: "Wrestling" },
+    festival: { emoji: "🎡", gradient: "#1a1000,#051a10", tagClass: "tp", tagText: "Festival" },
+    comedy: { emoji: "😂", gradient: "#1a1505,#051a15", tagClass: "ty", tagText: "Comedy" },
+    theatre: { emoji: "🎭", gradient: "#05051a,#1a051a", tagClass: "to", tagText: "Theatre" },
+    kids: { emoji: "🧸", gradient: "#1a0520,#051a15", tagClass: "tk", tagText: "Kids Show" },
+    curling: { emoji: "🥌", gradient: "#051a15,#1a0510", tagClass: "tg", tagText: "Curling" },
+    cancelled: { emoji: "❌", gradient: "#200505,#050520", tagClass: "tr", tagText: "Cancelled" }
+  };
+
+  return map[category] || map.concert;
+}
+
+function saveNewEvent() {
+  const title = document.getElementById("aeTitle").value.trim();
+  const support = document.getElementById("aeSupport").value.trim();
+  const dateValue = document.getElementById("aeDate").value;
+  const venue = document.getElementById("aeVenue").value.trim();
+  const location = document.getElementById("aeLocation").value.trim();
+  const category = document.getElementById("aeCategory").value;
+  const extraTag = document.getElementById("aeTag").value.trim();
+
+  if (!title || !dateValue || !venue || !location) {
+    toast("Please fill in title, date, venue, and location.");
+    return;
+  }
+
+  const style = getCategoryStyle(category);
+  const year = new Date(dateValue + "T12:00:00").getFullYear();
+
+  const newEvent = {
+    a: title,
+    o: support,
+    d: formatDateLabel(dateValue),
+    v: `${venue.toUpperCase()} · ${location.toUpperCase()}`,
+    t: category,
+    e: style.emoji,
+    g: style.gradient,
+    tags: [[style.tagClass, style.tagText]],
+    y: year
+  };
+
+  if (extraTag) {
+    newEvent.tags.push(["ta", extraTag]);
+  }
+
+  S.unshift(newEvent);
+
+  closeAddEventModal();
+  render();
+  switchScreen("shows");
+  toast("Event added to GigBook");
+}
+
 render();
 renderStats();
 renderMap();
