@@ -45,7 +45,8 @@ const VENUE_COORDS = {
   "T-MOBILE ARENA": { lat: 36.1028, lng: -115.1781 },
   "AIR CANADA CENTRE": { lat: 43.6435, lng: -79.3791 },
   "MGM GRAND": { lat: 36.1025, lng: -115.1696 },
-  "THE ZOO (BAR)": { lat: 49.8970, lng: -97.1405 }
+  "THE ZOO (BAR)": { lat: 49.8970, lng: -97.1405 },
+  "MANITOBA MUSEUM": { lat: 49.8996, lng: -97.1374 }
 };
 
 function normalizeVenueName(venueString) {
@@ -94,6 +95,16 @@ function isFutureEvent(s) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return eventSortableDate(s) >= today;
+}
+
+function getChronologicalOrder(allEvents) {
+  return [...allEvents].sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
+}
+
+function getDisplayNumber(eventObj) {
+  const ordered = getChronologicalOrder(S);
+  const idx = ordered.indexOf(eventObj);
+  return ordered.length - idx;
 }
 
 async function getImg(s) {
@@ -241,7 +252,8 @@ function render() {
   }
 
   pastEvents.forEach(s => {
-    const idx = S.indexOf(s);
+    const num = getDisplayNumber(s);
+    const cid = `p${num}`;
 
     if (s.y !== cY) {
       cY = s.y;
@@ -250,9 +262,6 @@ function render() {
       d.textContent = s.y;
       list.appendChild(d);
     }
-
-    const num = S.length - idx;
-    const cid = `p${idx}`;
 
     const card = document.createElement("div");
     card.className = `gig-card ${s.t}`;
