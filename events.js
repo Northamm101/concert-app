@@ -1,6 +1,11 @@
 const S = [
   {a:"Foo Fighters",o:"With Queens of the Stone Age & Mannequin Pussy",d:"SEP 15 · 2026",isoDate:"2026-09-15",v:"MOSAIC STADIUM · REGINA, SK",t:"concert",e:"🥁",g:"#1a0505,#050a1a",tags:[["tc","Concert"],["tr","Rock"]],y:2026},
   {a:"Creed",o:"",d:"JUL 14 · 2026",isoDate:"2026-07-14",v:"CANADA LIFE CENTRE · WINNIPEG, MB",t:"concert",e:"🎸",g:"#051a10,#0d0520",tags:[["tc","Concert"]],y:2026},
+  {a:"The Sheepdogs",o:"With Surf Hat",d:"APR 17 · 2026",isoDate:"2026-04-17",v:"BURTON CUMMINGS THEATRE · WINNIPEG, MB",t:"concert",e:"🐕",g:"#0d1505,#1a0d05",tags:[["tc","Concert"],["ta","Attended"]],y:2026},
+  {a:"AEW: Dynamite & Collision",o:"",d:"APR 1 · 2026",isoDate:"2026-04-01",v:"CANADA LIFE CENTRE · WINNIPEG, MB",t:"wrestling",e:"🏆",g:"#1a0500,#00051a",tags:[["to","Wrestling"],["tb","AEW"]],y:2026,img:"All Elite Wrestling"},
+  {a:"WPW: Fight at the Museum",o:"",d:"MAR 31 · 2026",isoDate:"2026-03-31",v:"MANITOBA MUSEUM · WINNIPEG, MB",t:"wrestling",e:"🤼",g:"#1a0800,#0a0a0a",tags:[["to","Wrestling"],["ta","Local"]],y:2026,img:"professional wrestling"},
+  {a:"Black Label Society",o:"With Zakk Sabbath & Dark Chapel",d:"MAR 23 · 2026",isoDate:"2026-03-23",v:"BURTON CUMMINGS THEATRE · WINNIPEG, MB",t:"concert",e:"⚡",g:"#0a0a0a,#1a0505",tags:[["tc","Concert"],["tr","Metal"]],y:2026},
+  {a:"Live",o:"With Big Wreck & Econoline Crush",d:"MAR 2 · 2026",isoDate:"2026-03-02",v:"CANADA LIFE CENTRE · WINNIPEG, MB",t:"concert",e:"🎸",g:"#051a10,#0d0520",tags:[["tc","Concert"],["tr","Alt Rock"]],y:2026},
   {a:"WPW: Rumble at The Burt",o:"",d:"OCT 19 · 2025",v:"BURTON CUMMINGS THEATRE · WINNIPEG, MB",t:"wrestling",e:"🤼",g:"#1a0800,#0a0a0a",tags:[["to","Wrestling"],["ta","Local"]],y:2025,img:"professional wrestling"},
   {a:"Korn",o:"With Gojira & Loathe",d:"SEP 25 · 2025",v:"CANADA LIFE CENTRE · WINNIPEG, MB",t:"concert",e:"🤘",g:"#1a0505,#0d1a0d",tags:[["tc","Concert"],["tr","Metal"]],y:2025},
   {a:"WPW: I Still Know Who You Pinned Last Summer",o:"",d:"JUL 18 · 2025",v:"BLUE NOTE PARK · WINNIPEG, MB",t:"wrestling",e:"🤼",g:"#1a0800,#0a0a0a",tags:[["to","Wrestling"],["ta","Outdoor"]],y:2025,img:"professional wrestling"},
