@@ -93,8 +93,56 @@
     <main id="screen-stats" class="screen">
       <div class="page-wrap">
         <div class="page-title">Stats</div>
-        <div class="page-subtitle">Quick snapshot of your live-event history.</div>
-        <div id="statsContent" class="stats-grid"></div>
+        <div class="page-subtitle">Browse your event history by category.</div>
+
+        <div class="stats-tabs">
+          <button class="stats-tab active" data-stats-tab="overall" onclick="setStatsTab('overall', this)">Overall</button>
+          <button class="stats-tab" data-stats-tab="concerts" onclick="setStatsTab('concerts', this)">Concerts</button>
+          <button class="stats-tab" data-stats-tab="sports" onclick="setStatsTab('sports', this)">Sports</button>
+          <button class="stats-tab" data-stats-tab="wrestling" onclick="setStatsTab('wrestling', this)">Wrestling</button>
+        </div>
+
+        <div id="statsOverallPanel" class="stats-panel active">
+          <div id="statsOverallContent" class="stats-grid"></div>
+        </div>
+
+        <div id="statsConcertsPanel" class="stats-panel">
+          <div id="statsConcertsContent" class="stats-grid"></div>
+        </div>
+
+        <div id="statsSportsPanel" class="stats-panel">
+          <div class="stats-subtabs">
+            <button class="stats-subtab active" data-sport-tab="hockey" onclick="setSportStatsTab('hockey', this)">Hockey</button>
+            <button class="stats-subtab" data-sport-tab="football" onclick="setSportStatsTab('football', this)">Football</button>
+            <button class="stats-subtab" data-sport-tab="baseball" onclick="setSportStatsTab('baseball', this)">Baseball</button>
+            <button class="stats-subtab" data-sport-tab="basketball" onclick="setSportStatsTab('basketball', this)">Basketball</button>
+            <button class="stats-subtab" data-sport-tab="other" onclick="setSportStatsTab('other', this)">Other</button>
+          </div>
+
+          <div id="statsSportsHockey" class="stats-sport-panel active">
+            <div id="statsSportsHockeyContent" class="stats-grid"></div>
+          </div>
+
+          <div id="statsSportsFootball" class="stats-sport-panel">
+            <div id="statsSportsFootballContent" class="stats-grid"></div>
+          </div>
+
+          <div id="statsSportsBaseball" class="stats-sport-panel">
+            <div id="statsSportsBaseballContent" class="stats-grid"></div>
+          </div>
+
+          <div id="statsSportsBasketball" class="stats-sport-panel">
+            <div id="statsSportsBasketballContent" class="stats-grid"></div>
+          </div>
+
+          <div id="statsSportsOther" class="stats-sport-panel">
+            <div id="statsSportsOtherContent" class="stats-grid"></div>
+          </div>
+        </div>
+
+        <div id="statsWrestlingPanel" class="stats-panel">
+          <div id="statsWrestlingContent" class="stats-grid"></div>
+        </div>
       </div>
       <div class="spacer"></div>
     </main>
