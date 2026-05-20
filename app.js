@@ -3,6 +3,8 @@ let cF = "all";
 let cQ = "";
 let activeScreen = "shows";
 
+const STORAGE_KEY = "gigbook_custom_events_v1";
+
 const VENUE_ALIASES = {
   "MTS CENTRE": "CANADA LIFE CENTRE",
   "BELL MTS PLACE": "CANADA LIFE CENTRE"
@@ -109,19 +111,48 @@ function eventKey(s) {
 }
 
 function buildDisplayNumberMap() {
-  const sortedAll = [...S].sort((a, b) => {
-    return eventSortableDate(b) - eventSortableDate(a);
-  });
-
+  const sortedAll = [...S].sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
   const map = new Map();
 
   sortedAll.forEach((event, index) => {
-    const key = eventKey(event);
-    const displayNumber = sortedAll.length - index;
-    map.set(key, displayNumber);
+    map.set(eventKey(event), sortedAll.length - index);
   });
 
   return map;
+}
+
+function getStoredCustomEvents() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error("Could not read stored GigBook events:", error);
+    return [];
+  }
+}
+
+function saveStoredCustomEvents(events) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+  } catch (error) {
+    console.error("Could not save GigBook events:", error);
+    toast("Could not save event on this device.");
+  }
+}
+
+function mergeStoredEventsIntoS() {
+  const stored = getStoredCustomEvents();
+  const existingKeys = new Set(S.map(eventKey));
+
+  stored.forEach(ev => {
+    const key = eventKey(ev);
+    if (!existingKeys.has(key)) {
+      S.push(ev);
+      existingKeys.add(key);
+    }
+  });
 }
 
 async function getImg(s) {
@@ -667,7 +698,11 @@ function saveNewEvent() {
     newEvent.tags.push(["ta", extraTag]);
   }
 
-  S.unshift(newEvent);
+  const stored = getStoredCustomEvents();
+  stored.push(newEvent);
+  saveStoredCustomEvents(stored);
+
+  S.push(newEvent);
 
   closeAddEventModal();
   render();
@@ -681,6 +716,7 @@ document.getElementById("addEventOverlay").addEventListener("click", e => {
   }
 });
 
+mergeStoredEventsIntoS();
 render();
 renderStats();
 renderMap();
