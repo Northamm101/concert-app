@@ -169,23 +169,8 @@
         <div class="m-sub">Create a new event card in GigBook.</div>
 
         <div class="add-form">
-          <label class="form-label">Event / Artist Name</label>
-          <input id="aeTitle" class="form-input" type="text" placeholder="Enter event or artist name">
-
-          <label class="form-label">Support / Openers</label>
-          <input id="aeSupport" class="form-input" type="text" placeholder="Optional">
-
-          <label class="form-label">Date</label>
-          <input id="aeDate" class="form-input" type="date">
-
-          <label class="form-label">Venue</label>
-          <input id="aeVenue" class="form-input" type="text" placeholder="Enter venue name">
-
-          <label class="form-label">City / Region</label>
-          <input id="aeLocation" class="form-input" type="text" placeholder="Enter city, region">
-
           <label class="form-label">Category</label>
-          <select id="aeCategory" class="form-input">
+          <select id="aeCategory" class="form-input" onchange="updateAddEventForm()">
             <option value="concert">Concert</option>
             <option value="sport">Sport</option>
             <option value="wrestling">Wrestling</option>
@@ -196,6 +181,78 @@
             <option value="curling">Curling</option>
             <option value="cancelled">Cancelled</option>
           </select>
+
+          <div id="concertFields" class="dynamic-form-section">
+            <label class="form-label">Artist / Event Name</label>
+            <input id="aeTitle" class="form-input" type="text" placeholder="Enter artist or event name">
+
+            <label class="form-label">Support / Openers</label>
+            <input id="aeSupport" class="form-input" type="text" placeholder="Optional">
+          </div>
+
+          <div id="sportFields" class="dynamic-form-section" style="display:none;">
+            <label class="form-label">Sport Type</label>
+            <select id="aeSportType" class="form-input">
+              <option value="">Select sport type</option>
+              <option value="hockey">Hockey</option>
+              <option value="football">Football</option>
+              <option value="baseball">Baseball</option>
+              <option value="basketball">Basketball</option>
+              <option value="soccer">Soccer</option>
+              <option value="other">Other</option>
+            </select>
+
+            <label class="form-label">League</label>
+            <select id="aeLeague" class="form-input">
+              <option value="">Select league</option>
+              <option value="NHL">NHL</option>
+              <option value="AHL">AHL</option>
+              <option value="CHL">CHL</option>
+              <option value="NFL">NFL</option>
+              <option value="CFL">CFL</option>
+              <option value="MLB">MLB</option>
+              <option value="Independent">Independent</option>
+              <option value="NBA">NBA</option>
+              <option value="CEBL">CEBL</option>
+              <option value="National Championship">National Championship</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <label class="form-label">Away Team</label>
+            <input id="aeAwayTeam" class="form-input" type="text" placeholder="Enter away team">
+
+            <label class="form-label">Home Team</label>
+            <input id="aeHomeTeam" class="form-input" type="text" placeholder="Enter home team">
+
+            <label class="form-label">Optional Event Note</label>
+            <input id="aeSportNote" class="form-input" type="text" placeholder="Example: Preseason, Playoffs, Championship">
+          </div>
+
+          <div id="wrestlingFields" class="dynamic-form-section" style="display:none;">
+            <label class="form-label">Promotion</label>
+            <select id="aePromotion" class="form-input">
+              <option value="">Select promotion</option>
+              <option value="WWE">WWE</option>
+              <option value="AEW">AEW</option>
+              <option value="WPW">WPW</option>
+              <option value="ROH">ROH</option>
+              <option value="NJPW">NJPW</option>
+              <option value="TNA">TNA</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <label class="form-label">Event Name</label>
+            <input id="aeWrestlingEvent" class="form-input" type="text" placeholder="Enter event name">
+          </div>
+
+          <label class="form-label">Date</label>
+          <input id="aeDate" class="form-input" type="date">
+
+          <label class="form-label">Venue</label>
+          <input id="aeVenue" class="form-input" type="text" placeholder="Enter venue name">
+
+          <label class="form-label">City / Region</label>
+          <input id="aeLocation" class="form-input" type="text" placeholder="Enter city, region">
 
           <label class="form-label">Notes / Tags</label>
           <input id="aeTag" class="form-input" type="text" placeholder="Optional tag">
