@@ -75,7 +75,6 @@ function eventSortableDate(s) {
   if (s.isoDate) return new Date(`${s.isoDate}T12:00:00`);
 
   const raw = (s.d || "").toUpperCase().trim();
-
   const monthMap = {
     JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5,
     JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11
@@ -616,8 +615,20 @@ function renderStats() {
   `;
 }
 
+function updateAddEventForm() {
+  const category = document.getElementById("aeCategory").value;
+  const concertFields = document.getElementById("concertFields");
+  const sportFields = document.getElementById("sportFields");
+  const wrestlingFields = document.getElementById("wrestlingFields");
+
+  if (concertFields) concertFields.style.display = category === "concert" ? "block" : "none";
+  if (sportFields) sportFields.style.display = category === "sport" ? "block" : "none";
+  if (wrestlingFields) wrestlingFields.style.display = category === "wrestling" ? "block" : "none";
+}
+
 function openAddEventModal() {
   clearAddEventForm();
+  updateAddEventForm();
   document.getElementById("addEventOverlay").classList.add("open");
   document.body.style.overflow = "hidden";
 }
@@ -629,13 +640,21 @@ function closeAddEventModal() {
 }
 
 function clearAddEventForm() {
+  document.getElementById("aeCategory").value = "concert";
   document.getElementById("aeTitle").value = "";
   document.getElementById("aeSupport").value = "";
+  document.getElementById("aeSportType").value = "";
+  document.getElementById("aeLeague").value = "";
+  document.getElementById("aeAwayTeam").value = "";
+  document.getElementById("aeHomeTeam").value = "";
+  document.getElementById("aeSportNote").value = "";
+  document.getElementById("aePromotion").value = "";
+  document.getElementById("aeWrestlingEvent").value = "";
   document.getElementById("aeDate").value = "";
   document.getElementById("aeVenue").value = "";
   document.getElementById("aeLocation").value = "";
-  document.getElementById("aeCategory").value = "concert";
   document.getElementById("aeTag").value = "";
+  updateAddEventForm();
 }
 
 function formatDateLabel(dateValue) {
@@ -660,17 +679,80 @@ function getCategoryStyle(category) {
   return map[category] || map.concert;
 }
 
+function buildEventTitle(category) {
+  if (category === "concert") {
+    return document.getElementById("aeTitle").value.trim();
+  }
+
+  if (category === "sport") {
+    const league = document.getElementById("aeLeague").value.trim();
+    const awayTeam = document.getElementById("aeAwayTeam").value.trim();
+    const homeTeam = document.getElementById("aeHomeTeam").value.trim();
+
+    if (league && awayTeam && homeTeam) {
+      return `${league}: ${awayTeam} vs ${homeTeam}`;
+    }
+
+    return "";
+  }
+
+  if (category === "wrestling") {
+    const promotion = document.getElementById("aePromotion").value.trim();
+    const eventName = document.getElementById("aeWrestlingEvent").value.trim();
+
+    if (promotion && eventName) {
+      return `${promotion}: ${eventName}`;
+    }
+
+    return eventName || promotion || "";
+  }
+
+  return document.getElementById("aeTitle").value.trim();
+}
+
+function buildSupportText(category) {
+  if (category === "concert") {
+    return document.getElementById("aeSupport").value.trim();
+  }
+  return "";
+}
+
+function buildExtraTags(category) {
+  const tags = [];
+  const customTag = document.getElementById("aeTag").value.trim();
+
+  if (category === "sport") {
+    const sportType = document.getElementById("aeSportType").value.trim();
+    const league = document.getElementById("aeLeague").value.trim();
+    const sportNote = document.getElementById("aeSportNote").value.trim();
+
+    if (sportType) tags.push(["ta", sportType.charAt(0).toUpperCase() + sportType.slice(1)]);
+    if (league) tags.push(["ta", league]);
+    if (sportNote) tags.push(["ta", sportNote]);
+  }
+
+  if (category === "wrestling") {
+    const promotion = document.getElementById("aePromotion").value.trim();
+    if (promotion) tags.push(["ta", promotion]);
+  }
+
+  if (customTag) {
+    tags.push(["ta", customTag]);
+  }
+
+  return tags;
+}
+
 function saveNewEvent() {
-  const title = document.getElementById("aeTitle").value.trim();
-  const support = document.getElementById("aeSupport").value.trim();
+  const category = document.getElementById("aeCategory").value;
+  const title = buildEventTitle(category);
+  const support = buildSupportText(category);
   const dateValue = document.getElementById("aeDate").value;
   const venue = document.getElementById("aeVenue").value.trim();
   const location = document.getElementById("aeLocation").value.trim();
-  const category = document.getElementById("aeCategory").value;
-  const extraTag = document.getElementById("aeTag").value.trim();
 
   if (!title || !dateValue || !venue || !location) {
-    toast("Please fill in title, date, venue, and location.");
+    toast("Please fill in the required fields.");
     return;
   }
 
@@ -690,12 +772,21 @@ function saveNewEvent() {
     t: category,
     e: style.emoji,
     g: style.gradient,
-    tags: [[style.tagClass, style.tagText]],
+    tags: [[style.tagClass, style.tagText], ...buildExtraTags(category)],
     y: year
   };
 
-  if (extraTag) {
-    newEvent.tags.push(["ta", extraTag]);
+  if (category === "sport") {
+    newEvent.sportType = document.getElementById("aeSportType").value.trim();
+    newEvent.league = document.getElementById("aeLeague").value.trim();
+    newEvent.awayTeam = document.getElementById("aeAwayTeam").value.trim();
+    newEvent.homeTeam = document.getElementById("aeHomeTeam").value.trim();
+    newEvent.sportNote = document.getElementById("aeSportNote").value.trim();
+  }
+
+  if (category === "wrestling") {
+    newEvent.promotion = document.getElementById("aePromotion").value.trim();
+    newEvent.eventName = document.getElementById("aeWrestlingEvent").value.trim();
   }
 
   const stored = getStoredCustomEvents();
@@ -717,6 +808,7 @@ document.getElementById("addEventOverlay").addEventListener("click", e => {
 });
 
 mergeStoredEventsIntoS();
+updateAddEventForm();
 render();
 renderStats();
 renderMap();
