@@ -97,14 +97,31 @@ function isFutureEvent(s) {
   return eventSortableDate(s) >= today;
 }
 
-function getChronologicalOrder(allEvents) {
-  return [...allEvents].sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
+function eventKey(s) {
+  return [
+    s.a || "",
+    s.d || "",
+    s.v || "",
+    s.t || "",
+    s.o || "",
+    s.isoDate || ""
+  ].join("||");
 }
 
-function getDisplayNumber(eventObj) {
-  const ordered = getChronologicalOrder(S);
-  const idx = ordered.indexOf(eventObj);
-  return ordered.length - idx;
+function buildDisplayNumberMap() {
+  const sortedAll = [...S].sort((a, b) => {
+    return eventSortableDate(b) - eventSortableDate(a);
+  });
+
+  const map = new Map();
+
+  sortedAll.forEach((event, index) => {
+    const key = eventKey(event);
+    const displayNumber = sortedAll.length - index;
+    map.set(key, displayNumber);
+  });
+
+  return map;
 }
 
 async function getImg(s) {
@@ -235,6 +252,7 @@ function render() {
   let cY = null;
 
   const vis = getVisibleEvents();
+  const numberMap = buildDisplayNumberMap();
   updateStats(vis);
 
   const upcomingEvents = vis.filter(isFutureEvent);
@@ -252,7 +270,7 @@ function render() {
   }
 
   pastEvents.forEach(s => {
-    const num = getDisplayNumber(s);
+    const num = numberMap.get(eventKey(s)) || 0;
     const cid = `p${num}`;
 
     if (s.y !== cY) {
