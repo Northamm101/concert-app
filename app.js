@@ -70,7 +70,24 @@ function extractVenueLocation(venueString) {
 
 function eventSortableDate(s) {
   if (s.isoDate) return new Date(`${s.isoDate}T12:00:00`);
-  return new Date(`${s.y}-01-01T12:00:00`);
+
+  const raw = (s.d || "").toUpperCase().trim();
+
+  const monthMap = {
+    JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5,
+    JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11
+  };
+
+  const match = raw.match(/(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s+(\d{1,2}).*?(\d{4})/);
+
+  if (match) {
+    const month = monthMap[match[1]];
+    const day = parseInt(match[2], 10);
+    const year = parseInt(match[3], 10);
+    return new Date(year, month, day, 12, 0, 0);
+  }
+
+  return new Date(`${s.y || 1900}-01-01T12:00:00`);
 }
 
 function isFutureEvent(s) {
@@ -210,7 +227,8 @@ function render() {
   updateStats(vis);
 
   const upcomingEvents = vis.filter(isFutureEvent);
-  const pastEvents = vis.filter(s => !isFutureEvent(s))
+  const pastEvents = vis
+    .filter(s => !isFutureEvent(s))
     .sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
 
   renderUpcoming(upcomingEvents);
