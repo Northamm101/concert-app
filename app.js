@@ -169,6 +169,23 @@ function isEventHidden(event) {
   return hiddenIds.includes(event.id);
 }
 
+function hideEventById(eventId) {
+  const hiddenIds = getHiddenEventIds();
+
+  if (!hiddenIds.includes(eventId)) {
+    hiddenIds.push(eventId);
+    saveHiddenEventIds(hiddenIds);
+  }
+
+  closeModal();
+  render();
+
+  if (activeScreen === "map") renderMap();
+  if (activeScreen === "stats") renderStats();
+
+  toast("Event hidden from GigBook");
+}
+
 function buildDisplayNumberMap() {
   const sortedAll = [...S].sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
   const map = new Map();
