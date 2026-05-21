@@ -1028,7 +1028,7 @@ function getCategoryStyle(category) {
   const map = {
     concert: { emoji: "🎸", gradient: "#051a10,#0d0520", tagClass: "tc", tagText: "Concert" },
     festival: { emoji: "🎡", gradient: "#1a1000,#051a10", tagClass: "tp", tagText: "Festival" },
-    sport: { emoji: "🏒", gradient: "#001a10,#1a0020", tagClass: "tb", tagText: "Sport" },
+    sport: { emoji: "🏟️", gradient: "#001a10,#1a0020", tagClass: "tb", tagText: "Sport" },
     wrestling: { emoji: "🤼", gradient: "#1a0800,#0a0a0a", tagClass: "to", tagText: "Wrestling" },
     comedy: { emoji: "😂", gradient: "#1a1505,#051a15", tagClass: "ty", tagText: "Comedy" },
     theatre: { emoji: "🎭", gradient: "#05051a,#1a051a", tagClass: "to", tagText: "Theatre" },
@@ -1113,6 +1113,16 @@ function saveNewEvent() {
   }
 
   const style = getCategoryStyle(category);
+if (category === "sport") {
+  const sportType = document.getElementById("aeSportType").value.trim().toLowerCase();
+
+  if (sportType === "baseball") style.emoji = "⚾";
+  else if (sportType === "football") style.emoji = "🏈";
+  else if (sportType === "hockey") style.emoji = "🏒";
+  else if (sportType === "basketball") style.emoji = "🏀";
+  else if (sportType === "soccer") style.emoji = "⚽";
+  else style.emoji = "🏟️";
+}
   const year = new Date(dateValue + "T12:00:00").getFullYear();
   const venueUpper = venue.toUpperCase();
   const locationUpper = location.toUpperCase();
