@@ -380,7 +380,8 @@ function openModal(s, num) {
       <div class="irow"><span class="ikey">Venue</span><span class="ival">${extractVenueLocation(s.v).name}${extractVenueLocation(s.v).location ? " · " + extractVenueLocation(s.v).location : ""}</span></div>
       ${s.o ? `<div class="irow"><span class="ikey">Support</span><span class="ival">${s.o}</span></div>` : ""}
       <div class="irow"><span class="ikey">Category</span><span class="ival">${tl[s.t] || s.t}</span></div>
-      <div class="irow"><span class="ikey">Entry</span><span class="ival" style="color:var(--cyan)">#${num} in GigBook</span></div>
+${s.t === "sport" && s.sportType ? `<div class="irow"><span class="ikey">Sport Type</span><span class="ival">${titleCase(s.sportType)}</span></div>` : ""}
+<div class="irow"><span class="ikey">Entry</span><span class="ival" style="color:var(--cyan)">#${num} in GigBook</span></div>
     </div>
 
     <div class="msec">
