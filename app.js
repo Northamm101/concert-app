@@ -2,6 +2,8 @@ const IC = {};
 let cF = "all";
 let cQ = "";
 let activeScreen = "shows";
+let activeStatsTab = "overall";
+let activeSportStatsTab = "hockey";
 
 const STORAGE_KEY = "gigbook_custom_events_v1";
 
@@ -553,66 +555,306 @@ function renderVenueDetails(group) {
   `;
 }
 
-function renderStats() {
-  const box = document.getElementById("statsContent");
-  if (!box) return;
+function titleCase(text) {
+  if (!text) return "";
+  return text
+    .toLowerCase()
+    .split(" ")
+    .map(word => word ? word[0].toUpperCase() + word.slice(1) : "")
+    .join(" ");
+}
 
-  const visible = getVisibleEvents();
-  const venueCounts = {};
-  const artistCounts = {};
-  const categoryCounts = {};
+function extractRegionFromLocation(location) {
+  if (!location) return "";
+  const parts = location.split(",").map(p => p.trim());
+  return parts.length > 1 ? parts[parts.length - 1] : "";
+}
 
-  visible.forEach(e => {
-    const venue = normalizeVenueName(e.v);
-    const displayVenue = venue === "CANADA LIFE CENTRE" ? "Canada Life Centre" : venue;
-    venueCounts[displayVenue] = (venueCounts[displayVenue] || 0) + 1;
-    artistCounts[e.a] = (artistCounts[e.a] || 0) + 1;
-    categoryCounts[e.t] = (categoryCounts[e.t] || 0) + 1;
+function extractCountryFromLocation(location) {
+  if (!location) return "Unknown";
+  const region = extractRegionFromLocation(location).toUpperCase();
+
+  const usStates = new Set([
+    "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
+    "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
+    "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"
+  ]);
+
+  const canadaRegions = new Set([
+    "MB","ON","SK","AB","BC","QC","NB","NS","PE","NL","NT","NU","YT"
+  ]);
+
+  if (usStates.has(region)) return "United States";
+  if (canadaRegions.has(region)) return "Canada";
+  return "Unknown";
+}
+
+function countItems(items) {
+  const counts = {};
+  items.forEach(item => {
+    if (!item) return;
+    counts[item] = (counts[item] || 0) + 1;
   });
+  return counts;
+}
 
-  const topVenue = Object.entries(venueCounts).sort((a, b) => b[1] - a[1])[0];
-  const topArtist = Object.entries(artistCounts).sort((a, b) => b[1] - a[1])[0];
-  const topCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
-  const firstYear = visible.length ? Math.min(...visible.map(e => e.y)) : "—";
-  const latestYear = visible.length ? Math.max(...visible.map(e => e.y)) : "—";
+function topNEntries(counts, n = 5) {
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, n);
+}
 
-  box.innerHTML = `
+function renderListCard(title, entries, emptyText = "No data yet.") {
+  if (!entries.length) {
+    return `
+      <div class="stat-box">
+        <div class="stat-box-title">${title}</div>
+        <div class="stat-box-sub">${emptyText}</div>
+      </div>
+    `;
+  }
+
+  return `
     <div class="stat-box">
-      <div class="stat-box-title">Visible Events</div>
-      <div class="stat-box-value">${visible.length}</div>
-      <div class="stat-box-sub">Based on your current filters and search.</div>
-    </div>
-
-    <div class="stat-box">
-      <div class="stat-box-title">Years Covered</div>
-      <div class="stat-box-value">${new Set(visible.map(e => e.y)).size}</div>
-      <div class="stat-box-sub">${firstYear} to ${latestYear}</div>
-    </div>
-
-    <div class="stat-box">
-      <div class="stat-box-title">Top Venue</div>
-      <div class="stat-box-value">${topVenue ? topVenue[1] : 0}</div>
-      <div class="stat-box-sub">${topVenue ? topVenue[0] : "—"}</div>
-    </div>
-
-    <div class="stat-box">
-      <div class="stat-box-title">Top Artist / Event</div>
-      <div class="stat-box-value">${topArtist ? topArtist[1] : 0}</div>
-      <div class="stat-box-sub">${topArtist ? topArtist[0] : "—"}</div>
-    </div>
-
-    <div class="stat-box">
-      <div class="stat-box-title">Top Category</div>
-      <div class="stat-box-value">${topCategory ? topCategory[1] : 0}</div>
-      <div class="stat-box-sub">${topCategory ? topCategory[0] : "—"}</div>
-    </div>
-
-    <div class="stat-box">
-      <div class="stat-box-title">Cancelled</div>
-      <div class="stat-box-value">${visible.filter(e => e.t === "cancelled").length}</div>
-      <div class="stat-box-sub">Visible cancelled or missed events.</div>
+      <div class="stat-box-title">${title}</div>
+      <div class="stats-list">
+        ${entries.map(([label, value]) => `
+          <div class="stats-list-row">
+            <span>${label}</span>
+            <strong>${value}</strong>
+          </div>
+        `).join("")}
+      </div>
     </div>
   `;
+}
+
+function parseArtistNamesFromEvent(event) {
+  const artists = [];
+
+  if (event.t === "concert") {
+    if (event.a) artists.push(event.a);
+    if (event.o) {
+      event.o
+        .replace(/^With\s+/i, "")
+        .split(/\s*&\s*|\s*,\s*|\s+and\s+/i)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .forEach(name => artists.push(name));
+    }
+  }
+
+  if (event.t === "festival") {
+    if (event.o) {
+      event.o
+        .split(/\s*,\s*/)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .forEach(name => artists.push(name));
+    }
+  }
+
+  return artists;
+}
+
+function getConcertLikeEvents() {
+  return S.filter(e => e.t === "concert" || e.t === "festival");
+}
+
+function getSportEventsByType(type) {
+  return S.filter(e => e.t === "sport" && (e.sportType || "").toLowerCase() === type.toLowerCase());
+}
+
+function getOtherSportEvents() {
+  return S.filter(e => {
+    if (e.t !== "sport") return false;
+    const type = (e.sportType || "").toLowerCase();
+    return !["hockey", "football", "baseball", "basketball"].includes(type);
+  });
+}
+
+function setStatsTab(tab, el) {
+  activeStatsTab = tab;
+
+  document.querySelectorAll(".stats-tab").forEach(btn => btn.classList.remove("active"));
+  if (el) el.classList.add("active");
+  else {
+    const match = document.querySelector(`.stats-tab[data-stats-tab="${tab}"]`);
+    if (match) match.classList.add("active");
+  }
+
+  document.querySelectorAll(".stats-panel").forEach(panel => panel.classList.remove("active"));
+
+  const map = {
+    overall: "statsOverallPanel",
+    concerts: "statsConcertsPanel",
+    sports: "statsSportsPanel",
+    wrestling: "statsWrestlingPanel"
+  };
+
+  const panelId = map[tab];
+  if (panelId) {
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add("active");
+  }
+}
+
+function setSportStatsTab(tab, el) {
+  activeSportStatsTab = tab;
+
+  document.querySelectorAll(".stats-subtab").forEach(btn => btn.classList.remove("active"));
+  if (el) el.classList.add("active");
+  else {
+    const match = document.querySelector(`.stats-subtab[data-sport-tab="${tab}"]`);
+    if (match) match.classList.add("active");
+  }
+
+  document.querySelectorAll(".stats-sport-panel").forEach(panel => panel.classList.remove("active"));
+
+  const map = {
+    hockey: "statsSportsHockey",
+    football: "statsSportsFootball",
+    baseball: "statsSportsBaseball",
+    basketball: "statsSportsBasketball",
+    other: "statsSportsOther"
+  };
+
+  const panelId = map[tab];
+  if (panelId) {
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add("active");
+  }
+}
+
+function renderOverallStats() {
+  const target = document.getElementById("statsOverallContent");
+  if (!target) return;
+
+  const venueCounts = countItems(S.map(e => extractVenueLocation(e.v).name));
+  const regionCounts = countItems(S.map(e => extractRegionFromLocation(extractVenueLocation(e.v).location)).filter(Boolean));
+  const countryCounts = countItems(S.map(e => extractCountryFromLocation(extractVenueLocation(e.v).location)).filter(c => c !== "Unknown"));
+
+  target.innerHTML = `
+    <div class="stat-box">
+      <div class="stat-box-title">Total Events</div>
+      <div class="stat-box-value">${S.length}</div>
+      <div class="stat-box-sub">All events in GigBook.</div>
+    </div>
+
+    ${renderListCard("Top 5 Venues", topNEntries(venueCounts, 5))}
+    ${renderListCard("Events per Province / State", Object.entries(regionCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
+    ${renderListCard("Events per Country", Object.entries(countryCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
+  `;
+}
+
+function renderConcertStats() {
+  const target = document.getElementById("statsConcertsContent");
+  if (!target) return;
+
+  const events = getConcertLikeEvents();
+  const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
+
+  const artistCounts = {};
+  events.forEach(event => {
+    parseArtistNamesFromEvent(event).forEach(name => {
+      artistCounts[name] = (artistCounts[name] || 0) + 1;
+    });
+  });
+
+  const outOfProvinceCount = events.filter(e => {
+    const region = extractRegionFromLocation(extractVenueLocation(e.v).location).toUpperCase();
+    return region && region !== "MB";
+  }).length;
+
+  const internationalCount = events.filter(e => {
+    return extractCountryFromLocation(extractVenueLocation(e.v).location) !== "Canada";
+  }).length;
+
+  target.innerHTML = `
+    <div class="stat-box">
+      <div class="stat-box-title">Total Concerts / Festivals</div>
+      <div class="stat-box-value">${events.length}</div>
+      <div class="stat-box-sub">Concerts and festivals combined.</div>
+    </div>
+
+    ${renderListCard("Top 5 Seen Artists", topNEntries(artistCounts, 5), "No artist data yet.")}
+    ${renderListCard("Top 5 Seen Venues", topNEntries(venueCounts, 5), "No venue data yet.")}
+
+    <div class="stat-box">
+      <div class="stat-box-title">Out of Province Concerts</div>
+      <div class="stat-box-value">${outOfProvinceCount}</div>
+      <div class="stat-box-sub">Outside Manitoba.</div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-box-title">International Concerts</div>
+      <div class="stat-box-value">${internationalCount}</div>
+      <div class="stat-box-sub">Outside Canada.</div>
+    </div>
+  `;
+}
+
+function renderSportTypeStats(type, targetId) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+
+  const events = type === "other" ? getOtherSportEvents() : getSportEventsByType(type);
+
+  const leagueCounts = countItems(events.map(e => e.league).filter(Boolean));
+
+  const teamCounts = {};
+  events.forEach(e => {
+    if (e.homeTeam) teamCounts[e.homeTeam] = (teamCounts[e.homeTeam] || 0) + 1;
+    if (e.awayTeam) teamCounts[e.awayTeam] = (teamCounts[e.awayTeam] || 0) + 1;
+  });
+
+  const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
+
+  target.innerHTML = `
+    <div class="stat-box">
+      <div class="stat-box-title">Total ${titleCase(type)} Events</div>
+      <div class="stat-box-value">${events.length}</div>
+      <div class="stat-box-sub">${type === "other" ? "Sports without a main tracked type." : `${titleCase(type)} events tracked.`}</div>
+    </div>
+
+    ${renderListCard("Total Games per League", Object.entries(leagueCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), "No league data yet.")}
+    ${renderListCard("Top 5 Seen Teams", topNEntries(teamCounts, 5), "No team data yet.")}
+    ${renderListCard("Most Visited Venues", topNEntries(venueCounts, 5), "No venue data yet.")}
+  `;
+}
+
+function renderWrestlingStats() {
+  const target = document.getElementById("statsWrestlingContent");
+  if (!target) return;
+
+  const events = S.filter(e => e.t === "wrestling");
+  const promotionCounts = countItems(events.map(e => e.promotion || (e.a.includes(":") ? e.a.split(":")[0].trim() : "")).filter(Boolean));
+  const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
+
+  target.innerHTML = `
+    <div class="stat-box">
+      <div class="stat-box-title">Total Wrestling Events</div>
+      <div class="stat-box-value">${events.length}</div>
+      <div class="stat-box-sub">All wrestling events tracked.</div>
+    </div>
+
+    ${renderListCard("Total by Promotion", Object.entries(promotionCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), "No promotion data yet.")}
+    ${renderListCard("Most Seen Wrestling Venues", topNEntries(venueCounts, 5), "No venue data yet.")}
+  `;
+}
+
+function renderStats() {
+  renderOverallStats();
+  renderConcertStats();
+  renderSportTypeStats("hockey", "statsSportsHockeyContent");
+  renderSportTypeStats("football", "statsSportsFootballContent");
+  renderSportTypeStats("baseball", "statsSportsBaseballContent");
+  renderSportTypeStats("basketball", "statsSportsBasketballContent");
+  renderSportTypeStats("other", "statsSportsOtherContent");
+  renderWrestlingStats();
+
+  setStatsTab(activeStatsTab);
+  setSportStatsTab(activeSportStatsTab);
 }
 
 function updateAddEventForm() {
@@ -621,7 +863,7 @@ function updateAddEventForm() {
   const sportFields = document.getElementById("sportFields");
   const wrestlingFields = document.getElementById("wrestlingFields");
 
-  if (concertFields) concertFields.style.display = category === "concert" ? "block" : "none";
+  if (concertFields) concertFields.style.display = category === "concert" || category === "festival" ? "block" : "none";
   if (sportFields) sportFields.style.display = category === "sport" ? "block" : "none";
   if (wrestlingFields) wrestlingFields.style.display = category === "wrestling" ? "block" : "none";
 }
@@ -667,9 +909,9 @@ function formatDateLabel(dateValue) {
 function getCategoryStyle(category) {
   const map = {
     concert: { emoji: "🎸", gradient: "#051a10,#0d0520", tagClass: "tc", tagText: "Concert" },
+    festival: { emoji: "🎡", gradient: "#1a1000,#051a10", tagClass: "tp", tagText: "Festival" },
     sport: { emoji: "🏒", gradient: "#001a10,#1a0020", tagClass: "tb", tagText: "Sport" },
     wrestling: { emoji: "🤼", gradient: "#1a0800,#0a0a0a", tagClass: "to", tagText: "Wrestling" },
-    festival: { emoji: "🎡", gradient: "#1a1000,#051a10", tagClass: "tp", tagText: "Festival" },
     comedy: { emoji: "😂", gradient: "#1a1505,#051a15", tagClass: "ty", tagText: "Comedy" },
     theatre: { emoji: "🎭", gradient: "#05051a,#1a051a", tagClass: "to", tagText: "Theatre" },
     kids: { emoji: "🧸", gradient: "#1a0520,#051a15", tagClass: "tk", tagText: "Kids Show" },
@@ -680,7 +922,7 @@ function getCategoryStyle(category) {
 }
 
 function buildEventTitle(category) {
-  if (category === "concert") {
+  if (category === "concert" || category === "festival") {
     return document.getElementById("aeTitle").value.trim();
   }
 
@@ -692,7 +934,6 @@ function buildEventTitle(category) {
     if (league && awayTeam && homeTeam) {
       return `${league}: ${awayTeam} vs ${homeTeam}`;
     }
-
     return "";
   }
 
@@ -700,10 +941,7 @@ function buildEventTitle(category) {
     const promotion = document.getElementById("aePromotion").value.trim();
     const eventName = document.getElementById("aeWrestlingEvent").value.trim();
 
-    if (promotion && eventName) {
-      return `${promotion}: ${eventName}`;
-    }
-
+    if (promotion && eventName) return `${promotion}: ${eventName}`;
     return eventName || promotion || "";
   }
 
@@ -711,7 +949,7 @@ function buildEventTitle(category) {
 }
 
 function buildSupportText(category) {
-  if (category === "concert") {
+  if (category === "concert" || category === "festival") {
     return document.getElementById("aeSupport").value.trim();
   }
   return "";
@@ -726,7 +964,7 @@ function buildExtraTags(category) {
     const league = document.getElementById("aeLeague").value.trim();
     const sportNote = document.getElementById("aeSportNote").value.trim();
 
-    if (sportType) tags.push(["ta", sportType.charAt(0).toUpperCase() + sportType.slice(1)]);
+    if (sportType) tags.push(["ta", titleCase(sportType)]);
     if (league) tags.push(["ta", league]);
     if (sportNote) tags.push(["ta", sportNote]);
   }
