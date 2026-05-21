@@ -452,6 +452,7 @@ function getVenueGroups() {
   const groups = {};
 
   getVisibleEvents().forEach(event => {
+    const originalVenue = event.v.split("·")[0].trim();
     const venueKey = normalizeVenueName(event.v);
     const venueParts = extractVenueLocation(event.v);
 
@@ -459,14 +460,28 @@ function getVenueGroups() {
       const coords = VENUE_COORDS[venueKey] || null;
       groups[venueKey] = {
         key: venueKey,
-        displayName: venueParts.name,
+        displayName: titleCase(venueKey),
         location: venueParts.location,
         coords,
-        events: []
+        events: [],
+        historicalNames: {}
       };
     }
 
     groups[venueKey].events.push(event);
+
+    if (!groups[venueKey].historicalNames[originalVenue]) {
+      groups[venueKey].historicalNames[originalVenue] = [];
+    }
+
+    groups[venueKey].historicalNames[originalVenue].push(event);
+  });
+
+  Object.values(groups).forEach(group => {
+    if (group.key === "CANADA LIFE CENTRE") group.displayName = "Canada Life Centre";
+    if (group.key === "SASKTEL CENTRE") group.displayName = "SaskTel Centre";
+    if (group.key === "MALL OF AMERICA FIELD") group.displayName = "Mall of America Field";
+    if (group.key === "ALERUS CENTER") group.displayName = "Alerus Center";
   });
 
   return Object.values(groups)
