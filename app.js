@@ -484,6 +484,8 @@ function getVenueGroups() {
     if (group.key === "SASKTEL CENTRE") group.displayName = "SaskTel Centre";
     if (group.key === "MALL OF AMERICA FIELD") group.displayName = "Mall of America Field";
     if (group.key === "ALERUS CENTER") group.displayName = "Alerus Center";
+    if (group.key === "RBC CONVENTION CENTRE") group.displayName = "RBC Convention Centre";
+    if (group.key === "PRINCESS AUTO STADIUM") group.displayName = "Princess Auto Stadium";
   });
 
   return Object.values(groups)
