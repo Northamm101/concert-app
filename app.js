@@ -560,10 +560,13 @@ function renderMap() {
   });
 
   if (bounds.length === 1) {
-    gigbookLeafletMap.setView(bounds[0], 10);
-  } else {
-    gigbookLeafletMap.fitBounds(bounds, { padding: [30, 30] });
+  gigbookLeafletMap.setView(bounds[0], 8);
+} else {
+  gigbookLeafletMap.fitBounds(bounds, { padding: [40, 40] });
+  if (gigbookLeafletMap.getZoom() > 4) {
+    gigbookLeafletMap.setZoom(4);
   }
+}
 
   setTimeout(() => gigbookLeafletMap.invalidateSize(), 50);
 }
