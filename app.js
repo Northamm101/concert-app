@@ -480,61 +480,69 @@ function latLngToXY(lat, lng, bounds) {
   };
 }
 
+let gigbookLeafletMap = null;
+let gigbookLeafletMarkers = null;
+
 function renderMap() {
-  const mapStage = document.getElementById("mapStage");
+  const mapEl = document.getElementById("leafletMap");
   const details = document.getElementById("mapVenueDetails");
-  if (!mapStage || !details) return;
+  if (!mapEl || !details || typeof L === "undefined") return;
 
   const groups = getVenueGroups();
-  mapStage.innerHTML = "";
+
+  if (!gigbookLeafletMap) {
+    gigbookLeafletMap = L.map("leafletMap", {
+      zoomControl: true,
+      attributionControl: true
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(gigbookLeafletMap);
+
+    gigbookLeafletMarkers = L.layerGroup().addTo(gigbookLeafletMap);
+  }
+
+  gigbookLeafletMarkers.clearLayers();
 
   if (!groups.length) {
-    mapStage.innerHTML = `<div class="empty-state" style="height:100%;">No mapped venues for this filter.</div>`;
-    details.innerHTML = `Tap a pin to see venue history.`;
+    details.innerHTML = `Tap a marker to see venue history.`;
+    gigbookLeafletMap.setView([49.8951, -97.1384], 3);
+    setTimeout(() => gigbookLeafletMap.invalidateSize(), 50);
     return;
   }
 
-  const lats = groups.map(g => g.coords.lat);
-  const lngs = groups.map(g => g.coords.lng);
-
-  const bounds = {
-    minLat: Math.min(...lats) - 2,
-    maxLat: Math.max(...lats) + 2,
-    minLng: Math.min(...lngs) - 3,
-    maxLng: Math.max(...lngs) + 3
-  };
+  const bounds = [];
 
   groups.forEach((group, index) => {
-    const pt = latLngToXY(group.coords.lat, group.coords.lng, bounds);
-    const pin = document.createElement("button");
-    pin.className = "map-pin";
-    pin.style.left = `${pt.x}%`;
-    pin.style.top = `${pt.y}%`;
-    pin.title = `${group.displayName} (${group.events.length})`;
+    if (!group.coords) return;
 
-    pin.onclick = () => {
-      document.querySelectorAll(".map-pin").forEach(p => p.classList.remove("active"));
-      pin.classList.add("active");
+    const marker = L.marker([group.coords.lat, group.coords.lng]).addTo(gigbookLeafletMarkers);
+
+    marker.bindPopup(`
+      <div class="custom-map-popup-title">${group.displayName}</div>
+      <div class="custom-map-popup-sub">${group.location} · ${group.events.length} event${group.events.length === 1 ? "" : "s"}</div>
+    `);
+
+    marker.on("click", () => {
       renderVenueDetails(group);
-    };
+    });
 
-    mapStage.appendChild(pin);
+    bounds.push([group.coords.lat, group.coords.lng]);
 
     if (index === 0) {
-      setTimeout(() => {
-        pin.classList.add("active");
-        renderVenueDetails(group);
-      }, 0);
+      renderVenueDetails(group);
     }
   });
 
-  const legend = document.createElement("div");
-  legend.className = "map-legend";
-  legend.innerHTML = `
-    <div class="map-legend-chip">${groups.length} venues</div>
-    <div class="map-legend-chip">${getVisibleEvents().length} visible events</div>
-  `;
-  mapStage.appendChild(legend);
+  if (bounds.length === 1) {
+    gigbookLeafletMap.setView(bounds[0], 10);
+  } else {
+    gigbookLeafletMap.fitBounds(bounds, { padding: [30, 30] });
+  }
+
+  setTimeout(() => gigbookLeafletMap.invalidateSize(), 50);
 }
 
 function renderVenueDetails(group) {
