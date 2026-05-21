@@ -572,7 +572,11 @@ function renderVenueDetails(group) {
   const details = document.getElementById("mapVenueDetails");
 
   const historicalSections = Object.entries(group.historicalNames || {})
-    .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
+    .sort((a, b) => {
+      const aLatest = Math.max(...a[1].map(e => eventSortableDate(e).getTime()));
+      const bLatest = Math.max(...b[1].map(e => eventSortableDate(e).getTime()));
+      return bLatest - aLatest;
+    })
     .map(([venueName, events]) => {
       const sortedEvents = [...events].sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
 
