@@ -6,6 +6,7 @@ let activeStatsTab = "overall";
 let activeSportStatsTab = "hockey";
 
 const STORAGE_KEY = "gigbook_custom_events_v1";
+const HIDDEN_EVENTS_KEY = "gigbook_hidden_events_v1";
 
 const VENUE_ALIASES = {
   "MTS CENTRE": "CANADA LIFE CENTRE",
@@ -139,6 +140,33 @@ function ensureEventHasId(event) {
     event.id = createStableEventId(event);
   }
   return event;
+}
+
+function getHiddenEventIds() {
+  try {
+    const raw = localStorage.getItem(HIDDEN_EVENTS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error("Could not read hidden GigBook events:", error);
+    return [];
+  }
+}
+
+function saveHiddenEventIds(ids) {
+  try {
+    localStorage.setItem(HIDDEN_EVENTS_KEY, JSON.stringify(ids));
+  } catch (error) {
+    console.error("Could not save hidden GigBook events:", error);
+    toast("Could not update hidden events on this device.");
+  }
+}
+
+function isEventHidden(event) {
+  ensureEventHasId(event);
+  const hiddenIds = getHiddenEventIds();
+  return hiddenIds.includes(event.id);
 }
 
 function buildDisplayNumberMap() {
