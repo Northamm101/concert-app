@@ -9,7 +9,14 @@ const STORAGE_KEY = "gigbook_custom_events_v1";
 
 const VENUE_ALIASES = {
   "MTS CENTRE": "CANADA LIFE CENTRE",
-  "BELL MTS PLACE": "CANADA LIFE CENTRE"
+  "BELL MTS PLACE": "CANADA LIFE CENTRE",
+
+  "CREDIT UNION CENTRE": "SASKTEL CENTRE",
+
+  "H.H.H. METRODOME": "MALL OF AMERICA FIELD",
+  "MALL OF AMERICA FIELD": "MALL OF AMERICA FIELD",
+
+  "ALERUS CENTRE": "ALERUS CENTER"
 };
 
 const VENUE_COORDS = {
@@ -19,12 +26,14 @@ const VENUE_COORDS = {
   "RESORTS WORLD LAS VEGAS": { lat: 36.1475, lng: -115.1566 },
   "THE LINQ": { lat: 36.1162, lng: -115.1708 },
   "TARGET FIELD": { lat: 44.9817, lng: -93.2776 },
+  "TARGET CENTER": { lat: 44.9795, lng: -93.2760 },
   "US BANK STADIUM": { lat: 44.9737, lng: -93.2576 },
   "SCOTIABANK ARENA": { lat: 43.6435, lng: -79.3791 },
   "ROGERS CENTRE": { lat: 43.6414, lng: -79.3894 },
   "COCA COLA COLISEUM": { lat: 43.6332, lng: -79.4186 },
+
   "ALERUS CENTER": { lat: 47.9214, lng: -97.0886 },
-  "ALERUS CENTRE": { lat: 47.9214, lng: -97.0886 },
+
   "MOSAIC STADIUM": { lat: 50.4480, lng: -104.6332 },
   "CLUB REGENT EVENT CENTRE": { lat: 49.8957, lng: -97.0312 },
   "IG FIELD": { lat: 49.8079, lng: -97.1433 },
@@ -33,14 +42,17 @@ const VENUE_COORDS = {
   "ORLEANS ARENA": { lat: 36.1020, lng: -115.1782 },
   "CENTENNIAL CONCERT HALL": { lat: 49.8966, lng: -97.1403 },
   "KENASTON & STERLING LYON FIELD": { lat: 49.8444, lng: -97.2131 },
-  "WINNIPEG STADIUM": { lat: 49.8725, lng: -97.1701 },
+
+  "WINNIPEG STADIUM": { lat: 49.8811, lng: -97.1975 },
+
   "WINNIPEG CONVENTION CENTRE": { lat: 49.8894, lng: -97.1430 },
   "RBC CONVENTION CENTRE": { lat: 49.8894, lng: -97.1430 },
   "FENWAY PARK": { lat: 42.3467, lng: -71.0972 },
   "WRIGLEY FIELD": { lat: 41.9484, lng: -87.6553 },
   "U.S. CELLULAR FIELD": { lat: 41.8299, lng: -87.6338 },
-  "H.H.H. METRODOME": { lat: 44.9739, lng: -93.2580 },
+
   "MALL OF AMERICA FIELD": { lat: 44.9739, lng: -93.2580 },
+
   "FARGODOME": { lat: 46.9007, lng: -96.8003 },
   "SPORTS PAVILION": { lat: 44.9754, lng: -93.2368 },
   "UNIVERSITY OF MANITOBA": { lat: 49.8078, lng: -97.1336 },
@@ -50,7 +62,9 @@ const VENUE_COORDS = {
   "AIR CANADA CENTRE": { lat: 43.6435, lng: -79.3791 },
   "MGM GRAND": { lat: 36.1025, lng: -115.1696 },
   "THE ZOO (BAR)": { lat: 49.8970, lng: -97.1405 },
-  "MANITOBA MUSEUM": { lat: 49.8996, lng: -97.1374 }
+  "MANITOBA MUSEUM": { lat: 49.8996, lng: -97.1374 },
+
+  "SASKTEL CENTRE": { lat: 52.1570, lng: -106.7204 }
 };
 
 function normalizeVenueName(venueString) {
