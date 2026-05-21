@@ -285,7 +285,10 @@ async function loadImg(s, cid, modal) {
 }
 
 function getVisibleEvents() {
-  return S.filter(s => {
+  return S
+  .map(s => ensureEventHasId(s))
+  .filter(s => !isEventHidden(s))
+  .filter(s => {
     const tabMatch = cF === "all" || s.t === cF;
     const q = cQ.trim().toLowerCase();
     const searchMatch =
