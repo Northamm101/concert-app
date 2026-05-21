@@ -1236,3 +1236,25 @@ body::before{
   color: var(--cyan);
   margin-bottom: 10px;
 }
+
+#mapVenueDetails {
+  display: block;
+}
+
+#mapVenueDetails .venue-history-block {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+#mapVenueDetails .venue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#mapVenueDetails .venue-event {
+  width: 100%;
+}
