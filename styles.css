@@ -1059,3 +1059,112 @@ body::before{
   gap:10px;
   margin-top:8px;
 }
+
+.stats-tabs,
+.stats-subtabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 14px;
+  padding-bottom: 2px;
+}
+
+.stats-tabs::-webkit-scrollbar,
+.stats-subtabs::-webkit-scrollbar {
+  display: none;
+}
+
+.stats-tab,
+.stats-subtab {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stats-tab.active,
+.stats-subtab.active {
+  background: var(--cyan);
+  color: var(--black);
+  border-color: var(--cyan);
+  font-weight: 600;
+}
+
+.stats-panel,
+.stats-sport-panel {
+  display: none;
+}
+
+.stats-panel.active,
+.stats-sport-panel.active {
+  display: block;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px 16px;
+}
+
+.stat-box-title {
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+}
+
+.stat-box-value {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--cyan);
+  margin-bottom: 10px;
+}
+
+.stat-box-sub {
+  font-size: 14px;
+  color: var(--white);
+  line-height: 1.4;
+}
+
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stats-list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.stats-list-row strong {
+  color: var(--white);
+  font-weight: 600;
+}
+
+@media (max-width: 520px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
