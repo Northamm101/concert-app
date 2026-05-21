@@ -661,15 +661,79 @@ function getConcertLikeEvents() {
   return S.filter(e => e.t === "concert" || e.t === "festival");
 }
 
+function getLegacySportDetails(event) {
+  if (event.t !== "sport") return null;
+
+  const title = event.a || "";
+
+  const leagueMatch = title.match(/^([A-Z]{2,6})\s*:\s*(.+?)\s+vs\.?\s+(.+?)(?:\s+—.*)?$/i);
+  if (!leagueMatch) return null;
+
+  const league = leagueMatch[1].toUpperCase().trim();
+  const awayTeam = leagueMatch[2].trim();
+  const homeTeam = leagueMatch[3].trim();
+
+  let sportType = "other";
+
+  if (["NHL", "AHL", "CHL", "IIHF", "WJC"].includes(league)) sportType = "hockey";
+  else if (["NFL", "CFL", "NCAA"].includes(league)) sportType = "football";
+  else if (["MLB"].includes(league)) sportType = "baseball";
+  else if (["NBA", "CEBL"].includes(league)) sportType = "basketball";
+
+  if (title.toUpperCase().includes("WORLD JUNIOR")) {
+    sportType = "hockey";
+  }
+
+  return {
+    sportType,
+    league,
+    awayTeam,
+    homeTeam
+  };
+}
+
+function getResolvedSportDetails(event) {
+  if (event.t !== "sport") return null;
+
+  const hasStructured =
+    event.sportType || event.league || event.homeTeam || event.awayTeam;
+
+  if (hasStructured) {
+    return {
+      sportType: (event.sportType || "other").toLowerCase(),
+      league: event.league || "",
+      awayTeam: event.awayTeam || "",
+      homeTeam: event.homeTeam || ""
+    };
+  }
+
+  const legacy = getLegacySportDetails(event);
+  if (legacy) {
+    return {
+      sportType: (legacy.sportType || "other").toLowerCase(),
+      league: legacy.league || "",
+      awayTeam: legacy.awayTeam || "",
+      homeTeam: legacy.homeTeam || ""
+    };
+  }
+
+  return null;
+}
+
 function getSportEventsByType(type) {
-  return S.filter(e => e.t === "sport" && (e.sportType || "").toLowerCase() === type.toLowerCase());
+  return S.filter(e => {
+    if (e.t !== "sport") return false;
+    const details = getResolvedSportDetails(e);
+    return details && details.sportType === type.toLowerCase();
+  });
 }
 
 function getOtherSportEvents() {
   return S.filter(e => {
     if (e.t !== "sport") return false;
-    const type = (e.sportType || "").toLowerCase();
-    return !["hockey", "football", "baseball", "basketball"].includes(type);
+    const details = getResolvedSportDetails(e);
+    if (!details) return true;
+    return !["hockey", "football", "baseball", "basketball"].includes(details.sportType);
   });
 }
 
@@ -800,15 +864,19 @@ function renderSportTypeStats(type, targetId) {
 
   const events = type === "other" ? getOtherSportEvents() : getSportEventsByType(type);
 
-  const leagueCounts = countItems(events.map(e => e.league).filter(Boolean));
-
+  const leagueCounts = {};
   const teamCounts = {};
-  events.forEach(e => {
-    if (e.homeTeam) teamCounts[e.homeTeam] = (teamCounts[e.homeTeam] || 0) + 1;
-    if (e.awayTeam) teamCounts[e.awayTeam] = (teamCounts[e.awayTeam] || 0) + 1;
-  });
+  const venueCounts = {};
 
-  const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
+  events.forEach(e => {
+    const details = getResolvedSportDetails(e);
+    const venueName = extractVenueLocation(e.v).name;
+
+    if (details?.league) leagueCounts[details.league] = (leagueCounts[details.league] || 0) + 1;
+    if (details?.homeTeam) teamCounts[details.homeTeam] = (teamCounts[details.homeTeam] || 0) + 1;
+    if (details?.awayTeam) teamCounts[details.awayTeam] = (teamCounts[details.awayTeam] || 0) + 1;
+    if (venueName) venueCounts[venueName] = (venueCounts[venueName] || 0) + 1;
+  });
 
   target.innerHTML = `
     <div class="stat-box">
