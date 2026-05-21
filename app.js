@@ -117,6 +117,30 @@ function eventKey(s) {
   ].join("||");
 }
 
+function createStableEventId(event) {
+  const raw = [
+    event.a || "",
+    event.d || "",
+    event.v || "",
+    event.t || "",
+    event.o || "",
+    event.isoDate || "",
+    event.y || ""
+  ].join("||");
+
+  return "ev_" + raw
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function ensureEventHasId(event) {
+  if (!event.id) {
+    event.id = createStableEventId(event);
+  }
+  return event;
+}
+
 function buildDisplayNumberMap() {
   const sortedAll = [...S].sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
   const map = new Map();
@@ -154,6 +178,7 @@ function mergeStoredEventsIntoS() {
   const existingKeys = new Set(S.map(eventKey));
 
   stored.forEach(ev => {
+  ensureEventHasId(ev);
     const key = eventKey(ev);
     if (!existingKeys.has(key)) {
       S.push(ev);
@@ -1142,6 +1167,8 @@ if (category === "sport") {
     tags: [[style.tagClass, style.tagText], ...buildExtraTags(category)],
     y: year
   };
+  
+  ensureEventHasId(newEvent);
 
   if (category === "sport") {
     newEvent.sportType = document.getElementById("aeSportType").value.trim();
