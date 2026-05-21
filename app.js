@@ -566,19 +566,31 @@ function renderMap() {
 
 function renderVenueDetails(group) {
   const details = document.getElementById("mapVenueDetails");
-  const sortedEvents = [...group.events].sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
+
+  const historicalSections = Object.entries(group.historicalNames || {})
+    .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
+    .map(([venueName, events]) => {
+      const sortedEvents = [...events].sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
+
+      return `
+        <div class="venue-history-block">
+          <div class="venue-history-title">${venueName}</div>
+          <div class="venue-list">
+            ${sortedEvents.map(e => `
+              <div class="venue-event">
+                <div class="venue-event-title">${e.a}</div>
+                <div class="venue-event-meta">${e.d} · ${e.t.toUpperCase()}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }).join("");
 
   details.innerHTML = `
     <div class="venue-title">${group.displayName}</div>
-    <div class="venue-meta">${group.location} · ${sortedEvents.length} event${sortedEvents.length === 1 ? "" : "s"}</div>
-    <div class="venue-list">
-      ${sortedEvents.map(e => `
-        <div class="venue-event">
-          <div class="venue-event-title">${e.a}</div>
-          <div class="venue-event-meta">${e.d} · ${e.t.toUpperCase()}</div>
-        </div>
-      `).join("")}
-    </div>
+    <div class="venue-meta">${group.location} · ${group.events.length} event${group.events.length === 1 ? "" : "s"}</div>
+    ${historicalSections}
   `;
 }
 
