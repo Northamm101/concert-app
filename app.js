@@ -422,6 +422,7 @@ function render() {
 }
 
 function openModal(s, num) {
+  ensureEventHasId(s);
   document.getElementById("mpej").textContent = s.e;
   document.getElementById("mpej").style.opacity = "1";
   document.getElementById("mTitle").textContent = s.a;
@@ -455,6 +456,18 @@ function openModal(s, num) {
       <div class="irow"><span class="ikey">Category</span><span class="ival">${tl[s.t] || s.t}</span></div>
 ${s.t === "sport" && s.sportType ? `<div class="irow"><span class="ikey">Sport Type</span><span class="ival">${titleCase(s.sportType)}</span></div>` : ""}
 <div class="irow"><span class="ikey">Entry</span><span class="ival" style="color:var(--cyan)">#${num} in GigBook</span></div>
+    </div>
+    
+        <div class="msec">
+      <div class="msec-title">Actions</div>
+      <div style="display:flex;gap:10px;">
+        <button
+          onclick="hideEventById('${s.id}')"
+          style="flex:1;background:rgba(255,77,106,.10);border:1px solid rgba(255,77,106,.25);color:var(--red);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;"
+        >
+          Delete / Hide Event
+        </button>
+      </div>
     </div>
 
     <div class="msec">
