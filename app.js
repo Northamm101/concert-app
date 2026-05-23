@@ -1326,16 +1326,48 @@ if (category === "sport") {
     newEvent.eventName = document.getElementById("aeWrestlingEvent").value.trim();
   }
 
-  const stored = getStoredCustomEvents();
-  stored.push(newEvent);
-  saveStoredCustomEvents(stored);
+  if (editingEventId) {
+  newEvent.id = editingEventId;
 
-  S.push(newEvent);
+  const eventIndex = S.findIndex(e => {
+    ensureEventHasId(e);
+    return e.id === editingEventId;
+  });
+
+  if (eventIndex !== -1) {
+    S[eventIndex] = newEvent;
+  }
+
+  const stored = getStoredCustomEvents();
+  const storedIndex = stored.findIndex(e => {
+    ensureEventHasId(e);
+    return e.id === editingEventId;
+  });
+
+  if (storedIndex !== -1) {
+    stored[storedIndex] = newEvent;
+    saveStoredCustomEvents(stored);
+  }
+
+  editingEventId = null;
 
   closeAddEventModal();
   render();
   switchScreen("shows");
-  toast("Event added to GigBook");
+  toast("Event updated in GigBook");
+  return;
+}
+
+const stored = getStoredCustomEvents();
+stored.push(newEvent);
+saveStoredCustomEvents(stored);
+
+S.push(newEvent);
+
+closeAddEventModal();
+render();
+switchScreen("shows");
+toast("Event added to GigBook");
 }
 
 document.getElementById("addEventOverlay").addEventListener("click", e => {
