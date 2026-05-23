@@ -187,11 +187,11 @@ function hideEventById(eventId) {
 }
 
 function buildDisplayNumberMap() {
-  const sortedAll = [...S].sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
+  const visibleEvents = getVisibleEvents().sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
   const map = new Map();
 
-  sortedAll.forEach((event, index) => {
-    map.set(eventKey(event), sortedAll.length - index);
+  visibleEvents.forEach((event, index) => {
+    map.set(eventKey(event), visibleEvents.length - index);
   });
 
   return map;
