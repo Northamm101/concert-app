@@ -4,6 +4,7 @@ let cQ = "";
 let activeScreen = "shows";
 let activeStatsTab = "overall";
 let activeSportStatsTab = "hockey";
+let editingEventId = null;
 
 const STORAGE_KEY = "gigbook_custom_events_v1";
 const HIDDEN_EVENTS_KEY = "gigbook_hidden_events_v1";
@@ -184,6 +185,24 @@ function hideEventById(eventId) {
   if (activeScreen === "stats") renderStats();
 
   toast("Event hidden from GigBook");
+}
+
+function startEditEvent(eventId) {
+  const event = S.find(e => {
+    ensureEventHasId(e);
+    return e.id === eventId;
+  });
+
+  if (!event) {
+    toast("Could not find event to edit.");
+    return;
+  }
+
+  editingEventId = event.id;
+
+  closeModal();
+  openAddEventModal();
+  fillAddEventForm(event);
 }
 
 function buildDisplayNumberMap() {
@@ -458,9 +477,15 @@ ${s.t === "sport" && s.sportType ? `<div class="irow"><span class="ikey">Sport T
 <div class="irow"><span class="ikey">Entry</span><span class="ival" style="color:var(--cyan)">#${num} in GigBook</span></div>
     </div>
     
-        <div class="msec">
+            <div class="msec">
       <div class="msec-title">Actions</div>
       <div style="display:flex;gap:10px;">
+        <button
+          onclick="startEditEvent('${s.id}')"
+          style="flex:1;background:rgba(0,229,200,.10);border:1px solid rgba(0,229,200,.25);color:var(--cyan);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;"
+        >
+          Edit Event
+        </button>
         <button
           onclick="hideEventById('${s.id}')"
           style="flex:1;background:rgba(255,77,106,.10);border:1px solid rgba(255,77,106,.25);color:var(--red);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;"
@@ -1074,6 +1099,7 @@ function updateAddEventForm() {
 }
 
 function openAddEventModal() {
+  editingEventId = null;
   clearAddEventForm();
   updateAddEventForm();
   document.getElementById("addEventOverlay").classList.add("open");
@@ -1102,6 +1128,62 @@ function clearAddEventForm() {
   document.getElementById("aeLocation").value = "";
   document.getElementById("aeTag").value = "";
   updateAddEventForm();
+}
+
+function fillAddEventForm(event) {
+  const venueParts = extractVenueLocation(event.v);
+
+  document.getElementById("aeCategory").value = event.t || "concert";
+  updateAddEventForm();
+
+  if (event.t === "concert" || event.t === "festival") {
+    document.getElementById("aeTitle").value = event.a || "";
+    document.getElementById("aeSupport").value = event.o || "";
+  }
+
+  if (event.t === "sport") {
+    document.getElementById("aeSportType").value = event.sportType || "";
+    document.getElementById("aeLeague").value = event.league || "";
+    document.getElementById("aeAwayTeam").value = event.awayTeam || "";
+    document.getElementById("aeHomeTeam").value = event.homeTeam || "";
+    document.getElementById("aeSportNote").value = event.sportNote || "";
+  }
+
+  if (event.t === "wrestling") {
+    document.getElementById("aePromotion").value = event.promotion || "";
+    document.getElementById("aeWrestlingEvent").value = event.eventName || "";
+  }
+
+  if (!["sport", "wrestling"].includes(event.t)) {
+    if (document.getElementById("aeTitle")) {
+      document.getElementById("aeTitle").value = event.a || "";
+    }
+  }
+
+  document.getElementById("aeDate").value = event.isoDate || "";
+  document.getElementById("aeVenue").value = venueParts.name || "";
+  document.getElementById("aeLocation").value = venueParts.location || "";
+
+  const extraTag = (event.tags || [])
+    .map(tag => tag[1])
+    .filter(tagText => ![
+      "Concert",
+      "Festival",
+      "Sport",
+      "Wrestling",
+      "Comedy",
+      "Theatre",
+      "Kids Show",
+      "Curling",
+      "Cancelled",
+      "Hockey",
+      "Football",
+      "Baseball",
+      "Basketball",
+      "Soccer"
+    ].includes(tagText))[0] || "";
+
+  document.getElementById("aeTag").value = extraTag;
 }
 
 function formatDateLabel(dateValue) {
