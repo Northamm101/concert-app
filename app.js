@@ -1099,8 +1099,9 @@ function updateAddEventForm() {
 }
 
 function openAddEventModal() {
-  editingEventId = null;
-  clearAddEventForm();
+  if (!editingEventId) {
+    clearAddEventForm();
+  }
   updateAddEventForm();
   document.getElementById("addEventOverlay").classList.add("open");
   document.body.style.overflow = "hidden";
@@ -1110,6 +1111,7 @@ function closeAddEventModal() {
   document.getElementById("addEventOverlay").classList.remove("open");
   document.body.style.overflow = "";
   clearAddEventForm();
+  editingEventId = null;
 }
 
 function clearAddEventForm() {
