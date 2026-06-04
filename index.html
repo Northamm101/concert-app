@@ -46,13 +46,12 @@
       <div class="ribbon">
         <button class="ribbon-tab active" onclick="setTab(this,'all')">All</button>
         <button class="ribbon-tab" onclick="setTab(this,'concert')">🎸 Concerts</button>
-        <button class="ribbon-tab" onclick="setTab(this,'sport')">🏒 Sports</button>
+        <button class="ribbon-tab" onclick="setTab(this,'sport')">🏟️ Sports</button>
         <button class="ribbon-tab" onclick="setTab(this,'wrestling')">🤼 Wrestling</button>
         <button class="ribbon-tab" onclick="setTab(this,'festival')">🎡 Festivals</button>
         <button class="ribbon-tab" onclick="setTab(this,'comedy')">😂 Comedy</button>
         <button class="ribbon-tab" onclick="setTab(this,'theatre')">🎭 Theatre</button>
         <button class="ribbon-tab" onclick="setTab(this,'kids')">🧸 Kids</button>
-        <button class="ribbon-tab" onclick="setTab(this,'curling')">🥌 Curling</button>
         <button class="ribbon-tab" onclick="setTab(this,'cancelled')">❌ Cancelled</button>
       </div>
 
@@ -225,7 +224,7 @@
 
         <div class="add-form">
           <label class="form-label">Category</label>
-          <select id="aeCategory" class="form-input" onchange="updateAddEventForm()">
+          <select id="aeCategory" class="form-select" onchange="updateAddEventForm()">
             <option value="concert">Concert</option>
             <option value="comedy">Comedy</option>
             <option value="festival">Festival</option>
@@ -236,35 +235,39 @@
             <option value="cancelled">Cancelled</option>
           </select>
 
-          <div id="simpleFields" class="dynamic-form-section">
-            <label class="form-label" id="aeSimpleHeadlinerLabel">Headliner</label>
-            <input id="aeSimpleHeadliner" class="form-input" type="text" placeholder="Enter headliner or performer">
+          <div id="simpleFields" class="dynamic-form-section active">
+            <label class="form-label" id="simpleHeadlinerLabel">Headliner</label>
+            <input id="aeSimpleHeadliner" class="form-input" type="text" placeholder="Enter headliner or event name">
+
             <label class="form-label">Supporting Artist(s) (Optional)</label>
             <input id="aeSimpleSupport" class="form-input" type="text" placeholder="Optional">
           </div>
 
-          <div id="festivalFields" class="dynamic-form-section" style="display:none;">
+          <div id="festivalFields" class="dynamic-form-section">
             <label class="form-label">Festival Name</label>
             <input id="aeFestivalName" class="form-input" type="text" placeholder="Enter festival name">
+
             <label class="form-label">Headliner</label>
-            <input id="aeFestivalHeadliner" class="form-input" type="text" placeholder="Enter festival headliner">
+            <input id="aeFestivalHeadliner" class="form-input" type="text" placeholder="Enter headliner">
+
             <label class="form-label">Supporting Artist(s)</label>
-            <input id="aeFestivalSupport" class="form-input" type="text" placeholder="Enter supporting artists or lineup">
+            <input id="aeFestivalSupport" class="form-input" type="text" placeholder="Enter supporting artists">
           </div>
 
-          <div id="theatreFields" class="dynamic-form-section" style="display:none;">
+          <div id="theatreFields" class="dynamic-form-section">
             <label class="form-label">Performer / Show Title</label>
             <input id="aeTheatreTitle" class="form-input" type="text" placeholder="Enter performer or show title">
+
             <label class="form-label">Supporting Artist(s) (Optional)</label>
             <input id="aeTheatreSupport" class="form-input" type="text" placeholder="Optional">
           </div>
 
-          <div id="wrestlingFields" class="dynamic-form-section" style="display:none;">
+          <div id="wrestlingFields" class="dynamic-form-section">
             <label class="form-label">Promotion</label>
-            <select id="aePromotion" class="form-input" onchange="updateAddEventForm()">
+            <select id="aePromotion" class="form-select" onchange="updateAddEventForm()">
               <option value="">Select promotion</option>
               <option value="AEW">AEW</option>
-              <option value="WWE/WWF">WWE/WWF</option>
+              <option value="WWE/WWF">WWE / WWF</option>
               <option value="AAA">AAA</option>
               <option value="CMLL">CMLL</option>
               <option value="CWE">CWE</option>
@@ -279,7 +282,7 @@
             </select>
 
             <div id="wrestlingOtherPromotionWrap" style="display:none;">
-              <label class="form-label">Promotion Name</label>
+              <label class="form-label">Custom Promotion</label>
               <input id="aeCustomPromotion" class="form-input" type="text" placeholder="Enter promotion name">
             </div>
 
@@ -287,9 +290,9 @@
             <input id="aeWrestlingEvent" class="form-input" type="text" placeholder="Enter event name">
           </div>
 
-          <div id="sportFields" class="dynamic-form-section" style="display:none;">
+          <div id="sportFields" class="dynamic-form-section">
             <label class="form-label">Sport Type</label>
-            <select id="aeSportType" class="form-input" onchange="updateSportFields()">
+            <select id="aeSportType" class="form-select" onchange="updateSportFields()">
               <option value="">Select sport type</option>
               <option value="baseball">Baseball</option>
               <option value="basketball">Basketball</option>
@@ -301,19 +304,19 @@
             </select>
 
             <div id="sportTypeOtherWrap" style="display:none;">
-              <label class="form-label">Sport Type</label>
+              <label class="form-label">Custom Sport Type</label>
               <input id="aeCustomSportType" class="form-input" type="text" placeholder="Enter sport type">
             </div>
 
             <div id="sportLeagueWrap">
-              <label class="form-label" id="aeLeagueLabel">League</label>
-              <select id="aeLeague" class="form-input" onchange="updateSportFields()">
+              <label class="form-label">League</label>
+              <select id="aeLeague" class="form-select" onchange="updateSportFields()">
                 <option value="">Select league</option>
               </select>
             </div>
 
             <div id="sportLeagueOtherWrap" style="display:none;">
-              <label class="form-label">League Name</label>
+              <label class="form-label">Custom League</label>
               <input id="aeCustomLeague" class="form-input" type="text" placeholder="Enter league name">
             </div>
 
@@ -325,12 +328,12 @@
               <input id="aeHomeTeam" class="form-input" type="text" placeholder="Enter home team">
 
               <label class="form-label">Event Note (Optional)</label>
-              <input id="aeSportNote" class="form-input" type="text" placeholder="Example: Preseason, Playoffs, Championship">
+              <input id="aeSportNote" class="form-input" type="text" placeholder="Example: All-Star Game, Playoffs, Championship">
             </div>
 
             <div id="curlingFields" style="display:none;">
               <label class="form-label">Event Type</label>
-              <select id="aeCurlingEventType" class="form-input">
+              <select id="aeCurlingEventType" class="form-select">
                 <option value="">Select event type</option>
                 <option value="Brier">Brier</option>
                 <option value="Scotties">Scotties</option>
@@ -348,7 +351,7 @@
               </select>
 
               <label class="form-label">Draw Number</label>
-              <input id="aeCurlingDraw" class="form-input" type="text" placeholder="Example: Draw 8">
+              <input id="aeCurlingDraw" class="form-input" type="text" placeholder="Enter draw number">
 
               <label class="form-label">Event Note (Optional)</label>
               <input id="aeCurlingNote" class="form-input" type="text" placeholder="Optional">
