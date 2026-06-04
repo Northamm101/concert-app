@@ -9,6 +9,30 @@ let editingEventId = null;
 const STORAGE_KEY = "gigbook_custom_events_v1";
 const HIDDEN_EVENTS_KEY = "gigbook_hidden_events_v1";
 
+const SPORT_LEAGUE_OPTIONS = {
+  baseball: ["MLB", "American Association", "Northern League", "Other"],
+  basketball: ["CEBL", "NBA", "NCAA", "Other"],
+  football: ["CFL", "NFL", "NCAA", "Other"],
+  hockey: ["NHL", "AHL", "QMJHL", "OHL", "WHL", "IIHF (International)", "Other"],
+  soccer: ["CPL", "MLS", "Other"]
+};
+
+const CURLING_EVENT_OPTIONS = [
+  "Brier",
+  "Scotties",
+  "GSOC: Invitational",
+  "GSOC: Masters",
+  "GSOC: National",
+  "GSOC: Open",
+  "GSOC: Players Cup",
+  "Rock League",
+  "World Championship",
+  "Provincial Championship",
+  "Continental Cup",
+  "Olympic Trials",
+  "Olympic Pre-Trials"
+];
+
 const VENUE_ALIASES = {
   "MTS CENTRE": "CANADA LIFE CENTRE",
   "BELL MTS PLACE": "CANADA LIFE CENTRE",
@@ -71,9 +95,12 @@ function extractVenueLocation(venueString) {
   let displayName = parts[0] || venueString;
   const normalized = normalizeVenueName(venueString);
 
-  if (normalized === "CANADA LIFE CENTRE") {
-    displayName = "Canada Life Centre";
-  }
+  if (normalized === "CANADA LIFE CENTRE") displayName = "Canada Life Centre";
+  if (normalized === "SASKTEL CENTRE") displayName = "SaskTel Centre";
+  if (normalized === "MALL OF AMERICA FIELD") displayName = "Mall of America Field";
+  if (normalized === "PRINCESS AUTO STADIUM") displayName = "Princess Auto Stadium";
+  if (normalized === "RBC CONVENTION CENTRE") displayName = "RBC Convention Centre";
+  if (normalized === "ALERUS CENTER") displayName = "Alerus Center";
 
   return {
     name: displayName,
@@ -166,13 +193,11 @@ function saveHiddenEventIds(ids) {
 
 function isEventHidden(event) {
   ensureEventHasId(event);
-  const hiddenIds = getHiddenEventIds();
-  return hiddenIds.includes(event.id);
+  return getHiddenEventIds().includes(event.id);
 }
 
 function hideEventById(eventId) {
   const hiddenIds = getHiddenEventIds();
-
   if (!hiddenIds.includes(eventId)) {
     hiddenIds.push(eventId);
     saveHiddenEventIds(hiddenIds);
@@ -242,7 +267,7 @@ function mergeStoredEventsIntoS() {
   const existingKeys = new Set(S.map(eventKey));
 
   stored.forEach(ev => {
-  ensureEventHasId(ev);
+    ensureEventHasId(ev);
     const key = eventKey(ev);
     if (!existingKeys.has(key)) {
       S.push(ev);
@@ -322,20 +347,20 @@ async function loadImg(s, cid, modal) {
 
 function getVisibleEvents() {
   return S
-  .map(s => ensureEventHasId(s))
-  .filter(s => !isEventHidden(s))
-  .filter(s => {
-    const tabMatch = cF === "all" || s.t === cF;
-    const q = cQ.trim().toLowerCase();
-    const searchMatch =
-      !q ||
-      s.a.toLowerCase().includes(q) ||
-      s.v.toLowerCase().includes(q) ||
-      (s.o && s.o.toLowerCase().includes(q)) ||
-      String(s.y).includes(q);
+    .map(s => ensureEventHasId(s))
+    .filter(s => !isEventHidden(s))
+    .filter(s => {
+      const tabMatch = cF === "all" || s.t === cF;
+      const q = cQ.trim().toLowerCase();
+      const searchMatch =
+        !q ||
+        s.a.toLowerCase().includes(q) ||
+        s.v.toLowerCase().includes(q) ||
+        (s.o && s.o.toLowerCase().includes(q)) ||
+        String(s.y).includes(q);
 
-    return tabMatch && searchMatch;
-  });
+      return tabMatch && searchMatch;
+    });
 }
 
 function updateStats(a) {
@@ -440,6 +465,23 @@ function render() {
   renderMap();
 }
 
+function getDisplayPromotion(event) {
+  if (event.promotion === "Other") return event.customPromotion || "Other";
+  if (event.promotion === "WWE/WWF") return "WWE / WWF";
+  return event.promotion || "";
+}
+
+function getDisplaySportType(event) {
+  if ((event.sportType || "").toLowerCase() === "other") return event.customSportType || "Other";
+  return titleCase(event.sportType || "");
+}
+
+function getDisplayLeague(event) {
+  if ((event.sportType || "").toLowerCase() === "other") return event.customLeague || "";
+  if ((event.league || "").toLowerCase() === "other") return event.customLeague || "Other";
+  return event.league || "";
+}
+
 function openModal(s, num) {
   ensureEventHasId(s);
   document.getElementById("mpej").textContent = s.e;
@@ -462,9 +504,32 @@ function openModal(s, num) {
     comedy: "Comedy",
     theatre: "Theatre",
     kids: "Kids Show",
-    curling: "Curling",
     cancelled: "Cancelled"
   };
+
+  const sportTypeRow = s.t === "sport" && s.sportType
+    ? `<div class="irow"><span class="ikey">Sport Type</span><span class="ival">${getDisplaySportType(s)}</span></div>`
+    : "";
+
+  const sportLeagueRow = s.t === "sport" && getDisplayLeague(s)
+    ? `<div class="irow"><span class="ikey">League / Event</span><span class="ival">${getDisplayLeague(s)}</span></div>`
+    : "";
+
+  const sportTeamsRow = s.t === "sport" && s.awayTeam && s.homeTeam
+    ? `<div class="irow"><span class="ikey">Matchup</span><span class="ival">${s.awayTeam} vs ${s.homeTeam}</span></div>`
+    : "";
+
+  const sportCurlingDrawRow = s.t === "sport" && (s.sportType || "").toLowerCase() === "curling" && s.drawNumber
+    ? `<div class="irow"><span class="ikey">Draw Number</span><span class="ival">${s.drawNumber}</span></div>`
+    : "";
+
+  const sportNoteRow = s.t === "sport" && s.sportNote
+    ? `<div class="irow"><span class="ikey">Event Note</span><span class="ival">${s.sportNote}</span></div>`
+    : "";
+
+  const wrestlingPromotionRow = s.t === "wrestling" && getDisplayPromotion(s)
+    ? `<div class="irow"><span class="ikey">Promotion</span><span class="ival">${getDisplayPromotion(s)}</span></div>`
+    : "";
 
   document.getElementById("mBody").innerHTML = `
     <div class="msec">
@@ -473,11 +538,16 @@ function openModal(s, num) {
       <div class="irow"><span class="ikey">Venue</span><span class="ival">${extractVenueLocation(s.v).name}${extractVenueLocation(s.v).location ? " · " + extractVenueLocation(s.v).location : ""}</span></div>
       ${s.o ? `<div class="irow"><span class="ikey">Support</span><span class="ival">${s.o}</span></div>` : ""}
       <div class="irow"><span class="ikey">Category</span><span class="ival">${tl[s.t] || s.t}</span></div>
-${s.t === "sport" && s.sportType ? `<div class="irow"><span class="ikey">Sport Type</span><span class="ival">${titleCase(s.sportType)}</span></div>` : ""}
-<div class="irow"><span class="ikey">Entry</span><span class="ival" style="color:var(--cyan)">#${num} in GigBook</span></div>
+      ${sportTypeRow}
+      ${sportLeagueRow}
+      ${sportTeamsRow}
+      ${sportCurlingDrawRow}
+      ${sportNoteRow}
+      ${wrestlingPromotionRow}
+      <div class="irow"><span class="ikey">Entry</span><span class="ival" style="color:var(--cyan)">#${num} in GigBook</span></div>
     </div>
-    
-            <div class="msec">
+
+    <div class="msec">
       <div class="msec-title">Actions</div>
       <div style="display:flex;gap:10px;">
         <button
@@ -605,16 +675,6 @@ function getVenueGroups() {
     .sort((a, b) => b.events.length - a.events.length || a.displayName.localeCompare(b.displayName));
 }
 
-function latLngToXY(lat, lng, bounds) {
-  const x = ((lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * 100;
-  const y = 100 - ((lat - bounds.minLat) / (bounds.maxLat - bounds.minLat)) * 100;
-
-  return {
-    x: Math.min(96, Math.max(4, x)),
-    y: Math.min(94, Math.max(8, y))
-  };
-}
-
 let gigbookLeafletMap = null;
 let gigbookLeafletMarkers = null;
 
@@ -672,13 +732,13 @@ function renderMap() {
   });
 
   if (bounds.length === 1) {
-  gigbookLeafletMap.setView(bounds[0], 8);
-} else {
-  gigbookLeafletMap.fitBounds(bounds, { padding: [40, 40] });
-  if (gigbookLeafletMap.getZoom() > 4) {
-    gigbookLeafletMap.setZoom(4);
+    gigbookLeafletMap.setView(bounds[0], 8);
+  } else {
+    gigbookLeafletMap.fitBounds(bounds, { padding: [40, 40] });
+    if (gigbookLeafletMap.getZoom() > 4) {
+      gigbookLeafletMap.setZoom(4);
+    }
   }
-}
 
   setTimeout(() => gigbookLeafletMap.invalidateSize(), 50);
 }
@@ -807,6 +867,7 @@ function parseArtistNamesFromEvent(event) {
   }
 
   if (event.t === "festival") {
+    if (event.festivalHeadliner) artists.push(event.festivalHeadliner);
     if (event.o) {
       event.o
         .split(/\s*,\s*/)
@@ -828,19 +889,20 @@ function getLegacySportDetails(event) {
 
   const title = event.a || "";
 
-  const leagueMatch = title.match(/^([A-Z]{2,6})\s*:\s*(.+?)\s+vs\.?\s+(.+?)(?:\s+—.*)?$/i);
+  const leagueMatch = title.match(/^([A-Z]{2,20})\s*:\s*(.+?)\s+vs\.?\s+(.+?)(?:\s+—.*)?$/i);
   if (!leagueMatch) return null;
 
-  const league = leagueMatch[1].toUpperCase().trim();
+  const league = leagueMatch[1].trim();
   const awayTeam = leagueMatch[2].trim();
   const homeTeam = leagueMatch[3].trim();
 
   let sportType = "other";
 
-  if (["NHL", "AHL", "CHL", "IIHF", "WJC"].includes(league)) sportType = "hockey";
-  else if (["NFL", "CFL", "NCAA"].includes(league)) sportType = "football";
-  else if (["MLB"].includes(league)) sportType = "baseball";
-  else if (["NBA", "CEBL"].includes(league)) sportType = "basketball";
+  if (["NHL", "AHL", "CHL", "IIHF", "WJC", "QMJHL", "OHL", "WHL"].includes(league.toUpperCase())) sportType = "hockey";
+  else if (["NFL", "CFL", "NCAA"].includes(league.toUpperCase())) sportType = "football";
+  else if (["MLB", "AMERICAN ASSOCIATION", "NORTHERN LEAGUE"].includes(league.toUpperCase())) sportType = "baseball";
+  else if (["NBA", "CEBL"].includes(league.toUpperCase())) sportType = "basketball";
+  else if (["MLS", "CPL"].includes(league.toUpperCase())) sportType = "soccer";
 
   if (title.toUpperCase().includes("WORLD JUNIOR")) {
     sportType = "hockey";
@@ -858,12 +920,12 @@ function getResolvedSportDetails(event) {
   if (event.t !== "sport") return null;
 
   const hasStructured =
-    event.sportType || event.league || event.homeTeam || event.awayTeam;
+    event.sportType || event.league || event.homeTeam || event.awayTeam || event.customSportType || event.customLeague;
 
   if (hasStructured) {
     return {
       sportType: (event.sportType || "other").toLowerCase(),
-      league: event.league || "",
+      league: getDisplayLeague(event),
       awayTeam: event.awayTeam || "",
       homeTeam: event.homeTeam || ""
     };
@@ -895,8 +957,12 @@ function getOtherSportEvents() {
     if (e.t !== "sport") return false;
     const details = getResolvedSportDetails(e);
     if (!details) return true;
-    return !["hockey", "football", "baseball", "basketball"].includes(details.sportType);
+    return !["hockey", "football", "baseball", "basketball", "soccer", "curling"].includes(details.sportType);
   });
+}
+
+function getCurlingEvents() {
+  return S.filter(e => e.t === "sport" && (e.sportType || "").toLowerCase() === "curling");
 }
 
 function setStatsTab(tab, el) {
@@ -956,15 +1022,16 @@ function renderOverallStats() {
   const target = document.getElementById("statsOverallContent");
   if (!target) return;
 
-  const venueCounts = countItems(S.map(e => extractVenueLocation(e.v).name));
-  const regionCounts = countItems(S.map(e => extractRegionFromLocation(extractVenueLocation(e.v).location)).filter(Boolean));
-  const countryCounts = countItems(S.map(e => extractCountryFromLocation(extractVenueLocation(e.v).location)).filter(c => c !== "Unknown"));
+  const visible = getVisibleEvents();
+  const venueCounts = countItems(visible.map(e => extractVenueLocation(e.v).name));
+  const regionCounts = countItems(visible.map(e => extractRegionFromLocation(extractVenueLocation(e.v).location)).filter(Boolean));
+  const countryCounts = countItems(visible.map(e => extractCountryFromLocation(extractVenueLocation(e.v).location)).filter(c => c !== "Unknown"));
 
   target.innerHTML = `
     <div class="stat-box">
       <div class="stat-box-title">Total Events</div>
-      <div class="stat-box-value">${S.length}</div>
-      <div class="stat-box-sub">All events in GigBook.</div>
+      <div class="stat-box-value">${visible.length}</div>
+      <div class="stat-box-sub">All visible events in GigBook.</div>
     </div>
 
     ${renderListCard("Top 5 Venues", topNEntries(venueCounts, 5))}
@@ -977,7 +1044,7 @@ function renderConcertStats() {
   const target = document.getElementById("statsConcertsContent");
   if (!target) return;
 
-  const events = getConcertLikeEvents();
+  const events = getVisibleEvents().filter(e => e.t === "concert" || e.t === "festival");
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
 
   const artistCounts = {};
@@ -1024,7 +1091,9 @@ function renderSportTypeStats(type, targetId) {
   const target = document.getElementById(targetId);
   if (!target) return;
 
-  const events = type === "other" ? getOtherSportEvents() : getSportEventsByType(type);
+  const events = type === "other"
+    ? getVisibleEvents().filter(e => getOtherSportEvents().includes(e))
+    : getVisibleEvents().filter(e => getSportEventsByType(type).includes(e));
 
   const leagueCounts = {};
   const teamCounts = {};
@@ -1057,8 +1126,8 @@ function renderWrestlingStats() {
   const target = document.getElementById("statsWrestlingContent");
   if (!target) return;
 
-  const events = S.filter(e => e.t === "wrestling");
-  const promotionCounts = countItems(events.map(e => e.promotion || (e.a.includes(":") ? e.a.split(":")[0].trim() : "")).filter(Boolean));
+  const events = getVisibleEvents().filter(e => e.t === "wrestling");
+  const promotionCounts = countItems(events.map(e => getDisplayPromotion(e) || "").filter(Boolean));
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
 
   target.innerHTML = `
@@ -1087,21 +1156,134 @@ function renderStats() {
   setSportStatsTab(activeSportStatsTab);
 }
 
+function populateLeagueOptions(sportType, selectedValue = "") {
+  const leagueSelect = document.getElementById("aeLeague");
+  if (!leagueSelect) return;
+
+  const options = SPORT_LEAGUE_OPTIONS[(sportType || "").toLowerCase()] || [];
+  leagueSelect.innerHTML = `<option value="">Select league</option>`;
+
+  options.forEach(option => {
+    const opt = document.createElement("option");
+    opt.value = option;
+    opt.textContent = option;
+    if (option === selectedValue) opt.selected = true;
+    leagueSelect.appendChild(opt);
+  });
+}
+
+function getSelectedPromotionLabel() {
+  const promotion = document.getElementById("aePromotion").value.trim();
+  const customPromotion = document.getElementById("aeCustomPromotion").value.trim();
+
+  if (promotion === "Other") return customPromotion || "Other";
+  if (promotion === "WWE/WWF") return "WWE / WWF";
+  return promotion;
+}
+
+function getSelectedSportTypeLabel() {
+  const sportType = document.getElementById("aeSportType").value.trim().toLowerCase();
+  const customSportType = document.getElementById("aeCustomSportType").value.trim();
+
+  if (sportType === "other") return customSportType || "Other";
+  return titleCase(sportType);
+}
+
+function getSelectedLeagueLabel() {
+  const sportType = document.getElementById("aeSportType").value.trim().toLowerCase();
+  const league = document.getElementById("aeLeague").value.trim();
+  const customLeague = document.getElementById("aeCustomLeague").value.trim();
+
+  if (sportType === "other") return customLeague || "";
+  if (league === "Other") return customLeague || "Other";
+  return league;
+}
+
+function setAddEventHeading() {
+  const heading = document.getElementById("addEventHeading");
+  const subtitle = document.getElementById("addEventSubtitle");
+  if (!heading || !subtitle) return;
+
+  if (editingEventId) {
+    heading.textContent = "Edit Event";
+    subtitle.textContent = "Update an existing event in GigBook.";
+  } else {
+    heading.textContent = "Add Event";
+    subtitle.textContent = "Create a new event card in GigBook.";
+  }
+}
+
+function updateSportFields() {
+  const sportType = document.getElementById("aeSportType").value.trim().toLowerCase();
+  const teamSportFields = document.getElementById("teamSportFields");
+  const curlingFields = document.getElementById("curlingFields");
+  const sportTypeOtherWrap = document.getElementById("sportTypeOtherWrap");
+  const sportLeagueWrap = document.getElementById("sportLeagueWrap");
+  const sportLeagueOtherWrap = document.getElementById("sportLeagueOtherWrap");
+
+  if (sportTypeOtherWrap) sportTypeOtherWrap.style.display = sportType === "other" ? "block" : "none";
+  if (sportLeagueWrap) sportLeagueWrap.style.display = sportType && sportType !== "curling" ? "block" : "none";
+  if (teamSportFields) teamSportFields.style.display = sportType && sportType !== "curling" ? "block" : "none";
+  if (curlingFields) curlingFields.style.display = sportType === "curling" ? "block" : "none";
+
+  if (sportType && sportType !== "curling" && sportType !== "other") {
+    populateLeagueOptions(sportType, document.getElementById("aeLeague").value);
+  } else if (sportType === "other") {
+    document.getElementById("aeLeague").innerHTML = `<option value="">Custom league below</option>`;
+  } else {
+    document.getElementById("aeLeague").innerHTML = `<option value="">Select league</option>`;
+  }
+
+  const selectedLeague = document.getElementById("aeLeague").value;
+  if (sportLeagueOtherWrap) {
+    sportLeagueOtherWrap.style.display = (sportType === "other" || selectedLeague === "Other") ? "block" : "none";
+  }
+}
+
 function updateAddEventForm() {
   const category = document.getElementById("aeCategory").value;
-  const concertFields = document.getElementById("concertFields");
-  const sportFields = document.getElementById("sportFields");
+  const simpleFields = document.getElementById("simpleFields");
+  const festivalFields = document.getElementById("festivalFields");
+  const theatreFields = document.getElementById("theatreFields");
   const wrestlingFields = document.getElementById("wrestlingFields");
+  const sportFields = document.getElementById("sportFields");
+  const simpleHeadlinerLabel = document.getElementById("simpleHeadlinerLabel");
+  const wrestlingOtherPromotionWrap = document.getElementById("wrestlingOtherPromotionWrap");
 
-  if (concertFields) concertFields.style.display = category === "concert" || category === "festival" ? "block" : "none";
-  if (sportFields) sportFields.style.display = category === "sport" ? "block" : "none";
-  if (wrestlingFields) wrestlingFields.style.display = category === "wrestling" ? "block" : "none";
+  if (simpleFields) simpleFields.style.display = ["concert", "comedy", "kids", "cancelled"].includes(category) ? "flex" : "none";
+  if (festivalFields) festivalFields.style.display = category === "festival" ? "flex" : "none";
+  if (theatreFields) theatreFields.style.display = category === "theatre" ? "flex" : "none";
+  if (wrestlingFields) wrestlingFields.style.display = category === "wrestling" ? "flex" : "none";
+  if (sportFields) sportFields.style.display = category === "sport" ? "flex" : "none";
+
+  if (simpleHeadlinerLabel) {
+    if (category === "comedy") simpleHeadlinerLabel.textContent = "Headliner";
+    else if (category === "kids") simpleHeadlinerLabel.textContent = "Headliner";
+    else if (category === "cancelled") simpleHeadlinerLabel.textContent = "Event Name";
+    else simpleHeadlinerLabel.textContent = "Headliner";
+  }
+
+  if (wrestlingOtherPromotionWrap) {
+    wrestlingOtherPromotionWrap.style.display = category === "wrestling" && document.getElementById("aePromotion").value === "Other"
+      ? "block"
+      : "none";
+  }
+
+  if (category === "sport") {
+    updateSportFields();
+  } else {
+    document.getElementById("sportTypeOtherWrap").style.display = "none";
+    document.getElementById("sportLeagueOtherWrap").style.display = "none";
+    document.getElementById("teamSportFields").style.display = "block";
+    document.getElementById("curlingFields").style.display = "none";
+  }
 }
 
 function openAddEventModal() {
   if (!editingEventId) {
     clearAddEventForm();
   }
+  setAddEventHeading();
   updateAddEventForm();
   document.getElementById("addEventOverlay").classList.add("open");
   document.body.style.overflow = "hidden";
@@ -1112,19 +1294,31 @@ function closeAddEventModal() {
   document.body.style.overflow = "";
   clearAddEventForm();
   editingEventId = null;
+  setAddEventHeading();
 }
 
 function clearAddEventForm() {
   document.getElementById("aeCategory").value = "concert";
-  document.getElementById("aeTitle").value = "";
-  document.getElementById("aeSupport").value = "";
+  document.getElementById("aeSimpleHeadliner").value = "";
+  document.getElementById("aeSimpleSupport").value = "";
+  document.getElementById("aeFestivalName").value = "";
+  document.getElementById("aeFestivalHeadliner").value = "";
+  document.getElementById("aeFestivalSupport").value = "";
+  document.getElementById("aeTheatreTitle").value = "";
+  document.getElementById("aeTheatreSupport").value = "";
+  document.getElementById("aePromotion").value = "";
+  document.getElementById("aeCustomPromotion").value = "";
+  document.getElementById("aeWrestlingEvent").value = "";
   document.getElementById("aeSportType").value = "";
-  document.getElementById("aeLeague").value = "";
+  document.getElementById("aeCustomSportType").value = "";
+  populateLeagueOptions("");
+  document.getElementById("aeCustomLeague").value = "";
   document.getElementById("aeAwayTeam").value = "";
   document.getElementById("aeHomeTeam").value = "";
   document.getElementById("aeSportNote").value = "";
-  document.getElementById("aePromotion").value = "";
-  document.getElementById("aeWrestlingEvent").value = "";
+  document.getElementById("aeCurlingEventType").value = "";
+  document.getElementById("aeCurlingDraw").value = "";
+  document.getElementById("aeCurlingNote").value = "";
   document.getElementById("aeDate").value = "";
   document.getElementById("aeVenue").value = "";
   document.getElementById("aeLocation").value = "";
@@ -1135,31 +1329,57 @@ function clearAddEventForm() {
 function fillAddEventForm(event) {
   const venueParts = extractVenueLocation(event.v);
 
+  clearAddEventForm();
+
   document.getElementById("aeCategory").value = event.t || "concert";
   updateAddEventForm();
 
-  if (event.t === "concert" || event.t === "festival") {
-    document.getElementById("aeTitle").value = event.a || "";
-    document.getElementById("aeSupport").value = event.o || "";
+  if (["concert", "comedy", "kids", "cancelled"].includes(event.t)) {
+    document.getElementById("aeSimpleHeadliner").value = event.a || "";
+    document.getElementById("aeSimpleSupport").value = event.o || "";
   }
 
-  if (event.t === "sport") {
-    document.getElementById("aeSportType").value = event.sportType || "";
-    document.getElementById("aeLeague").value = event.league || "";
-    document.getElementById("aeAwayTeam").value = event.awayTeam || "";
-    document.getElementById("aeHomeTeam").value = event.homeTeam || "";
-    document.getElementById("aeSportNote").value = event.sportNote || "";
+  if (event.t === "festival") {
+    document.getElementById("aeFestivalName").value = event.a || "";
+    document.getElementById("aeFestivalHeadliner").value = event.festivalHeadliner || "";
+    document.getElementById("aeFestivalSupport").value = event.o || "";
+  }
+
+  if (event.t === "theatre") {
+    document.getElementById("aeTheatreTitle").value = event.a || "";
+    document.getElementById("aeTheatreSupport").value = event.o || "";
   }
 
   if (event.t === "wrestling") {
     document.getElementById("aePromotion").value = event.promotion || "";
+    if (event.promotion === "Other") {
+      document.getElementById("aeCustomPromotion").value = event.customPromotion || "";
+    }
     document.getElementById("aeWrestlingEvent").value = event.eventName || "";
   }
 
-  if (!["sport", "wrestling"].includes(event.t)) {
-    if (document.getElementById("aeTitle")) {
-      document.getElementById("aeTitle").value = event.a || "";
+  if (event.t === "sport") {
+    document.getElementById("aeSportType").value = event.sportType || "";
+    updateSportFields();
+
+    if (event.sportType === "other") {
+      document.getElementById("aeCustomSportType").value = event.customSportType || "";
+      document.getElementById("aeCustomLeague").value = event.customLeague || "";
+    } else if (event.sportType === "curling") {
+      document.getElementById("aeCurlingEventType").value = event.eventType || "";
+      document.getElementById("aeCurlingDraw").value = event.drawNumber || "";
+      document.getElementById("aeCurlingNote").value = event.sportNote || "";
+    } else {
+      populateLeagueOptions(event.sportType || "", event.league || "");
+      if (event.league === "Other") {
+        document.getElementById("aeCustomLeague").value = event.customLeague || "";
+      }
+      document.getElementById("aeAwayTeam").value = event.awayTeam || "";
+      document.getElementById("aeHomeTeam").value = event.homeTeam || "";
+      document.getElementById("aeSportNote").value = event.sportNote || "";
     }
+
+    updateSportFields();
   }
 
   document.getElementById("aeDate").value = event.isoDate || "";
@@ -1210,37 +1430,94 @@ function getCategoryStyle(category) {
   return map[category] || map.concert;
 }
 
+function getSportEmoji(sportType) {
+  const st = (sportType || "").toLowerCase();
+  if (st === "baseball") return "⚾";
+  if (st === "football") return "🏈";
+  if (st === "hockey") return "🏒";
+  if (st === "basketball") return "🏀";
+  if (st === "soccer") return "⚽";
+  if (st === "curling") return "🥌";
+  return "🏟️";
+}
+
+function getAutoImageQuery(event) {
+  if (event.t === "sport") {
+    const sportType = getDisplaySportType(event).toLowerCase();
+    if (sportType.includes("baseball")) return "baseball stadium";
+    if (sportType.includes("football")) return "NFL football";
+    if (sportType.includes("hockey")) return "NHL hockey";
+    if (sportType.includes("basketball")) return "NBA basketball";
+    if (sportType.includes("soccer")) return "soccer stadium";
+    if (sportType.includes("curling")) return "curling sport";
+    return "sports arena";
+  }
+
+  if (event.t === "wrestling") {
+    return getDisplayPromotion(event) || "professional wrestling";
+  }
+
+  return event.img || event.a;
+}
+
 function buildEventTitle(category) {
-  if (category === "concert" || category === "festival") {
-    return document.getElementById("aeTitle").value.trim();
+  if (["concert", "comedy", "kids", "cancelled"].includes(category)) {
+    return document.getElementById("aeSimpleHeadliner").value.trim();
+  }
+
+  if (category === "festival") {
+    return document.getElementById("aeFestivalName").value.trim();
+  }
+
+  if (category === "theatre") {
+    return document.getElementById("aeTheatreTitle").value.trim();
   }
 
   if (category === "sport") {
-    const league = document.getElementById("aeLeague").value.trim();
+    const sportType = document.getElementById("aeSportType").value.trim().toLowerCase();
+
+    if (sportType === "curling") {
+      const eventType = document.getElementById("aeCurlingEventType").value.trim();
+      const drawNumber = document.getElementById("aeCurlingDraw").value.trim();
+      if (eventType && drawNumber) return `${eventType} — Draw ${drawNumber}`;
+      return eventType || drawNumber || "";
+    }
+
+    const league = getSelectedLeagueLabel();
     const awayTeam = document.getElementById("aeAwayTeam").value.trim();
     const homeTeam = document.getElementById("aeHomeTeam").value.trim();
+    const prefix = league || titleCase(getSelectedSportTypeLabel());
 
-    if (league && awayTeam && homeTeam) {
-      return `${league}: ${awayTeam} vs ${homeTeam}`;
+    if (prefix && awayTeam && homeTeam) {
+      return `${prefix}: ${awayTeam} vs ${homeTeam}`;
     }
     return "";
   }
 
   if (category === "wrestling") {
-    const promotion = document.getElementById("aePromotion").value.trim();
+    const promotion = getSelectedPromotionLabel();
     const eventName = document.getElementById("aeWrestlingEvent").value.trim();
 
     if (promotion && eventName) return `${promotion}: ${eventName}`;
     return eventName || promotion || "";
   }
 
-  return document.getElementById("aeTitle").value.trim();
+  return "";
 }
 
 function buildSupportText(category) {
-  if (category === "concert" || category === "festival") {
-    return document.getElementById("aeSupport").value.trim();
+  if (["concert", "comedy", "kids", "cancelled"].includes(category)) {
+    return document.getElementById("aeSimpleSupport").value.trim();
   }
+
+  if (category === "festival") {
+    return document.getElementById("aeFestivalSupport").value.trim();
+  }
+
+  if (category === "theatre") {
+    return document.getElementById("aeTheatreSupport").value.trim();
+  }
+
   return "";
 }
 
@@ -1249,18 +1526,21 @@ function buildExtraTags(category) {
   const customTag = document.getElementById("aeTag").value.trim();
 
   if (category === "sport") {
-    const sportType = document.getElementById("aeSportType").value.trim();
-    const league = document.getElementById("aeLeague").value.trim();
-    const sportNote = document.getElementById("aeSportNote").value.trim();
+    const sportTypeLabel = getSelectedSportTypeLabel();
+    const leagueLabel = getSelectedLeagueLabel();
+    const sportType = document.getElementById("aeSportType").value.trim().toLowerCase();
+    const note = sportType === "curling"
+      ? document.getElementById("aeCurlingNote").value.trim()
+      : document.getElementById("aeSportNote").value.trim();
 
-    if (sportType) tags.push(["ta", titleCase(sportType)]);
-    if (league) tags.push(["ta", league]);
-    if (sportNote) tags.push(["ta", sportNote]);
+    if (sportTypeLabel) tags.push(["ta", sportTypeLabel]);
+    if (leagueLabel) tags.push(["ta", leagueLabel]);
+    if (note) tags.push(["ta", note]);
   }
 
   if (category === "wrestling") {
-    const promotion = document.getElementById("aePromotion").value.trim();
-    if (promotion) tags.push(["ta", promotion]);
+    const promotionLabel = getSelectedPromotionLabel();
+    if (promotionLabel) tags.push(["ta", promotionLabel]);
   }
 
   if (customTag) {
@@ -1284,21 +1564,21 @@ function saveNewEvent() {
   }
 
   const style = getCategoryStyle(category);
-if (category === "sport") {
-  const sportType = document.getElementById("aeSportType").value.trim().toLowerCase();
-
-  if (sportType === "baseball") style.emoji = "⚾";
-  else if (sportType === "football") style.emoji = "🏈";
-  else if (sportType === "hockey") style.emoji = "🏒";
-  else if (sportType === "basketball") style.emoji = "🏀";
-  else if (sportType === "soccer") style.emoji = "⚽";
-  else style.emoji = "🏟️";
-}
   const year = new Date(dateValue + "T12:00:00").getFullYear();
   const venueUpper = venue.toUpperCase();
   const locationUpper = location.toUpperCase();
   const venueKey = VENUE_ALIASES[venueUpper] || venueUpper;
-  const displayVenue = venueKey === "CANADA LIFE CENTRE" ? "CANADA LIFE CENTRE" : venueUpper;
+  const displayVenue = venueKey === "CANADA LIFE CENTRE"
+    ? "CANADA LIFE CENTRE"
+    : venueKey === "SASKTEL CENTRE"
+    ? "SASKTEL CENTRE"
+    : venueKey === "PRINCESS AUTO STADIUM"
+    ? "PRINCESS AUTO STADIUM"
+    : venueKey === "RBC CONVENTION CENTRE"
+    ? "RBC CONVENTION CENTRE"
+    : venueKey === "MALL OF AMERICA FIELD"
+    ? "MALL OF AMERICA FIELD"
+    : venueUpper;
 
   const newEvent = {
     a: title,
@@ -1310,66 +1590,99 @@ if (category === "sport") {
     e: style.emoji,
     g: style.gradient,
     tags: [[style.tagClass, style.tagText], ...buildExtraTags(category)],
-    y: year
+    y: year,
+    img: ""
   };
-  
-  ensureEventHasId(newEvent);
 
   if (category === "sport") {
-    newEvent.sportType = document.getElementById("aeSportType").value.trim();
-    newEvent.league = document.getElementById("aeLeague").value.trim();
-    newEvent.awayTeam = document.getElementById("aeAwayTeam").value.trim();
-    newEvent.homeTeam = document.getElementById("aeHomeTeam").value.trim();
-    newEvent.sportNote = document.getElementById("aeSportNote").value.trim();
+    const sportType = document.getElementById("aeSportType").value.trim().toLowerCase();
+    const leagueLabel = getSelectedLeagueLabel();
+
+    newEvent.sportType = sportType;
+    newEvent.e = getSportEmoji(sportType);
+    newEvent.img = "";
+
+    if (sportType === "other") {
+      newEvent.customSportType = document.getElementById("aeCustomSportType").value.trim();
+      newEvent.customLeague = document.getElementById("aeCustomLeague").value.trim();
+      newEvent.awayTeam = document.getElementById("aeAwayTeam").value.trim();
+      newEvent.homeTeam = document.getElementById("aeHomeTeam").value.trim();
+      newEvent.sportNote = document.getElementById("aeSportNote").value.trim();
+      newEvent.league = "Other";
+    } else if (sportType === "curling") {
+      newEvent.eventType = document.getElementById("aeCurlingEventType").value.trim();
+      newEvent.drawNumber = document.getElementById("aeCurlingDraw").value.trim();
+      newEvent.sportNote = document.getElementById("aeCurlingNote").value.trim();
+      newEvent.league = newEvent.eventType;
+      newEvent.img = "curling sport";
+    } else {
+      newEvent.league = document.getElementById("aeLeague").value.trim();
+      newEvent.customLeague = newEvent.league === "Other" ? document.getElementById("aeCustomLeague").value.trim() : "";
+      newEvent.awayTeam = document.getElementById("aeAwayTeam").value.trim();
+      newEvent.homeTeam = document.getElementById("aeHomeTeam").value.trim();
+      newEvent.sportNote = document.getElementById("aeSportNote").value.trim();
+      newEvent.img = "";
+    }
+
+    if (leagueLabel && !newEvent.tags.some(tag => tag[1] === leagueLabel)) {
+      newEvent.tags.push(["ta", leagueLabel]);
+    }
+  }
+
+  if (category === "festival") {
+    newEvent.festivalHeadliner = document.getElementById("aeFestivalHeadliner").value.trim();
   }
 
   if (category === "wrestling") {
     newEvent.promotion = document.getElementById("aePromotion").value.trim();
+    newEvent.customPromotion = newEvent.promotion === "Other" ? document.getElementById("aeCustomPromotion").value.trim() : "";
     newEvent.eventName = document.getElementById("aeWrestlingEvent").value.trim();
   }
 
+  ensureEventHasId(newEvent);
+
   if (editingEventId) {
-  newEvent.id = editingEventId;
+    newEvent.id = editingEventId;
 
-  const eventIndex = S.findIndex(e => {
-    ensureEventHasId(e);
-    return e.id === editingEventId;
-  });
+    const eventIndex = S.findIndex(e => {
+      ensureEventHasId(e);
+      return e.id === editingEventId;
+    });
 
-  if (eventIndex !== -1) {
-    S[eventIndex] = newEvent;
+    if (eventIndex !== -1) {
+      S[eventIndex] = newEvent;
+    }
+
+    const stored = getStoredCustomEvents();
+    const storedIndex = stored.findIndex(e => {
+      ensureEventHasId(e);
+      return e.id === editingEventId;
+    });
+
+    if (storedIndex !== -1) {
+      stored[storedIndex] = newEvent;
+      saveStoredCustomEvents(stored);
+    }
+
+    editingEventId = null;
+
+    closeAddEventModal();
+    render();
+    switchScreen("shows");
+    toast("Event updated in GigBook");
+    return;
   }
 
   const stored = getStoredCustomEvents();
-  const storedIndex = stored.findIndex(e => {
-    ensureEventHasId(e);
-    return e.id === editingEventId;
-  });
+  stored.push(newEvent);
+  saveStoredCustomEvents(stored);
 
-  if (storedIndex !== -1) {
-    stored[storedIndex] = newEvent;
-    saveStoredCustomEvents(stored);
-  }
-
-  editingEventId = null;
+  S.push(newEvent);
 
   closeAddEventModal();
   render();
   switchScreen("shows");
-  toast("Event updated in GigBook");
-  return;
-}
-
-const stored = getStoredCustomEvents();
-stored.push(newEvent);
-saveStoredCustomEvents(stored);
-
-S.push(newEvent);
-
-closeAddEventModal();
-render();
-switchScreen("shows");
-toast("Event added to GigBook");
+  toast("Event added to GigBook");
 }
 
 document.getElementById("addEventOverlay").addEventListener("click", e => {
@@ -1379,6 +1692,7 @@ document.getElementById("addEventOverlay").addEventListener("click", e => {
 });
 
 mergeStoredEventsIntoS();
+setAddEventHeading();
 updateAddEventForm();
 render();
 renderStats();
