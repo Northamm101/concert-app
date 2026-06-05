@@ -1165,3 +1165,154 @@ body::before{
     grid-template-columns:1fr;
   }
 }
+
+.upcoming-card::before{
+  display:none;
+}
+
+.up-topline{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.up-badge,
+.up-countdown,
+.up-entry{
+  font-family:"DM Mono",monospace;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  border-radius:999px;
+  padding:5px 8px;
+}
+
+.up-badge{
+  color:var(--cyan);
+  background:rgba(0,229,200,.08);
+  border:1px solid rgba(0,229,200,.24);
+}
+
+.up-countdown{
+  color:var(--amber);
+  background:rgba(245,166,35,.10);
+  border:1px solid rgba(245,166,35,.22);
+  white-space:nowrap;
+}
+
+.up-location{
+  font-size:11px;
+  color:var(--muted);
+  font-family:"DM Mono",monospace;
+  margin-bottom:14px;
+}
+
+.up-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.up-entry{
+  color:var(--white);
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+}
+
+.hidden-manager-card{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.hidden-manager-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+
+.hidden-manager-title{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:24px;
+  letter-spacing:1px;
+  line-height:1;
+}
+
+.hidden-manager-sub{
+  margin-top:4px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.hidden-events-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.hidden-event-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:var(--surface2);
+}
+
+.hidden-event-info{
+  min-width:0;
+}
+
+.hidden-event-title{
+  font-size:14px;
+  font-weight:600;
+  color:var(--white);
+  line-height:1.25;
+}
+
+.hidden-event-meta{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:10px;
+  font-family:"DM Mono",monospace;
+}
+
+.hidden-empty{
+  padding:14px;
+  border-radius:14px;
+  border:1px dashed var(--border);
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+  text-align:center;
+}
+
+@media (max-width:520px){
+  .hidden-manager-head{
+    flex-direction:column;
+  }
+
+  .hidden-event-row{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .hidden-event-row .up-btn{
+    width:100%;
+  }
+
+  .up-footer{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .up-entry{
+    align-self:flex-start;
+  }
+}
