@@ -78,6 +78,10 @@
       <div class="sec-label" style="margin-top:20px">Past Events</div>
       <div class="gig-list fi" id="gl"></div>
 
+      <div class="page-wrap" style="padding-top:20px;">
+        <div id="hiddenEventsManager"></div>
+      </div>
+
       <div class="spacer"></div>
     </main>
 
@@ -122,6 +126,8 @@
             <button class="stats-subtab" data-sport-tab="football" onclick="setSportStatsTab('football', this)">Football</button>
             <button class="stats-subtab" data-sport-tab="baseball" onclick="setSportStatsTab('baseball', this)">Baseball</button>
             <button class="stats-subtab" data-sport-tab="basketball" onclick="setSportStatsTab('basketball', this)">Basketball</button>
+            <button class="stats-subtab" data-sport-tab="soccer" onclick="setSportStatsTab('soccer', this)">Soccer</button>
+            <button class="stats-subtab" data-sport-tab="curling" onclick="setSportStatsTab('curling', this)">Curling</button>
             <button class="stats-subtab" data-sport-tab="other" onclick="setSportStatsTab('other', this)">Other</button>
           </div>
 
@@ -139,6 +145,14 @@
 
           <div id="statsSportsBasketball" class="stats-sport-panel">
             <div id="statsSportsBasketballContent" class="stats-grid"></div>
+          </div>
+
+          <div id="statsSportsSoccer" class="stats-sport-panel">
+            <div id="statsSportsSoccerContent" class="stats-grid"></div>
+          </div>
+
+          <div id="statsSportsCurling" class="stats-sport-panel">
+            <div id="statsSportsCurlingContent" class="stats-grid"></div>
           </div>
 
           <div id="statsSportsOther" class="stats-sport-panel">
