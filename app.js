@@ -212,6 +212,25 @@ function hideEventById(eventId) {
   toast("Event hidden from GigBook");
 }
 
+function restoreHiddenEventById(eventId) {
+  const hiddenIds = getHiddenEventIds().filter(id => id !== eventId);
+  saveHiddenEventIds(hiddenIds);
+  render();
+  if (activeScreen === "map") renderMap();
+  if (activeScreen === "stats") renderStats();
+  renderHiddenEventsManager();
+  toast("Event restored to GigBook");
+}
+
+function clearAllHiddenEvents() {
+  saveHiddenEventIds([]);
+  render();
+  if (activeScreen === "map") renderMap();
+  if (activeScreen === "stats") renderStats();
+  renderHiddenEventsManager();
+  toast("All hidden events restored");
+}
+
 function startEditEvent(eventId) {
   const event = S.find(e => {
     ensureEventHasId(e);
@@ -370,6 +389,33 @@ function updateStats(a) {
   document.getElementById("sY").textContent = new Set(a.map(s => s.y)).size;
 }
 
+function getDaysUntilEvent(event) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = eventSortableDate(event);
+  const diffMs = target - today;
+  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+}
+
+function formatCountdownLabel(event) {
+  const days = getDaysUntilEvent(event);
+  if (days <= 0) return "Today";
+  if (days === 1) return "1 day away";
+  return `${days} days away`;
+}
+
+function getUpcomingBadge(event) {
+  if (event.t === "concert") return "Concert";
+  if (event.t === "festival") return "Festival";
+  if (event.t === "wrestling") return "Wrestling";
+  if (event.t === "sport") return getDisplaySportType(event) || "Sport";
+  if (event.t === "comedy") return "Comedy";
+  if (event.t === "theatre") return "Theatre";
+  if (event.t === "kids") return "Kids";
+  if (event.t === "cancelled") return "Cancelled";
+  return "Upcoming";
+}
+
 function renderUpcoming(events) {
   const upcomingList = document.getElementById("upcomingList");
   if (!upcomingList) return;
@@ -381,26 +427,44 @@ function renderUpcoming(events) {
     return;
   }
 
+  const visibleEvents = getVisibleEvents().sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
+  const numberMap = new Map();
+  visibleEvents.forEach((event, index) => {
+    numberMap.set(eventKey(event), visibleEvents.length - index);
+  });
+
   events
     .sort((a, b) => eventSortableDate(a) - eventSortableDate(b))
     .forEach(s => {
+      const entryNumber = numberMap.get(eventKey(s)) || "—";
       const card = document.createElement("div");
       card.className = "upcoming-card";
       card.innerHTML = `
+        <div class="up-topline">
+          <span class="up-badge">${getUpcomingBadge(s)}</span>
+          <span class="up-countdown">${formatCountdownLabel(s)}</span>
+        </div>
         <div class="up-date">${s.d}</div>
         <div class="up-artist">${s.a}</div>
         <div class="up-openers">${s.o || ""}</div>
-        <div class="up-venue">${extractVenueLocation(s.v).name}${extractVenueLocation(s.v).location ? " · " + extractVenueLocation(s.v).location : ""}</div>
-        <div class="up-actions">
-          <button class="up-btn primary" onclick="toast('📸 Friends Group!')">Friends</button>
-          <button class="up-btn" onclick="toast('🎵 Setlist!')">Setlist</button>
-          <button class="up-btn" onclick="switchScreen('map')">Map</button>
+        <div class="up-venue">${extractVenueLocation(s.v).name}</div>
+        <div class="up-location">${extractVenueLocation(s.v).location || ""}</div>
+        <div class="up-footer">
+          <div class="up-actions">
+            <button class="up-btn primary" onclick="toast('📸 Friends Group!')">Friends</button>
+            <button class="up-btn" onclick="toast('🎵 Setlist!')">Setlist</button>
+            <button class="up-btn" onclick="switchScreen('map')">Map</button>
+          </div>
+          <div class="up-entry">#${entryNumber}</div>
         </div>
       `;
+      card.onclick = (e) => {
+        if (e.target.closest("button")) return;
+        openModal(s, entryNumber);
+      };
       upcomingList.appendChild(card);
     });
 }
-
 function render() {
   const list = document.getElementById("gl");
   list.innerHTML = "";
@@ -416,6 +480,7 @@ function render() {
     .sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
 
   renderUpcoming(upcomingEvents);
+  renderHiddenEventsManager();
 
   if (!pastEvents.length) {
     list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px">No past events found</div>`;
@@ -888,7 +953,6 @@ function getLegacySportDetails(event) {
   if (event.t !== "sport") return null;
 
   const title = event.a || "";
-
   const leagueMatch = title.match(/^([A-Z]{2,20})\s*:\s*(.+?)\s+vs\.?\s+(.+?)(?:\s+—.*)?$/i);
   if (!leagueMatch) return null;
 
@@ -908,14 +972,8 @@ function getLegacySportDetails(event) {
     sportType = "hockey";
   }
 
-  return {
-    sportType,
-    league,
-    awayTeam,
-    homeTeam
-  };
+  return { sportType, league, awayTeam, homeTeam };
 }
-
 function getResolvedSportDetails(event) {
   if (event.t !== "sport") return null;
 
@@ -1008,7 +1066,9 @@ function setSportStatsTab(tab, el) {
     football: "statsSportsFootball",
     baseball: "statsSportsBaseball",
     basketball: "statsSportsBasketball",
-    other: "statsSportsOther"
+    other: "statsSportsOther",
+    soccer: "statsSportsSoccer",
+    curling: "statsSportsCurling"
   };
 
   const panelId = map[tab];
@@ -1026,12 +1086,19 @@ function renderOverallStats() {
   const venueCounts = countItems(visible.map(e => extractVenueLocation(e.v).name));
   const regionCounts = countItems(visible.map(e => extractRegionFromLocation(extractVenueLocation(e.v).location)).filter(Boolean));
   const countryCounts = countItems(visible.map(e => extractCountryFromLocation(extractVenueLocation(e.v).location)).filter(c => c !== "Unknown"));
+  const hiddenCount = getHiddenEventIds().length;
 
   target.innerHTML = `
     <div class="stat-box">
       <div class="stat-box-title">Total Events</div>
       <div class="stat-box-value">${visible.length}</div>
       <div class="stat-box-sub">All visible events in GigBook.</div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-box-title">Hidden Events</div>
+      <div class="stat-box-value">${hiddenCount}</div>
+      <div class="stat-box-sub">Events currently hidden from your lists.</div>
     </div>
 
     ${renderListCard("Top 5 Venues", topNEntries(venueCounts, 5))}
@@ -1045,7 +1112,10 @@ function renderConcertStats() {
   if (!target) return;
 
   const events = getVisibleEvents().filter(e => e.t === "concert" || e.t === "festival");
+  const concertOnly = events.filter(e => e.t === "concert");
+  const festivalOnly = events.filter(e => e.t === "festival");
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
+  const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
 
   const artistCounts = {};
   events.forEach(event => {
@@ -1067,11 +1137,24 @@ function renderConcertStats() {
     <div class="stat-box">
       <div class="stat-box-title">Total Concerts / Festivals</div>
       <div class="stat-box-value">${events.length}</div>
-      <div class="stat-box-sub">Concerts and festivals combined.</div>
+      <div class="stat-box-sub">${concertOnly.length} concerts and ${festivalOnly.length} festivals.</div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-box-title">Concerts Only</div>
+      <div class="stat-box-value">${concertOnly.length}</div>
+      <div class="stat-box-sub">Standard concert entries.</div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-box-title">Festivals Only</div>
+      <div class="stat-box-value">${festivalOnly.length}</div>
+      <div class="stat-box-sub">Festival entries in GigBook.</div>
     </div>
 
     ${renderListCard("Top 5 Seen Artists", topNEntries(artistCounts, 5), "No artist data yet.")}
     ${renderListCard("Top 5 Seen Venues", topNEntries(venueCounts, 5), "No venue data yet.")}
+    ${renderListCard("Top 5 Concert Cities", topNEntries(cityCounts, 5), "No city data yet.")}
 
     <div class="stat-box">
       <div class="stat-box-title">Out of Province Concerts</div>
@@ -1091,23 +1174,48 @@ function renderSportTypeStats(type, targetId) {
   const target = document.getElementById(targetId);
   if (!target) return;
 
-  const events = type === "other"
-    ? getVisibleEvents().filter(e => getOtherSportEvents().includes(e))
-    : getVisibleEvents().filter(e => getSportEventsByType(type).includes(e));
+  let events = [];
+  if (type === "other") {
+    events = getVisibleEvents().filter(e => getOtherSportEvents().includes(e));
+  } else if (type === "curling") {
+    events = getVisibleEvents().filter(e => getCurlingEvents().includes(e));
+  } else {
+    events = getVisibleEvents().filter(e => getSportEventsByType(type).includes(e));
+  }
 
   const leagueCounts = {};
   const teamCounts = {};
   const venueCounts = {};
+  const eventTypeCounts = {};
 
   events.forEach(e => {
     const details = getResolvedSportDetails(e);
     const venueName = extractVenueLocation(e.v).name;
 
-    if (details?.league) leagueCounts[details.league] = (leagueCounts[details.league] || 0) + 1;
-    if (details?.homeTeam) teamCounts[details.homeTeam] = (teamCounts[details.homeTeam] || 0) + 1;
-    if (details?.awayTeam) teamCounts[details.awayTeam] = (teamCounts[details.awayTeam] || 0) + 1;
+    if (type === "curling") {
+      if (e.eventType) eventTypeCounts[e.eventType] = (eventTypeCounts[e.eventType] || 0) + 1;
+    } else {
+      if (details?.league) leagueCounts[details.league] = (leagueCounts[details.league] || 0) + 1;
+      if (details?.homeTeam) teamCounts[details.homeTeam] = (teamCounts[details.homeTeam] || 0) + 1;
+      if (details?.awayTeam) teamCounts[details.awayTeam] = (teamCounts[details.awayTeam] || 0) + 1;
+    }
+
     if (venueName) venueCounts[venueName] = (venueCounts[venueName] || 0) + 1;
   });
+
+  if (type === "curling") {
+    target.innerHTML = `
+      <div class="stat-box">
+        <div class="stat-box-title">Total Curling Events</div>
+        <div class="stat-box-value">${events.length}</div>
+        <div class="stat-box-sub">Curling events tracked through Sport.</div>
+      </div>
+
+      ${renderListCard("Event Types", Object.entries(eventTypeCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), "No curling event types yet.")}
+      ${renderListCard("Most Visited Curling Venues", topNEntries(venueCounts, 5), "No venue data yet.")}
+    `;
+    return;
+  }
 
   target.innerHTML = `
     <div class="stat-box">
@@ -1149,11 +1257,63 @@ function renderStats() {
   renderSportTypeStats("football", "statsSportsFootballContent");
   renderSportTypeStats("baseball", "statsSportsBaseballContent");
   renderSportTypeStats("basketball", "statsSportsBasketballContent");
+  renderSportTypeStats("soccer", "statsSportsSoccerContent");
+  renderSportTypeStats("curling", "statsSportsCurlingContent");
   renderSportTypeStats("other", "statsSportsOtherContent");
   renderWrestlingStats();
 
   setStatsTab(activeStatsTab);
   setSportStatsTab(activeSportStatsTab);
+}
+
+function renderHiddenEventsManager() {
+  const wrap = document.getElementById("hiddenEventsManager");
+  if (!wrap) return;
+
+  const hiddenIds = getHiddenEventIds();
+  const hiddenEvents = S
+    .map(e => ensureEventHasId(e))
+    .filter(e => hiddenIds.includes(e.id))
+    .sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
+
+  if (!hiddenIds.length) {
+    wrap.innerHTML = `
+      <div class="stat-box hidden-manager-card">
+        <div class="hidden-manager-head">
+          <div>
+            <div class="hidden-manager-title">Hidden Events</div>
+            <div class="hidden-manager-sub">Restore anything you hid by mistake.</div>
+          </div>
+        </div>
+        <div class="hidden-empty">No hidden events right now.</div>
+      </div>
+    `;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <div class="stat-box hidden-manager-card">
+      <div class="hidden-manager-head">
+        <div>
+          <div class="hidden-manager-title">Hidden Events</div>
+          <div class="hidden-manager-sub">${hiddenEvents.length} hidden ${hiddenEvents.length === 1 ? "event" : "events"} currently removed from your lists.</div>
+        </div>
+        <button class="up-btn" onclick="clearAllHiddenEvents()">Restore All</button>
+      </div>
+
+      <div class="hidden-events-list">
+        ${hiddenEvents.map(event => `
+          <div class="hidden-event-row">
+            <div class="hidden-event-info">
+              <div class="hidden-event-title">${event.a}</div>
+              <div class="hidden-event-meta">${event.d} · ${extractVenueLocation(event.v).name}</div>
+            </div>
+            <button class="up-btn primary" onclick="restoreHiddenEventById('${event.id}')">Restore</button>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
 }
 
 function populateLeagueOptions(sportType, selectedValue = "") {
@@ -1697,3 +1857,4 @@ updateAddEventForm();
 render();
 renderStats();
 renderMap();
+renderHiddenEventsManager();
