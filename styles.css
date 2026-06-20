@@ -65,16 +65,20 @@ body::before{
   background:linear-gradient(to bottom,rgba(15,10,8,.98) 70%,transparent);
 }
 
-.logo{
-  font-family:"Bebas Neue",sans-serif;
-  font-size:26px;
-  letter-spacing:2px;
-  line-height:1;
-  color:var(--cream);
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 56px;
+  min-width: 0;
 }
 
-.logo span{
-  color:var(--gold);
+.logo img {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
 }
 
 .topbar-right{
