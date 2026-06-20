@@ -295,40 +295,43 @@ function mergeStoredEventsIntoS() {
   });
 }
 
-async function getImg(s) {
-  const k = s.a;
-  if (IC[k] !== undefined) return IC[k];
+function eventHasMagicTag(s) {
+  return Array.isArray(s.tags) && s.tags.some(tag => String(tag[1] || "").toLowerCase() === "magic");
+}
 
-  const t = s.img || s.a;
-  let u = null;
+function getSceneLynxImageForEvent(s) {
+  if (eventHasMagicTag(s)) return "Lynx-Magic.jpg";
 
-  try {
-    const r = await fetch(
-      `https://itunes.apple.com/search?term=${encodeURIComponent(t)}&media=music&entity=musicArtist&limit=1`,
-      { signal: AbortSignal.timeout(4000) }
-    );
-    const d = await r.json();
-    if (d.results?.[0]?.artworkUrl100) {
-      u = d.results[0].artworkUrl100.replace("100x100", "600x600");
-    }
-  } catch (e) {}
+  if (s.t === "concert") return "Lynx-Concert.jpg";
+  if (s.t === "comedy") return "Lynx-Comedy.jpg";
+  if (s.t === "festival") return "Lynx-Festival.jpg";
+  if (s.t === "theatre") return "Lynx-Theatre.jpg";
+  if (s.t === "kids") return "Lynx-Kids.jpg";
+  if (s.t === "wrestling") return "Lynx-Wrestling.jpg";
+  if (s.t === "cancelled") return "Lynx-Other.jpg";
 
-  if (!u) {
-    try {
-      const r = await fetch(
-        `https://ws.audioscrobbler.com/2.0/?method=artist.search&artist=${encodeURIComponent(t)}&api_key=3a98c11594fa2a4c22f0a3faeddb8f32&format=json&limit=1`,
-        { signal: AbortSignal.timeout(4000) }
-      );
-      const d = await r.json();
-      const m = d?.results?.artistmatches?.artist;
-      if (m?.length) {
-        const xl = m[0].image?.find(i => i.size === "extralarge" || i.size === "large");
-        if (xl?.["#text"]?.length > 10) u = xl["#text"];
-      }
-    } catch (e) {}
+  if (s.t === "sport") {
+    const details = getResolvedSportDetails(s);
+    const sportType = ((s.sportType || details?.sportType || "") + "").toLowerCase();
+
+    if (sportType === "hockey") return "Lynx-Hockey.jpg";
+    if (sportType === "football") return "Lynx-Football.jpg";
+    if (sportType === "baseball") return "Lynx-Baseball.jpg";
+    if (sportType === "basketball") return "Lynx-Basketball.jpg";
+    if (sportType === "soccer") return "Lynx-Soccer.jpg";
+    if (sportType === "curling") return "Lynx-Curling.jpg";
+    return "Lynx-Other.jpg";
   }
 
-  IC[k] = u || "none";
+  return "Lynx-Other.jpg";
+}
+
+async function getImg(s) {
+  const k = s.id || eventKey(s);
+  if (IC[k] !== undefined) return IC[k];
+
+  const u = getSceneLynxImageForEvent(s);
+  IC[k] = u;
   return u;
 }
 
@@ -357,7 +360,7 @@ function applyImg(u, cid, modal) {
 
 async function loadImg(s, cid, modal) {
   const u = await getImg(s);
-  if (u && u !== "none") applyImg(u, cid, modal);
+  if (u) applyImg(u, cid, modal);
   else if (cid) {
     const el = document.getElementById(cid);
     if (el) el.classList.remove("shim");
@@ -389,12 +392,40 @@ function updateStats(a) {
   document.getElementById("sY").textContent = new Set(a.map(s => s.y)).size;
 }
 
+function updateHeaderLogo() {
+  const headerLogo = document.getElementById("headerLogoImg");
+  if (headerLogo) {
+    headerLogo.src = "SceneLynx-LogoSmall.jpg";
+  }
+}
+
 function getDaysUntilEvent(event) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const target = eventSortableDate(event);
   const diffMs = target - today;
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+}
+
+function formatCountdownLabel(event) {
+  const days = getDaysUntilEvent(event);
+  if (days <= 0) return "Today";
+  if (days === 1) return "1 day away";
+  return `${days} days away`;
+}
+
+function getUpcomingBadge(event) {
+  if (event.t === "concert") return "Concert";
+  if (event.t === "festival") return "Festival";
+  if (event.t === "wrestling") return "Wrestling";
+  if (event.t === "sport") return getDisplaySportType(event) || "Sport";
+  if (event.t === "comedy") return "Comedy";
+  if (event.t === "theatre") return "Theatre";
+  if (event.t === "kids") return "Kids";
+  if (event.t === "cancelled") return "Cancelled";
+  return "Upcoming";
+}
+return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 }
 
 function formatCountdownLabel(event) {
@@ -451,9 +482,7 @@ function renderUpcoming(events) {
         <div class="up-location">${extractVenueLocation(s.v).location || ""}</div>
         <div class="up-footer">
           <div class="up-actions">
-            <button class="up-btn primary" onclick="toast('📸 Friends Group!')">Friends</button>
-            <button class="up-btn" onclick="toast('🎵 Setlist!')">Setlist</button>
-            <button class="up-btn" onclick="switchScreen('map')">Map</button>
+            <button class="up-btn primary" onclick="switchScreen('map')">Map</button>
           </div>
           <div class="up-entry">#${entryNumber}</div>
         </div>
@@ -465,6 +494,7 @@ function renderUpcoming(events) {
       upcomingList.appendChild(card);
     });
 }
+
 function render() {
   const list = document.getElementById("gl");
   list.innerHTML = "";
@@ -763,8 +793,7 @@ function renderMap() {
 
     gigbookLeafletMarkers = L.layerGroup().addTo(gigbookLeafletMap);
   }
-
-  gigbookLeafletMarkers.clearLayers();
+    gigbookLeafletMarkers.clearLayers();
 
   if (!groups.length) {
     details.innerHTML = `Tap a marker to see venue history.`;
@@ -796,14 +825,12 @@ function renderMap() {
     }
   });
 
-  if (bounds.length === 1) {
-    gigbookLeafletMap.setView(bounds[0], 8);
-  } else {
-    gigbookLeafletMap.fitBounds(bounds, { padding: [40, 40] });
-    if (gigbookLeafletMap.getZoom() > 4) {
-      gigbookLeafletMap.setZoom(4);
-    }
-  }
+  const northAmericaBounds = [
+    [15, -170],
+    [75, -50]
+  ];
+
+  gigbookLeafletMap.fitBounds(northAmericaBounds, { padding: [20, 20] });
 
   setTimeout(() => gigbookLeafletMap.invalidateSize(), 50);
 }
@@ -974,6 +1001,7 @@ function getLegacySportDetails(event) {
 
   return { sportType, league, awayTeam, homeTeam };
 }
+
 function getResolvedSportDetails(event) {
   if (event.t !== "sport") return null;
 
@@ -1235,8 +1263,20 @@ function renderWrestlingStats() {
   if (!target) return;
 
   const events = getVisibleEvents().filter(e => e.t === "wrestling");
-  const promotionCounts = countItems(events.map(e => getDisplayPromotion(e) || "").filter(Boolean));
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
+  const promotionCounts = {};
+
+  events.forEach(e => {
+    let promotion = getDisplayPromotion(e);
+
+    if (!promotion && e.a && e.a.includes(":")) {
+      promotion = e.a.split(":")[0].trim();
+    }
+
+    if (promotion) {
+      promotionCounts[promotion] = (promotionCounts[promotion] || 0) + 1;
+    }
+  });
 
   target.innerHTML = `
     <div class="stat-box">
@@ -1852,6 +1892,7 @@ document.getElementById("addEventOverlay").addEventListener("click", e => {
 });
 
 mergeStoredEventsIntoS();
+updateHeaderLogo();
 setAddEventHeading();
 updateAddEventForm();
 render();
