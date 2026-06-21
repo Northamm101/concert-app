@@ -25,7 +25,7 @@
 }
 
 body{
-  background:var(--black);
+  background:#331b0f;
   color:var(--cream);
   font-family:"DM Sans",sans-serif;
   min-height:100vh;
@@ -37,13 +37,13 @@ body::before{
   position:fixed;
   inset:0;
   background-image:
-    radial-gradient(circle at 20% 20%, rgba(245,193,74,.05), transparent 35%),
-    radial-gradient(circle at 80% 10%, rgba(201,128,24,.04), transparent 30%),
-    radial-gradient(circle at 50% 100%, rgba(231,162,45,.03), transparent 40%),
+    radial-gradient(circle at 20% 20%, rgba(245,193,74,.08), transparent 35%),
+    radial-gradient(circle at 80% 10%, rgba(201,128,24,.06), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(231,162,45,.05), transparent 40%),
     url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events:none;
   z-index:9999;
-  opacity:.5;
+  opacity:.6;
 }
 
 .app{
@@ -58,11 +58,15 @@ body::before{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:18px 20px 10px;
+  gap:16px;
+  padding:calc(env(safe-area-inset-top, 0px) + 12px) 20px 12px;
   position:sticky;
   top:0;
   z-index:100;
-  background:linear-gradient(to bottom,rgba(15,10,8,.98) 70%,transparent);
+  background:rgba(38,20,10,.96);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(231,162,45,.12);
 }
 
 .logo {
