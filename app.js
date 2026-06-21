@@ -425,27 +425,6 @@ function getUpcomingBadge(event) {
   if (event.t === "cancelled") return "Cancelled";
   return "Upcoming";
 }
-return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-}
-
-function formatCountdownLabel(event) {
-  const days = getDaysUntilEvent(event);
-  if (days <= 0) return "Today";
-  if (days === 1) return "1 day away";
-  return `${days} days away`;
-}
-
-function getUpcomingBadge(event) {
-  if (event.t === "concert") return "Concert";
-  if (event.t === "festival") return "Festival";
-  if (event.t === "wrestling") return "Wrestling";
-  if (event.t === "sport") return getDisplaySportType(event) || "Sport";
-  if (event.t === "comedy") return "Comedy";
-  if (event.t === "theatre") return "Theatre";
-  if (event.t === "kids") return "Kids";
-  if (event.t === "cancelled") return "Cancelled";
-  return "Upcoming";
-}
 
 function renderUpcoming(events) {
   const upcomingList = document.getElementById("upcomingList");
@@ -793,7 +772,8 @@ function renderMap() {
 
     gigbookLeafletMarkers = L.layerGroup().addTo(gigbookLeafletMap);
   }
-    gigbookLeafletMarkers.clearLayers();
+
+  gigbookLeafletMarkers.clearLayers();
 
   if (!groups.length) {
     details.innerHTML = `Tap a marker to see venue history.`;
