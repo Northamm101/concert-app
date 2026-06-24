@@ -1,21 +1,21 @@
 :root{
-  --black:#0f0a08;
-  --surface:#1a0e09;
-  --surface2:#24130c;
-  --surface3:#32180d;
-  --gold:#e7a22d;
-  --gold-bright:#f5c14a;
-  --gold-deep:#c98018;
-  --cream:#f5f2ec;
-  --muted:#b8a899;
-  --muted-2:#8d7767;
-  --border:#5a2d12;
-  --red:#d85a5a;
-  --green:#c9a227;
+  --black:#1e140f;
+  --surface:#3a2418;
+  --surface2:#4a2d1d;
+  --surface3:#5a3823;
+  --gold:#d89a2b;
+  --gold-bright:#efbc57;
+  --gold-deep:#b97818;
+  --cream:#2b1c14;
+  --muted:#7a6557;
+  --muted-2:#9a846f;
+  --border:#caa77a;
+  --red:#c95a5a;
+  --green:#b89427;
   --purple:#b9874a;
-  --sport:#d9952b;
-  --wrestling:#c46a1c;
-  --kids:#f0ba63;
+  --sport:#cf8f2b;
+  --wrestling:#bc6a1f;
+  --kids:#e3b15f;
 }
 
 *{
@@ -25,7 +25,7 @@
 }
 
 body{
-  background:#331b0f;
+  background:#f7f1e8;
   color:var(--cream);
   font-family:"DM Sans",sans-serif;
   min-height:100vh;
@@ -37,13 +37,12 @@ body::before{
   position:fixed;
   inset:0;
   background-image:
-    radial-gradient(circle at 20% 20%, rgba(245,193,74,.08), transparent 35%),
-    radial-gradient(circle at 80% 10%, rgba(201,128,24,.06), transparent 30%),
-    radial-gradient(circle at 50% 100%, rgba(231,162,45,.05), transparent 40%),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    radial-gradient(circle at 20% 20%, rgba(239,188,87,.10), transparent 35%),
+    radial-gradient(circle at 80% 10%, rgba(185,120,24,.08), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(216,154,43,.06), transparent 40%);
   pointer-events:none;
   z-index:9999;
-  opacity:.6;
+  opacity:.55;
 }
 
 .app{
@@ -63,10 +62,10 @@ body::before{
   position:sticky;
   top:0;
   z-index:100;
-  background:rgba(38,20,10,.96);
+  background:rgba(247,241,232,.96);
   backdrop-filter:blur(14px);
   -webkit-backdrop-filter:blur(14px);
-  border-bottom:1px solid rgba(231,162,45,.12);
+  border-bottom:1px solid rgba(185,120,24,.18);
 }
 
 .logo {
@@ -135,9 +134,9 @@ body::before{
   flex-shrink:0;
   padding:7px 13px;
   border-radius:20px;
-  border:1px solid rgba(245,193,74,.14);
-  background:rgba(26,14,9,.8);
-  color:var(--muted);
+  border:1px solid rgba(185,120,24,.18);
+  background:rgba(255,255,255,.78);
+  color:#6f5a4c;
   font-family:"DM Sans",sans-serif;
   font-size:12px;
   font-weight:500;
@@ -357,7 +356,7 @@ body::before{
   font-size:11px;
   text-transform:uppercase;
   letter-spacing:1.2px;
-  color:var(--muted);
+  color:#7d6758;
   display:flex;
   align-items:center;
   gap:10px;
@@ -376,7 +375,7 @@ body::before{
   font-family:"Bebas Neue",sans-serif;
   font-size:20px;
   letter-spacing:3px;
-  color:#4c2a18;
+  color:#7a5a42;
   display:flex;
   align-items:center;
   gap:12px;
