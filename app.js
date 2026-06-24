@@ -8,7 +8,6 @@ let editingEventId = null;
 
 const STORAGE_KEY = "gigbook_custom_events_v1";
 const HIDDEN_EVENTS_KEY = "gigbook_hidden_events_v1";
-const OVERRIDES_KEY = "gigbook_event_overrides_v1";
 
 const SPORT_LEAGUE_OPTIONS = {
   baseball: ["MLB", "American Association", "Northern League", "Other"],
@@ -130,43 +129,7 @@ function eventSortableDate(s) {
   return new Date(`${s.y || 1900}-01-01T12:00:00`);
 }
 
-function getEventDrawNumber(s) {
-  const draw = parseInt(s.drawNumber || "", 10);
-  return Number.isFinite(draw) ? draw : 9999;
-}
-
-function compareEventsDescending(a, b) {
-  const dateDiff = eventSortableDate(b) - eventSortableDate(a);
-  if (dateDiff !== 0) return dateDiff;
-
-  const aIsCurling = a.t === "sport" && (a.sportType || "").toLowerCase() === "curling";
-  const bIsCurling = b.t === "sport" && (b.sportType || "").toLowerCase() === "curling";
-
-  if (aIsCurling && bIsCurling) {
-    const drawDiff = getEventDrawNumber(a) - getEventDrawNumber(b);
-    if (drawDiff !== 0) return drawDiff;
-  }
-
-  return (a.a || "").localeCompare(b.a || "");
-}
-
-function compareEventsAscending(a, b) {
-  const dateDiff = eventSortableDate(a) - eventSortableDate(b);
-  if (dateDiff !== 0) return dateDiff;
-
-  const aIsCurling = a.t === "sport" && (a.sportType || "").toLowerCase() === "curling";
-  const bIsCurling = b.t === "sport" && (b.sportType || "").toLowerCase() === "curling";
-
-  if (aIsCurling && bIsCurling) {
-    const drawDiff = getEventDrawNumber(a) - getEventDrawNumber(b);
-    if (drawDiff !== 0) return drawDiff;
-  }
-
-  return (a.a || "").localeCompare(b.a || "");
-}
-
 function isFutureEvent(s) {
-  if (s.t === "cancelled") return false;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return eventSortableDate(s) >= today;
@@ -208,164 +171,64 @@ function ensureEventHasId(event) {
 }
 
 function getHiddenEventIds() {
-  return [];
+  try {
+    const raw = localStorage.getItem(HIDDEN_EVENTS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error("Could not read hidden GigBook events:", error);
+    return [];
+  }
 }
 
 function saveHiddenEventIds(ids) {
-  return;
+  try {
+    localStorage.setItem(HIDDEN_EVENTS_KEY, JSON.stringify(ids));
+  } catch (error) {
+    console.error("Could not save hidden GigBook events:", error);
+    toast("Could not update hidden events on this device.");
+  }
 }
 
 function isEventHidden(event) {
-  return false;
-}
-
-function getEventOverrides() {
-  try {
-    const raw = localStorage.getItem(OVERRIDES_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch (error) {
-    console.error("Could not read GigBook overrides:", error);
-    return {};
-  }
-}
-
-function saveEventOverrides(overrides) {
-  try {
-    localStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
-  } catch (error) {
-    console.error("Could not save GigBook overrides:", error);
-    toast("Could not update event on this device.");
-  }
-}
-
-function getOverrideForEventId(eventId) {
-  const overrides = getEventOverrides();
-  return overrides[eventId] || null;
-}
-
-function setOverrideForEventId(eventId, data) {
-  const overrides = getEventOverrides();
-  overrides[eventId] = data;
-  saveEventOverrides(overrides);
-}
-
-function removeOverrideForEventId(eventId) {
-  const overrides = getEventOverrides();
-  if (overrides[eventId]) {
-    delete overrides[eventId];
-    saveEventOverrides(overrides);
-  }
-}
-
-function applyOverridesToEvent(event) {
   ensureEventHasId(event);
-  const override = getOverrideForEventId(event.id);
-  if (!override) return event;
-
-  const updated = { ...event };
-
-  if (override.action === "cancelled") {
-    updated.t = "cancelled";
-    updated.e = "❌";
-    updated.g = "#200505,#050520";
-
-    const filteredTags = (updated.tags || []).filter(tag => tag[1] !== "Cancelled");
-    updated.tags = [["tr", "Cancelled"], ...filteredTags];
-  }
-
-  return updated;
-}
-
-function permanentlyDeleteEvent(eventId) {
-  const stored = getStoredCustomEvents().filter(e => {
-    ensureEventHasId(e);
-    return e.id !== eventId;
-  });
-
-  saveStoredCustomEvents(stored);
-  removeOverrideForEventId(eventId);
-
-  const index = S.findIndex(e => {
-    ensureEventHasId(e);
-    return e.id === eventId;
-  });
-
-  if (index !== -1) {
-    S.splice(index, 1);
-  }
-
-  closeModal();
-  render();
-
-  if (activeScreen === "map") renderMap();
-  if (activeScreen === "stats") renderStats();
-
-  toast("Event Deleted");
-}
-
-function markEventCancelled(eventId) {
-  const event = S.find(e => {
-    ensureEventHasId(e);
-    return e.id === eventId;
-  });
-
-  if (!event) {
-    toast("Could not find event.");
-    return;
-  }
-
-  if (event.t === "cancelled") {
-    toast("Event already cancelled");
-    return;
-  }
-
-  if (getStoredCustomEvents().some(e => {
-    ensureEventHasId(e);
-    return e.id === eventId;
-  })) {
-    const stored = getStoredCustomEvents();
-    const idx = stored.findIndex(e => {
-      ensureEventHasId(e);
-      return e.id === eventId;
-    });
-
-    if (idx !== -1) {
-      stored[idx].t = "cancelled";
-      stored[idx].e = "❌";
-      stored[idx].g = "#200505,#050520";
-      stored[idx].tags = [["tr", "Cancelled"], ...(stored[idx].tags || []).filter(tag => tag[1] !== "Cancelled")];
-      saveStoredCustomEvents(stored);
-    }
-
-    event.t = "cancelled";
-    event.e = "❌";
-    event.g = "#200505,#050520";
-    event.tags = [["tr", "Cancelled"], ...(event.tags || []).filter(tag => tag[1] !== "Cancelled")];
-  } else {
-    setOverrideForEventId(eventId, { action: "cancelled" });
-  }
-
-  closeModal();
-  render();
-
-  if (activeScreen === "map") renderMap();
-  if (activeScreen === "stats") renderStats();
-
-  toast("Event Cancelled");
+  return getHiddenEventIds().includes(event.id);
 }
 
 function hideEventById(eventId) {
-  permanentlyDeleteEvent(eventId);
+  const hiddenIds = getHiddenEventIds();
+  if (!hiddenIds.includes(eventId)) {
+    hiddenIds.push(eventId);
+    saveHiddenEventIds(hiddenIds);
+  }
+
+  closeModal();
+  render();
+
+  if (activeScreen === "map") renderMap();
+  if (activeScreen === "stats") renderStats();
+
+  toast("Event hidden from GigBook");
 }
 
 function restoreHiddenEventById(eventId) {
-  return;
+  const hiddenIds = getHiddenEventIds().filter(id => id !== eventId);
+  saveHiddenEventIds(hiddenIds);
+  render();
+  if (activeScreen === "map") renderMap();
+  if (activeScreen === "stats") renderStats();
+  renderHiddenEventsManager();
+  toast("Event restored to GigBook");
 }
 
 function clearAllHiddenEvents() {
-  return;
+  saveHiddenEventIds([]);
+  render();
+  if (activeScreen === "map") renderMap();
+  if (activeScreen === "stats") renderStats();
+  renderHiddenEventsManager();
+  toast("All hidden events restored");
 }
 
 function startEditEvent(eventId) {
@@ -387,7 +250,7 @@ function startEditEvent(eventId) {
 }
 
 function buildDisplayNumberMap() {
-  const visibleEvents = getVisibleEvents().sort(compareEventsDescending);
+  const visibleEvents = getVisibleEvents().sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
   const map = new Map();
 
   visibleEvents.forEach((event, index) => {
@@ -463,15 +326,6 @@ function getSceneLynxImageForEvent(s) {
   return "Lynx-Other.jpg";
 }
 
-    if (sportType === "basketball") return "Lynx-Basketball.jpg";
-    if (sportType === "soccer") return "Lynx-Soccer.jpg";
-    if (sportType === "curling") return "Lynx-Curling.jpg";
-    return "Lynx-Other.jpg";
-  }
-
-  return "Lynx-Other.jpg";
-}
-
 async function getImg(s) {
   const k = s.id || eventKey(s);
   if (IC[k] !== undefined) return IC[k];
@@ -516,7 +370,6 @@ async function loadImg(s, cid, modal) {
 function getVisibleEvents() {
   return S
     .map(s => ensureEventHasId(s))
-    .map(s => applyOverridesToEvent(s))
     .filter(s => !isEventHidden(s))
     .filter(s => {
       const tabMatch = cF === "all" || s.t === cF;
@@ -530,13 +383,6 @@ function getVisibleEvents() {
 
       return tabMatch && searchMatch;
     });
-}
-
-function applyStoredEventOverrides() {
-  S = S.map(event => {
-    ensureEventHasId(event);
-    return applyOverridesToEvent(event);
-  });
 }
 
 function updateStats(a) {
@@ -591,14 +437,14 @@ function renderUpcoming(events) {
     return;
   }
 
-  const visibleEvents = getVisibleEvents().sort(compareEventsDescending);
+  const visibleEvents = getVisibleEvents().sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
   const numberMap = new Map();
   visibleEvents.forEach((event, index) => {
     numberMap.set(eventKey(event), visibleEvents.length - index);
   });
 
   events
-    .sort(compareEventsAscending)
+    .sort((a, b) => eventSortableDate(a) - eventSortableDate(b))
     .forEach(s => {
       const entryNumber = numberMap.get(eventKey(s)) || "—";
       const card = document.createElement("div");
@@ -640,7 +486,7 @@ function render() {
   const upcomingEvents = vis.filter(isFutureEvent);
   const pastEvents = vis
     .filter(s => !isFutureEvent(s))
-    .sort(compareEventsDescending);
+    .sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
 
   renderUpcoming(upcomingEvents);
   renderHiddenEventsManager();
@@ -759,18 +605,6 @@ function openModal(s, num) {
     ? `<div class="irow"><span class="ikey">Promotion</span><span class="ival">${getDisplayPromotion(s)}</span></div>`
     : "";
 
-  const isUpcoming = isFutureEvent(s);
-  const cancelButton = isUpcoming && s.t !== "cancelled"
-    ? `
-        <button
-          onclick="markEventCancelled('${s.id}')"
-          style="flex:1;background:rgba(216,90,90,.10);border:1px solid rgba(216,90,90,.25);color:#ff8f8f;border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;"
-        >
-          Mark as Cancelled
-        </button>
-      `
-    : "";
-
   document.getElementById("mBody").innerHTML = `
     <div class="msec">
       <div class="msec-title">Event Details</div>
@@ -789,19 +623,18 @@ function openModal(s, num) {
 
     <div class="msec">
       <div class="msec-title">Actions</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div style="display:flex;gap:10px;">
         <button
           onclick="startEditEvent('${s.id}')"
           style="flex:1;background:rgba(0,229,200,.10);border:1px solid rgba(0,229,200,.25);color:var(--cyan);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;"
         >
           Edit Event
         </button>
-        ${cancelButton}
         <button
-          onclick="permanentlyDeleteEvent('${s.id}')"
+          onclick="hideEventById('${s.id}')"
           style="flex:1;background:rgba(255,77,106,.10);border:1px solid rgba(255,77,106,.25);color:var(--red);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;"
         >
-          Delete Event
+          Delete / Hide Event
         </button>
       </div>
     </div>
@@ -945,12 +778,11 @@ function renderMap() {
   if (!groups.length) {
     details.innerHTML = `Tap a marker to see venue history.`;
     gigbookLeafletMap.setView([49.8951, -97.1384], 3);
-    setTimeout(() => {
-      gigbookLeafletMap.invalidateSize();
-      gigbookLeafletMap.setView([49.8951, -97.1384], 3);
-    }, 80);
+    setTimeout(() => gigbookLeafletMap.invalidateSize(), 50);
     return;
   }
+
+  const bounds = [];
 
   groups.forEach((group, index) => {
     if (!group.coords) return;
@@ -966,22 +798,21 @@ function renderMap() {
       renderVenueDetails(group);
     });
 
+    bounds.push([group.coords.lat, group.coords.lng]);
+
     if (index === 0) {
       renderVenueDetails(group);
     }
   });
 
-  const northAmericaBounds = L.latLngBounds(
-    L.latLng(15, -170),
-    L.latLng(75, -50)
-  );
+  const northAmericaBounds = [
+    [15, -170],
+    [75, -50]
+  ];
 
   gigbookLeafletMap.fitBounds(northAmericaBounds, { padding: [20, 20] });
 
-  setTimeout(() => {
-    gigbookLeafletMap.invalidateSize();
-    gigbookLeafletMap.fitBounds(northAmericaBounds, { padding: [20, 20] });
-  }, 80);
+  setTimeout(() => gigbookLeafletMap.invalidateSize(), 50);
 }
 
 function renderVenueDetails(group) {
@@ -994,7 +825,7 @@ function renderVenueDetails(group) {
       return bLatest - aLatest;
     })
     .map(([venueName, events]) => {
-      const sortedEvents = [...events].sort(compareEventsDescending);
+      const sortedEvents = [...events].sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
 
       return `
         <div class="venue-history-block">
@@ -1182,26 +1013,22 @@ function getResolvedSportDetails(event) {
 function getSportEventsByType(type) {
   return S.filter(e => {
     if (e.t !== "sport") return false;
-    const details = getResolvedSportDetails(applyOverridesToEvent(e));
+    const details = getResolvedSportDetails(e);
     return details && details.sportType === type.toLowerCase();
   });
 }
 
 function getOtherSportEvents() {
   return S.filter(e => {
-    const ev = applyOverridesToEvent(e);
-    if (ev.t !== "sport") return false;
-    const details = getResolvedSportDetails(ev);
+    if (e.t !== "sport") return false;
+    const details = getResolvedSportDetails(e);
     if (!details) return true;
     return !["hockey", "football", "baseball", "basketball", "soccer", "curling"].includes(details.sportType);
   });
 }
 
 function getCurlingEvents() {
-  return S.filter(e => {
-    const ev = applyOverridesToEvent(e);
-    return ev.t === "sport" && (ev.sportType || "").toLowerCase() === "curling";
-  });
+  return S.filter(e => e.t === "sport" && (e.sportType || "").toLowerCase() === "curling");
 }
 
 function setStatsTab(tab, el) {
@@ -1267,6 +1094,7 @@ function renderOverallStats() {
   const venueCounts = countItems(visible.map(e => extractVenueLocation(e.v).name));
   const regionCounts = countItems(visible.map(e => extractRegionFromLocation(extractVenueLocation(e.v).location)).filter(Boolean));
   const countryCounts = countItems(visible.map(e => extractCountryFromLocation(extractVenueLocation(e.v).location)).filter(c => c !== "Unknown"));
+  const hiddenCount = getHiddenEventIds().length;
 
   target.innerHTML = `
     <div class="stat-box">
@@ -1276,9 +1104,9 @@ function renderOverallStats() {
     </div>
 
     <div class="stat-box">
-      <div class="stat-box-title">Deleted Events</div>
-      <div class="stat-box-value">0</div>
-      <div class="stat-box-sub">Deleted events are removed permanently.</div>
+      <div class="stat-box-title">Hidden Events</div>
+      <div class="stat-box-value">${hiddenCount}</div>
+      <div class="stat-box-sub">Events currently hidden from your lists.</div>
     </div>
 
     ${renderListCard("Top 5 Venues", topNEntries(venueCounts, 5))}
@@ -1356,11 +1184,11 @@ function renderSportTypeStats(type, targetId) {
 
   let events = [];
   if (type === "other") {
-    events = getVisibleEvents().filter(e => getOtherSportEvents().some(x => ensureEventHasId(x).id === e.id));
+    events = getVisibleEvents().filter(e => getOtherSportEvents().includes(e));
   } else if (type === "curling") {
-    events = getVisibleEvents().filter(e => getCurlingEvents().some(x => ensureEventHasId(x).id === e.id));
+    events = getVisibleEvents().filter(e => getCurlingEvents().includes(e));
   } else {
-    events = getVisibleEvents().filter(e => getSportEventsByType(type).some(x => ensureEventHasId(x).id === e.id));
+    events = getVisibleEvents().filter(e => getSportEventsByType(type).includes(e));
   }
 
   const leagueCounts = {};
@@ -1462,15 +1290,48 @@ function renderHiddenEventsManager() {
   const wrap = document.getElementById("hiddenEventsManager");
   if (!wrap) return;
 
+  const hiddenIds = getHiddenEventIds();
+  const hiddenEvents = S
+    .map(e => ensureEventHasId(e))
+    .filter(e => hiddenIds.includes(e.id))
+    .sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
+
+  if (!hiddenIds.length) {
+    wrap.innerHTML = `
+      <div class="stat-box hidden-manager-card">
+        <div class="hidden-manager-head">
+          <div>
+            <div class="hidden-manager-title">Hidden Events</div>
+            <div class="hidden-manager-sub">Restore anything you hid by mistake.</div>
+          </div>
+        </div>
+        <div class="hidden-empty">No hidden events right now.</div>
+      </div>
+    `;
+    return;
+  }
+
   wrap.innerHTML = `
     <div class="stat-box hidden-manager-card">
       <div class="hidden-manager-head">
         <div>
-          <div class="hidden-manager-title">Deleted Events</div>
-          <div class="hidden-manager-sub">Events are now permanently deleted instead of hidden.</div>
+          <div class="hidden-manager-title">Hidden Events</div>
+          <div class="hidden-manager-sub">${hiddenEvents.length} hidden ${hiddenEvents.length === 1 ? "event" : "events"} currently removed from your lists.</div>
         </div>
+        <button class="up-btn" onclick="clearAllHiddenEvents()">Restore All</button>
       </div>
-      <div class="hidden-empty">No hidden event area is used right now.</div>
+
+      <div class="hidden-events-list">
+        ${hiddenEvents.map(event => `
+          <div class="hidden-event-row">
+            <div class="hidden-event-info">
+              <div class="hidden-event-title">${event.a}</div>
+              <div class="hidden-event-meta">${event.d} · ${extractVenueLocation(event.v).name}</div>
+            </div>
+            <button class="up-btn primary" onclick="restoreHiddenEventById('${event.id}')">Restore</button>
+          </div>
+        `).join("")}
+      </div>
     </div>
   `;
 }
@@ -1988,7 +1849,7 @@ function saveNewEvent() {
     closeAddEventModal();
     render();
     switchScreen("shows");
-    toast("Event Updated");
+    toast("Event updated in GigBook");
     return;
   }
 
@@ -2001,7 +1862,7 @@ function saveNewEvent() {
   closeAddEventModal();
   render();
   switchScreen("shows");
-  toast("Event Added");
+  toast("Event added to GigBook");
 }
 
 document.getElementById("addEventOverlay").addEventListener("click", e => {
@@ -2011,10 +1872,10 @@ document.getElementById("addEventOverlay").addEventListener("click", e => {
 });
 
 mergeStoredEventsIntoS();
-applyStoredEventOverrides();
 updateHeaderLogo();
 setAddEventHeading();
 updateAddEventForm();
 render();
 renderStats();
 renderMap();
+renderHiddenEventsManager();
