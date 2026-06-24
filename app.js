@@ -1,30 +1,4 @@
-const IC = {};
-let cF = "all";
-let cQ = "";
-let activeScreen = "shows";
-let activeStatsTab = "overall";
-let activeSportStatsTab = "hockey";
-let editingEventId = null;
-
-const STORAGE_KEY = "gigbook_custom_events_v1";
-const HIDDEN_EVENTS_KEY = "gigbook_hidden_events_v1";
-const OVERRIDES_KEY = "gigbook_event_overrides_v1";
-
-const SPORT_LEAGUE_OPTIONS = {
-  baseball: ["MLB", "American Association", "Northern League", "Other"],
-  basketball: ["CEBL", "NBA", "NCAA", "Other"],
-  football: ["CFL", "NFL", "NCAA", "Other"],
-  hockey: ["NHL", "AHL", "QMJHL", "OHL", "WHL", "IIHF (International)", "Other"],
-  soccer: ["CPL", "MLS", "Other"]
-};
-
-const CURLING_EVENT_OPTIONS = [
-  "Brier",
-  "Scotties",
-  "GSOC: Invitational",
-  "GSOC: Masters",
-  "GSOC: National",
-  "GSOC: Open",
+Open",
   "GSOC: Players Cup",
   "Rock League",
   "World Championship",
