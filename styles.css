@@ -1571,3 +1571,20 @@ button[onclick*="hideEventById"]{
 .hidden-event-title{
   color:#fff4e8 !important;
 }
+
+/* =========================
+   SceneLynx map panel contrast fix
+========================= */
+
+.venue-event-title{
+  color:#fff8f0 !important;
+}
+
+.venue-event-meta{
+  color:#dcc2ad !important;
+}
+
+.venue-list .venue-event{
+  border:1px solid rgba(185,120,24,.22) !important;
+  background:rgba(50,22,12,.35) !important;
+}
