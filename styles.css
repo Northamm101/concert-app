@@ -1511,3 +1511,63 @@ button[onclick*="markEventCancelled"]{
 button[onclick*="hideEventById"]{
   color:#ffd1d1 !important;
 }
+
+/* =========================
+   SceneLynx stats contrast fix
+   Add at very bottom
+========================= */
+
+.page-title{
+  color:#4b2d1c !important;
+}
+
+.page-subtitle{
+  color:#7f6758 !important;
+}
+
+.stats-tab,
+.stats-subtab{
+  color:#6d5648 !important;
+  background:rgba(255,255,255,.78) !important;
+  border:1px solid rgba(185,120,24,.18) !important;
+}
+
+.stats-tab.active,
+.stats-subtab.active{
+  color:#2a170f !important;
+}
+
+.stat-box-title{
+  color:#c9a47f !important;
+}
+
+.stat-box-sub{
+  color:#e0c7b1 !important;
+}
+
+.stat-box-value{
+  color:#fff8f0 !important;
+}
+
+.stats-list-row span{
+  color:#f0ddd0 !important;
+}
+
+.stats-list-row strong{
+  color:#fff7ef !important;
+}
+
+.venue-title{
+  color:#fff8f0 !important;
+}
+
+.venue-meta,
+.venue-event-meta,
+.hidden-event-meta{
+  color:#dcc2ad !important;
+}
+
+.venue-history-title,
+.hidden-event-title{
+  color:#fff4e8 !important;
+}
