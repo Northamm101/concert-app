@@ -1331,3 +1331,88 @@ body::before{
     align-self:flex-start;
   }
 }
+
+/* =========================
+   SceneLynx contrast fix
+   Add at very bottom
+========================= */
+
+/* Main event cards */
+.gig-title,
+.g-title,
+.card-title,
+.event-title {
+  color: #fff7ef !important;
+}
+
+.gig-sub,
+.g-sub,
+.card-sub,
+.event-sub {
+  color: #f0ddd0 !important;
+}
+
+.gig-meta,
+.g-meta,
+.card-meta,
+.event-meta {
+  color: #dcc2ad !important;
+}
+
+/* Upcoming cards */
+.up-title,
+.up-card-title,
+.up-headline {
+  color: #fff7ef !important;
+}
+
+.up-sub,
+.up-support {
+  color: #f0ddd0 !important;
+}
+
+.up-meta,
+.up-venue,
+.up-location,
+.up-city {
+  color: #dcc2ad !important;
+}
+
+/* Modal / event detail popup */
+.m-artist {
+  color: #fff7ef !important;
+}
+
+.m-sub {
+  color: #f0ddd0 !important;
+}
+
+.m-venue {
+  color: #dcc2ad !important;
+}
+
+.msec-title,
+.ikey {
+  color: #bfa089 !important;
+}
+
+.ival {
+  color: #f5e8db !important;
+}
+
+/* Buttons inside modal */
+.modal .up-btn,
+.modal button {
+  color: #fff3e7;
+}
+
+/* Specifically help the green edit button text stand out */
+.modal button[onclick*="startEditEvent"],
+.modal button[onclick*="editEvent"] {
+  color: #f8fff8 !important;
+}
+
+/* Toast */
+.toast {
+  color: #fff4e8 !important;
+}
