@@ -8,6 +8,7 @@ let editingEventId = null;
 
 const STORAGE_KEY = "gigbook_custom_events_v1";
 const HIDDEN_EVENTS_KEY = "gigbook_hidden_events_v1";
+const OVERRIDES_KEY = "gigbook_event_overrides_v1";
 
 const SPORT_LEAGUE_OPTIONS = {
   baseball: ["MLB", "American Association", "Northern League", "Other"],
@@ -130,6 +131,7 @@ function eventSortableDate(s) {
 }
 
 function isFutureEvent(s) {
+  if (s.t === "cancelled") return false;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return eventSortableDate(s) >= today;
@@ -196,6 +198,102 @@ function isEventHidden(event) {
   return getHiddenEventIds().includes(event.id);
 }
 
+function getEventOverrides() {
+  try {
+    const raw = localStorage.getItem(OVERRIDES_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch (error) {
+    console.error("Could not read GigBook overrides:", error);
+    return {};
+  }
+}
+
+function saveEventOverrides(overrides) {
+  try {
+    localStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
+  } catch (error) {
+    console.error("Could not save GigBook overrides:", error);
+    toast("Could not update event on this device.");
+  }
+}
+
+function getOverrideForEventId(eventId) {
+  const overrides = getEventOverrides();
+  return overrides[eventId] || null;
+}
+
+function setOverrideForEventId(eventId, data) {
+  const overrides = getEventOverrides();
+  overrides[eventId] = data;
+  saveEventOverrides(overrides);
+}
+
+function applyOverridesToEvent(event) {
+  ensureEventHasId(event);
+  const override = getOverrideForEventId(event.id);
+  if (!override) return event;
+
+  const updated = { ...event };
+
+  if (override.action === "cancelled") {
+    updated.t = "cancelled";
+    updated.e = "❌";
+    updated.g = "#200505,#050520";
+
+    const filteredTags = (updated.tags || []).filter(tag => tag[1] !== "Cancelled");
+    updated.tags = [["tr", "Cancelled"], ...filteredTags];
+  }
+
+  return updated;
+}
+
+function markEventCancelled(eventId) {
+  const event = S.find(e => {
+    ensureEventHasId(e);
+    return e.id === eventId;
+  });
+
+  if (!event) {
+    toast("Could not find event.");
+    return;
+  }
+
+  if (event.t === "cancelled") {
+    toast("Already Cancelled");
+    return;
+  }
+
+  const stored = getStoredCustomEvents();
+  const storedIndex = stored.findIndex(e => {
+    ensureEventHasId(e);
+    return e.id === eventId;
+  });
+
+  if (storedIndex !== -1) {
+    stored[storedIndex].t = "cancelled";
+    stored[storedIndex].e = "❌";
+    stored[storedIndex].g = "#200505,#050520";
+    stored[storedIndex].tags = [["tr", "Cancelled"], ...(stored[storedIndex].tags || []).filter(tag => tag[1] !== "Cancelled")];
+    saveStoredCustomEvents(stored);
+
+    event.t = "cancelled";
+    event.e = "❌";
+    event.g = "#200505,#050520";
+    event.tags = [["tr", "Cancelled"], ...(event.tags || []).filter(tag => tag[1] !== "Cancelled")];
+  } else {
+    setOverrideForEventId(eventId, { action: "cancelled" });
+  }
+
+  closeModal();
+  render();
+
+  if (activeScreen === "map") renderMap();
+  if (activeScreen === "stats") renderStats();
+
+  toast("Event Cancelled");
+}
 function hideEventById(eventId) {
   const hiddenIds = getHiddenEventIds();
   if (!hiddenIds.includes(eventId)) {
@@ -370,6 +468,7 @@ async function loadImg(s, cid, modal) {
 function getVisibleEvents() {
   return S
     .map(s => ensureEventHasId(s))
+    .map(s => applyOverridesToEvent(s))
     .filter(s => !isEventHidden(s))
     .filter(s => {
       const tabMatch = cF === "all" || s.t === cF;
@@ -605,6 +704,17 @@ function openModal(s, num) {
     ? `<div class="irow"><span class="ikey">Promotion</span><span class="ival">${getDisplayPromotion(s)}</span></div>`
     : "";
 
+    const isUpcoming = isFutureEvent(s);
+  const cancelButton = isUpcoming && s.t !== "cancelled"
+    ? `
+        <button
+          onclick="markEventCancelled('${s.id}')"
+          style="flex:1;background:rgba(216,90,90,.10);border:1px solid rgba(216,90,90,.25);color:#ff8f8f;border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;"
+        >
+          Mark as Cancelled
+        </button>
+      `
+    : "";
   document.getElementById("mBody").innerHTML = `
     <div class="msec">
       <div class="msec-title">Event Details</div>
@@ -623,13 +733,14 @@ function openModal(s, num) {
 
     <div class="msec">
       <div class="msec-title">Actions</div>
-      <div style="display:flex;gap:10px;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button
           onclick="startEditEvent('${s.id}')"
           style="flex:1;background:rgba(0,229,200,.10);border:1px solid rgba(0,229,200,.25);color:var(--cyan);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;"
         >
           Edit Event
         </button>
+        ${cancelButton}
         <button
           onclick="hideEventById('${s.id}')"
           style="flex:1;background:rgba(255,77,106,.10);border:1px solid rgba(255,77,106,.25);color:var(--red);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;"
