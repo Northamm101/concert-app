@@ -463,15 +463,6 @@ function getSceneLynxImageForEvent(s) {
   return "Lynx-Other.jpg";
 }
 
-    if (sportType === "basketball") return "Lynx-Basketball.jpg";
-    if (sportType === "soccer") return "Lynx-Soccer.jpg";
-    if (sportType === "curling") return "Lynx-Curling.jpg";
-    return "Lynx-Other.jpg";
-  }
-
-  return "Lynx-Other.jpg";
-}
-
 async function getImg(s) {
   const k = s.id || eventKey(s);
   if (IC[k] !== undefined) return IC[k];
@@ -2018,3 +2009,4 @@ updateAddEventForm();
 render();
 renderStats();
 renderMap();
+renderHiddenEventsManager();
