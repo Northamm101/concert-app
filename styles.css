@@ -1416,3 +1416,98 @@ body::before{
 .toast {
   color: #fff4e8 !important;
 }
+
+/* =========================
+   SceneLynx exact contrast fix
+   Add at very bottom
+========================= */
+
+/* Upcoming cards */
+.up-artist{
+  color:#fff8f0 !important;
+}
+
+.up-openers{
+  color:#f2ddd0 !important;
+}
+
+.up-venue,
+.up-location{
+  color:#dcc2ad !important;
+}
+
+.up-entry{
+  color:#f3dfc7 !important;
+  background:rgba(255,255,255,.08) !important;
+}
+
+/* Main event cards */
+.gig-artist{
+  color:#fff8f0 !important;
+}
+
+.gig-openers{
+  color:#f2ddd0 !important;
+}
+
+.gig-meta{
+  color:#dcc2ad !important;
+}
+
+.gig-arrow{
+  color:#d8b48d !important;
+}
+
+.gig-num{
+  color:#f3dfc7 !important;
+  background:rgba(255,255,255,.08) !important;
+}
+
+/* Modal header */
+.m-artist{
+  color:#fff8f0 !important;
+}
+
+.m-sub{
+  color:#f2ddd0 !important;
+}
+
+.m-venue{
+  color:#dcc2ad !important;
+}
+
+/* Modal detail panel */
+.msec-title{
+  color:#c7a58a !important;
+}
+
+.ikey{
+  color:#d7b8a0 !important;
+}
+
+.ival{
+  color:#fff4e8 !important;
+}
+
+/* Modal close button */
+.modal-close{
+  color:#f1d3b8 !important;
+}
+
+/* Tag chips */
+.tag{
+  color:#f7eadb !important;
+}
+
+/* Buttons in modal */
+button[onclick*="startEditEvent"]{
+  color:#f3fff6 !important;
+}
+
+button[onclick*="markEventCancelled"]{
+  color:#ffd1d1 !important;
+}
+
+button[onclick*="hideEventById"]{
+  color:#ffd1d1 !important;
+}
