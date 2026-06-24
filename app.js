@@ -177,7 +177,7 @@ function getHiddenEventIds() {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
-    console.error("Could not read hidden GigBook events:", error);
+    console.error("Could not read hidden events:", error);
     return [];
   }
 }
@@ -186,7 +186,7 @@ function saveHiddenEventIds(ids) {
   try {
     localStorage.setItem(HIDDEN_EVENTS_KEY, JSON.stringify(ids));
   } catch (error) {
-    console.error("Could not save hidden GigBook events:", error);
+    console.error("Could not save hidden events:", error);
     toast("Could not update hidden events on this device.");
   }
 }
@@ -209,7 +209,7 @@ function hideEventById(eventId) {
   if (activeScreen === "map") renderMap();
   if (activeScreen === "stats") renderStats();
 
-  toast("Event hidden from GigBook");
+  toast("Event Deleted");
 }
 
 function restoreHiddenEventById(eventId) {
@@ -219,7 +219,7 @@ function restoreHiddenEventById(eventId) {
   if (activeScreen === "map") renderMap();
   if (activeScreen === "stats") renderStats();
   renderHiddenEventsManager();
-  toast("Event restored to GigBook");
+  toast("Event Restored");
 }
 
 function clearAllHiddenEvents() {
@@ -267,7 +267,7 @@ function getStoredCustomEvents() {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
-    console.error("Could not read stored GigBook events:", error);
+    console.error("Could not read stored events:", error);
     return [];
   }
 }
@@ -276,7 +276,7 @@ function saveStoredCustomEvents(events) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
   } catch (error) {
-    console.error("Could not save GigBook events:", error);
+    console.error("Could not save events:", error);
     toast("Could not save event on this device.");
   }
 }
@@ -634,7 +634,7 @@ function openModal(s, num) {
           onclick="hideEventById('${s.id}')"
           style="flex:1;background:rgba(255,77,106,.10);border:1px solid rgba(255,77,106,.25);color:var(--red);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;"
         >
-          Delete / Hide Event
+          Delete Event
         </button>
       </div>
     </div>
@@ -1289,51 +1289,7 @@ function renderStats() {
 function renderHiddenEventsManager() {
   const wrap = document.getElementById("hiddenEventsManager");
   if (!wrap) return;
-
-  const hiddenIds = getHiddenEventIds();
-  const hiddenEvents = S
-    .map(e => ensureEventHasId(e))
-    .filter(e => hiddenIds.includes(e.id))
-    .sort((a, b) => eventSortableDate(b) - eventSortableDate(a));
-
-  if (!hiddenIds.length) {
-    wrap.innerHTML = `
-      <div class="stat-box hidden-manager-card">
-        <div class="hidden-manager-head">
-          <div>
-            <div class="hidden-manager-title">Hidden Events</div>
-            <div class="hidden-manager-sub">Restore anything you hid by mistake.</div>
-          </div>
-        </div>
-        <div class="hidden-empty">No hidden events right now.</div>
-      </div>
-    `;
-    return;
-  }
-
-  wrap.innerHTML = `
-    <div class="stat-box hidden-manager-card">
-      <div class="hidden-manager-head">
-        <div>
-          <div class="hidden-manager-title">Hidden Events</div>
-          <div class="hidden-manager-sub">${hiddenEvents.length} hidden ${hiddenEvents.length === 1 ? "event" : "events"} currently removed from your lists.</div>
-        </div>
-        <button class="up-btn" onclick="clearAllHiddenEvents()">Restore All</button>
-      </div>
-
-      <div class="hidden-events-list">
-        ${hiddenEvents.map(event => `
-          <div class="hidden-event-row">
-            <div class="hidden-event-info">
-              <div class="hidden-event-title">${event.a}</div>
-              <div class="hidden-event-meta">${event.d} · ${extractVenueLocation(event.v).name}</div>
-            </div>
-            <button class="up-btn primary" onclick="restoreHiddenEventById('${event.id}')">Restore</button>
-          </div>
-        `).join("")}
-      </div>
-    </div>
-  `;
+  wrap.innerHTML = "";
 }
 
 function populateLeagueOptions(sportType, selectedValue = "") {
