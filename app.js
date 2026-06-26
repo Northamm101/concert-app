@@ -9,6 +9,7 @@ let editingEventId = null;
 const STORAGE_KEY = "gigbook_custom_events_v1";
 const HIDDEN_EVENTS_KEY = "gigbook_hidden_events_v1";
 const OVERRIDES_KEY = "gigbook_event_overrides_v1";
+const CUSTOM_VENUE_COORDS_KEY = "gigbook_custom_venue_coords_v1";
 
 const SPORT_LEAGUE_OPTIONS = {
   baseball: ["MLB", "American Association", "Northern League", "Other"],
@@ -196,6 +197,31 @@ function saveHiddenEventIds(ids) {
 function isEventHidden(event) {
   ensureEventHasId(event);
   return getHiddenEventIds().includes(event.id);
+}
+
+function getCustomVenueCoords() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_VENUE_COORDS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch (error) {
+    console.error("Could not read custom venue coordinates:", error);
+    return {};
+  }
+}
+
+function saveCustomVenueCoords(coords) {
+  try {
+    localStorage.setItem(CUSTOM_VENUE_COORDS_KEY, JSON.stringify(coords));
+  } catch (error) {
+    console.error("Could not save custom venue coordinates:", error);
+  }
+}
+
+function getVenueCoords(venueKey) {
+  const customCoords = getCustomVenueCoords();
+  return customCoords[venueKey] || VENUE_COORDS[venueKey] || null;
 }
 
 function getEventOverrides() {
@@ -826,7 +852,7 @@ function getVenueGroups() {
     const venueParts = extractVenueLocation(event.v);
 
     if (!groups[venueKey]) {
-      const coords = VENUE_COORDS[venueKey] || null;
+    const coords = getVenueCoords(venueKey);
       groups[venueKey] = {
         key: venueKey,
         displayName: titleCase(venueKey),
@@ -1832,6 +1858,12 @@ function saveNewEvent() {
     : venueKey === "MALL OF AMERICA FIELD"
     ? "MALL OF AMERICA FIELD"
     : venueUpper;
+
+  if (!getVenueCoords(venueKey)) {
+    const customCoords = getCustomVenueCoords();
+    customCoords[venueKey] = { lat: 49.8951, lng: -97.1384 };
+    saveCustomVenueCoords(customCoords);
+  }
 
   const newEvent = {
     a: title,
