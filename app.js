@@ -852,7 +852,14 @@ function getVenueGroups() {
     const venueParts = extractVenueLocation(event.v);
 
     if (!groups[venueKey]) {
-    const coords = getVenueCoords(venueKey);
+    let coords = getVenueCoords(venueKey);
+
+      if (!coords) {
+        const customCoords = getCustomVenueCoords();
+        customCoords[venueKey] = { lat: 49.8951, lng: -97.1384 };
+        saveCustomVenueCoords(customCoords);
+        coords = customCoords[venueKey];
+      }
       groups[venueKey] = {
         key: venueKey,
         displayName: titleCase(venueKey),
