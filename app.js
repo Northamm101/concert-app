@@ -916,14 +916,20 @@ function renderMap() {
     }
   });
 
-  const northAmericaBounds = [
-    [15, -170],
-    [75, -50]
-  ];
+  const northAmericaBounds = L.latLngBounds(
+    L.latLng(15, -170),
+    L.latLng(75, -50)
+  );
 
-  gigbookLeafletMap.fitBounds(northAmericaBounds, { padding: [20, 20] });
+  gigbookLeafletMap.setMaxBounds(northAmericaBounds);
+  gigbookLeafletMap.invalidateSize();
 
-  setTimeout(() => gigbookLeafletMap.invalidateSize(), 50);
+  setTimeout(() => {
+    gigbookLeafletMap.fitBounds(northAmericaBounds, { padding: [20, 20] });
+    if (gigbookLeafletMap.getZoom() > 4) {
+      gigbookLeafletMap.setZoom(4);
+    }
+  }, 120);
 }
 
 function renderVenueDetails(group) {
