@@ -219,35 +219,6 @@ function saveCustomVenueCoords(coords) {
   }
 }
 
-function getRegionFallbackCoords(locationText) {
-  const region = extractRegionFromLocation(locationText).toUpperCase();
-
-  const regionCoords = {
-    MB: { lat: 49.8951, lng: -97.1384 },
-    ON: { lat: 43.6532, lng: -79.3832 },
-    SK: { lat: 52.1332, lng: -106.6700 },
-    AB: { lat: 51.0447, lng: -114.0719 },
-    BC: { lat: 49.2827, lng: -123.1207 },
-    QC: { lat: 45.5017, lng: -73.5673 },
-    NS: { lat: 44.6488, lng: -63.5752 },
-    NB: { lat: 45.9636, lng: -66.6431 },
-    PE: { lat: 46.2382, lng: -63.1311 },
-    NL: { lat: 47.5615, lng: -52.7126 },
-    MN: { lat: 44.9778, lng: -93.2650 },
-    ND: { lat: 46.8083, lng: -100.7837 },
-    SD: { lat: 44.3683, lng: -100.3510 },
-    WI: { lat: 43.0731, lng: -89.4012 },
-    IL: { lat: 41.8781, lng: -87.6298 },
-    NV: { lat: 36.1699, lng: -115.1398 },
-    CA: { lat: 34.0522, lng: -118.2437 },
-    NY: { lat: 40.7128, lng: -74.0060 },
-    FL: { lat: 27.9506, lng: -82.4572 },
-    TX: { lat: 32.7767, lng: -96.7970 }
-  };
-
-  return regionCoords[region] || { lat: 39.8283, lng: -98.5795 };
-}
-
 function getVenueCoords(venueKey) {
   const customCoords = getCustomVenueCoords();
   return customCoords[venueKey] || VENUE_COORDS[venueKey] || null;
@@ -881,14 +852,13 @@ function getVenueGroups() {
     const venueParts = extractVenueLocation(event.v);
 
     if (!groups[venueKey]) {
-      let coords = getVenueCoords(venueKey);
+    let coords = getVenueCoords(venueKey);
 
       if (!coords) {
         const customCoords = getCustomVenueCoords();
-        customCoords[venueKey] = getRegionFallbackCoords(venueParts.location);
+        customCoords[venueKey] = { lat: 49.8951, lng: -97.1384 };
         saveCustomVenueCoords(customCoords);
         coords = customCoords[venueKey];
-      }coords = customCoords[venueKey];
       }
       groups[venueKey] = {
         key: venueKey,
