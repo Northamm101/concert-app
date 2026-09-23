@@ -1983,7 +1983,6 @@ document.getElementById("addEventOverlay").addEventListener("click", e => {
   }
 });
 
-mergeStoredEventsIntoS();
 updateHeaderLogo();
 setAddEventHeading();
 updateAddEventForm();
