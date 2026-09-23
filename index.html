@@ -31,23 +31,13 @@
       </div>
 
       <div class="topbar-right">
-        <button class="icon-btn add-btn" onclick="openAddEventModal()">＋</button>
-
-        <button class="icon-btn" onclick="toggleSearch()">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
-          </svg>
-        </button>
-
-        <button class="icon-btn" onclick="navigator.clipboard.writeText(JSON.stringify({
-  customEvents: JSON.parse(localStorage.getItem('gigbook_custom_events_v1') || '[]'),
-  hiddenEvents: JSON.parse(localStorage.getItem('gigbook_hidden_events_v1') || '[]'),
-  overrides: JSON.parse(localStorage.getItem('gigbook_event_overrides_v1') || '{}'),
-  customVenueCoords: JSON.parse(localStorage.getItem('gigbook_custom_venue_coords_v1') || '{}')
-}, null, 2)).then(() => toast('SceneLynx data copied'))">
-  📋
-</button>
+  <button class="icon-btn" onclick="toggleSearch()">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/>
+      <path d="m21 21-4.35-4.35"/>
+    </svg>
+  </button>
+</div>
 
     <main id="screen-shows" class="screen active">
       <div class="ribbon">
