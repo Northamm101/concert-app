@@ -62,9 +62,7 @@ body::before{
   position:sticky;
   top:0;
   z-index:100;
-  background:rgba(247,241,232,.96);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
+  background:#f7f1e8;
   border-bottom:1px solid rgba(185,120,24,.18);
 }
 
