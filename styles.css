@@ -1666,3 +1666,19 @@ button[onclick*="hideEventById"]{
   border:1px solid rgba(185,120,24,.22) !important;
   background:rgba(50,22,12,.35) !important;
 }
+
+/* =========================
+   SceneLynx iPhone safe-area cover
+========================= */
+
+body::after{
+  content:"";
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:env(safe-area-inset-top, 0px);
+  background:#f7f1e8;
+  z-index:10000;
+  pointer-events:none;
+}
