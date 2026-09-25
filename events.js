@@ -2551,7 +2551,7 @@ const S = [
     "y": 2016
   },
   {
-    "a": "NHL: Dallas Stara vs Winnipeg Jets",
+    "a": "NHL: Dallas Stars vs Winnipeg Jets",
     "o": "",
     "d": "FEB 2 · 2016",
     "isoDate": "2016-02-02",
@@ -2578,10 +2578,10 @@ const S = [
     "sportType": "hockey",
     "league": "NHL",
     "customLeague": "",
-    "awayTeam": "Dallas Stara",
+    "awayTeam": "Dallas Stars",
     "homeTeam": "Winnipeg Jets",
     "sportNote": "",
-    "id": "ev_nhl_dallas_stara_vs_winnipeg_jets_feb_2_2016_canada_life_centre_winnipeg_mb_sport_2016_02_02_2016"
+    "id": "ev_nhl_dallas_stars_vs_winnipeg_jets_feb_2_2016_canada_life_centre_winnipeg_mb_sport_2016_02_02_2016"
   },
   {
     "a": "NHL: Detroit Red Wings vs Winnipeg Jets",
@@ -3074,7 +3074,7 @@ const S = [
     "id": "ev_nhl_arizona_coyotes_vs_winnipeg_jets_jan_18_2015_canada_life_centre_winnipeg_mb_sport_2015_01_18_2015"
   },
   {
-    "a": "IIHF (International): Slovakia vs Sweden",
+    "a": "IIHF: Slovakia vs Sweden",
     "o": "",
     "d": "JAN 5 · 2015",
     "isoDate": "2015-01-05",
@@ -3093,7 +3093,7 @@ const S = [
       ],
       [
         "ta",
-        "IIHF (International)"
+        "IIHF"
       ],
       [
         "ta",
@@ -3107,7 +3107,7 @@ const S = [
     "y": 2015,
     "img": "",
     "sportType": "hockey",
-    "league": "IIHF (International)",
+    "league": "IIHF",
     "customLeague": "",
     "awayTeam": "Slovakia",
     "homeTeam": "Sweden",
@@ -3115,7 +3115,7 @@ const S = [
     "id": "ev_iihf_international_slovakia_vs_sweden_jan_5_2015_air_canada_centre_toronto_on_sport_2015_01_05_2015"
   },
   {
-    "a": "IIHF (International): Russia vs Canada",
+    "a": "IIHF: Russia vs Canada",
     "o": "",
     "d": "JAN 5 · 2015",
     "isoDate": "2015-01-05",
@@ -3134,7 +3134,7 @@ const S = [
       ],
       [
         "ta",
-        "IIHF (International)"
+        "IIHF"
       ],
       [
         "ta",
@@ -3148,7 +3148,7 @@ const S = [
     "y": 2015,
     "img": "",
     "sportType": "hockey",
-    "league": "IIHF (International)",
+    "league": "IIHF",
     "customLeague": "",
     "awayTeam": "Russia",
     "homeTeam": "Canada",
@@ -3156,7 +3156,7 @@ const S = [
     "id": "ev_iihf_international_russia_vs_canada_jan_5_2015_air_canada_centre_toronto_on_sport_2015_01_05_2015"
   },
   {
-    "a": "IIHF (International): Russia vs Sweden",
+    "a": "IIHF: Russia vs Sweden",
     "o": "",
     "d": "JAN 4 · 2015",
     "isoDate": "2015-01-04",
@@ -3175,7 +3175,7 @@ const S = [
       ],
       [
         "ta",
-        "IIHF (International)"
+        "IIHF"
       ],
       [
         "ta",
@@ -3185,7 +3185,7 @@ const S = [
     "y": 2015,
     "img": "",
     "sportType": "hockey",
-    "league": "IIHF (International)",
+    "league": "IIHF",
     "customLeague": "",
     "awayTeam": "Russia",
     "homeTeam": "Sweden",
@@ -3193,7 +3193,7 @@ const S = [
     "id": "ev_iihf_international_russia_vs_sweden_jan_4_2015_air_canada_centre_toronto_on_sport_2015_01_04_2015"
   },
   {
-    "a": "IIHF (International): Slovakia vs Canada",
+    "a": "IIHF: Slovakia vs Canada",
     "o": "",
     "d": "JAN 4 · 2015",
     "isoDate": "2015-01-04",
@@ -3212,7 +3212,7 @@ const S = [
       ],
       [
         "ta",
-        "IIHF (International)"
+        "IIHF"
       ],
       [
         "ta",
@@ -3222,7 +3222,7 @@ const S = [
     "y": 2015,
     "img": "",
     "sportType": "hockey",
-    "league": "IIHF (International)",
+    "league": "IIHF",
     "customLeague": "",
     "awayTeam": "Slovakia",
     "homeTeam": "Canada",
@@ -3230,7 +3230,7 @@ const S = [
     "id": "ev_iihf_international_slovakia_vs_canada_jan_4_2015_air_canada_centre_toronto_on_sport_2015_01_04_2015"
   },
   {
-    "a": "IIHF (International): Germany vs Switzerland",
+    "a": "IIHF: Germany vs Switzerland",
     "o": "",
     "d": "JAN 2 · 2015",
     "isoDate": "2015-01-02",
@@ -3249,7 +3249,7 @@ const S = [
       ],
       [
         "ta",
-        "IIHF (International)"
+        "IIHF"
       ],
       [
         "ta",
@@ -3259,7 +3259,7 @@ const S = [
     "y": 2015,
     "img": "",
     "sportType": "hockey",
-    "league": "IIHF (International)",
+    "league": "IIHF",
     "customLeague": "",
     "awayTeam": "Germany",
     "homeTeam": "Switzerland",
@@ -3267,7 +3267,7 @@ const S = [
     "id": "ev_iihf_international_germany_vs_switzerland_jan_2_2015_air_canada_centre_toronto_on_sport_2015_01_02_2015"
   },
   {
-    "a": "IIHF (International): Finland vs Sweden",
+    "a": "IIHF: Finland vs Sweden",
     "o": "",
     "d": "JAN 2 · 2015",
     "isoDate": "2015-01-02",
@@ -3286,7 +3286,7 @@ const S = [
       ],
       [
         "ta",
-        "IIHF (International)"
+        "IIHF"
       ],
       [
         "ta",
@@ -3296,7 +3296,7 @@ const S = [
     "y": 2015,
     "img": "",
     "sportType": "hockey",
-    "league": "IIHF (International)",
+    "league": "IIHF",
     "customLeague": "",
     "awayTeam": "Finland",
     "homeTeam": "Sweden",
@@ -3304,7 +3304,7 @@ const S = [
     "id": "ev_iihf_international_finland_vs_sweden_jan_2_2015_air_canada_centre_toronto_on_sport_2015_01_02_2015"
   },
   {
-    "a": "IIHF (International): Denmark vs Canada",
+    "a": "IIHF: Denmark vs Canada",
     "o": "",
     "d": "JAN 2 · 2015",
     "isoDate": "2015-01-02",
@@ -3323,7 +3323,7 @@ const S = [
       ],
       [
         "ta",
-        "IIHF (International)"
+        "IIHF"
       ],
       [
         "ta",
@@ -3333,7 +3333,7 @@ const S = [
     "y": 2015,
     "img": "",
     "sportType": "hockey",
-    "league": "IIHF (International)",
+    "league": "IIHF",
     "customLeague": "",
     "awayTeam": "Denmark",
     "homeTeam": "Canada",
@@ -3341,7 +3341,7 @@ const S = [
     "id": "ev_iihf_international_denmark_vs_canada_jan_2_2015_air_canada_centre_toronto_on_sport_2015_01_02_2015"
   },
   {
-    "a": "IIHF (International): Switzerland vs Sweden",
+    "a": "IIHF: Switzerland vs Sweden",
     "o": "",
     "d": "DEC 31 · 2014",
     "isoDate": "2014-12-31",
@@ -3360,7 +3360,7 @@ const S = [
       ],
       [
         "ta",
-        "IIHF (International)"
+        "IIHF"
       ],
       [
         "ta",
@@ -3370,7 +3370,7 @@ const S = [
     "y": 2014,
     "img": "",
     "sportType": "hockey",
-    "league": "IIHF (International)",
+    "league": "IIHF",
     "customLeague": "",
     "awayTeam": "Switzerland",
     "homeTeam": "Sweden",
@@ -3378,7 +3378,7 @@ const S = [
     "id": "ev_iihf_international_switzerland_vs_sweden_dec_31_2014_air_canada_centre_toronto_on_sport_2014_12_31_2014"
   },
   {
-    "a": "IIHF (International): Czech Republic vs Russia",
+    "a": "IIHF: Czech Republic vs Russia",
     "o": "",
     "d": "DEC 31 · 2014",
     "isoDate": "2014-12-31",
@@ -3397,7 +3397,7 @@ const S = [
       ],
       [
         "ta",
-        "IIHF (International)"
+        "IIHF"
       ],
       [
         "ta",
@@ -3407,7 +3407,7 @@ const S = [
     "y": 2014,
     "img": "",
     "sportType": "hockey",
-    "league": "IIHF (International)",
+    "league": "IIHF",
     "customLeague": "",
     "awayTeam": "Czech Republic",
     "homeTeam": "Russia",
