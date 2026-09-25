@@ -1088,6 +1088,16 @@ body::before{
   padding-bottom:2px;
 }
 
+.stats-tabs{
+  position:sticky;
+  top:calc(env(safe-area-inset-top, 0px) + 80px);
+  z-index:1500;
+  background:#f7f1e8;
+  padding-top:8px;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(185,120,24,.10);
+}
+
 .stats-tabs::-webkit-scrollbar,
 .stats-subtabs::-webkit-scrollbar{
   display:none;
