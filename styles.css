@@ -119,9 +119,14 @@ body::before{
 .ribbon{
   display:flex;
   gap:6px;
-  padding:0 20px 14px;
+  padding:8px 20px 14px;
   overflow-x:auto;
   scrollbar-width:none;
+  position:sticky;
+  top:calc(env(safe-area-inset-top, 0px) + 80px);
+  z-index:1500;
+  background:#f7f1e8;
+  border-bottom:1px solid rgba(185,120,24,.10);
 }
 
 .ribbon::-webkit-scrollbar{
