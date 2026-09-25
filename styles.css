@@ -61,7 +61,7 @@ body::before{
   padding:calc(env(safe-area-inset-top, 0px) + 12px) 20px 12px;
   position:sticky;
   top:0;
-  z-index:100;
+  z-index:2000;
   background:#f7f1e8;
   border-bottom:1px solid rgba(185,120,24,.18);
 }
