@@ -1406,7 +1406,18 @@ function renderComedyStats() {
   const events = getStatsEvents().filter(e => e.t === "comedy");
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
   const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
-  const performerCounts = countItems(events.map(e => e.a).filter(Boolean));
+  const performerCounts = {};
+
+events.forEach(event => {
+  const performers = String(event.a || "")
+    .split(/\s*&\s*|\s+and\s+/i)
+    .map(name => name.trim())
+    .filter(Boolean);
+
+  performers.forEach(name => {
+    performerCounts[name] = (performerCounts[name] || 0) + 1;
+  });
+});
 
   const outOfProvinceCount = events.filter(e => {
     const region = extractRegionFromLocation(extractVenueLocation(e.v).location).toUpperCase();
