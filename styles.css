@@ -1126,12 +1126,14 @@ body::before{
 }
 
 .stats-panel,
-.stats-sport-panel{
+.stats-sport-panel,
+.stats-entertainment-panel{
   display:none;
 }
 
 .stats-panel.active,
-.stats-sport-panel.active{
+.stats-sport-panel.active,
+.stats-entertainment-panel.active{
   display:block;
 }
 
