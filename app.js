@@ -1295,12 +1295,10 @@ function renderOverallStats() {
 }
 
 function renderConcertStats() {
-  const target = document.getElementById("statsConcertsContent");
+  const target = document.getElementById("statsEntertainmentConcertsContent");
   if (!target) return;
 
-  const events = getVisibleEvents().filter(e => e.t === "concert" || e.t === "festival");
-  const concertOnly = events.filter(e => e.t === "concert");
-  const festivalOnly = events.filter(e => e.t === "festival");
+  const events = getVisibleEvents().filter(e => e.t === "concert");
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
   const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
 
@@ -1322,21 +1320,9 @@ function renderConcertStats() {
 
   target.innerHTML = `
     <div class="stat-box">
-      <div class="stat-box-title">Total Concerts / Festivals</div>
+      <div class="stat-box-title">Total Concerts</div>
       <div class="stat-box-value">${events.length}</div>
-      <div class="stat-box-sub">${concertOnly.length} concerts and ${festivalOnly.length} festivals.</div>
-    </div>
-
-    <div class="stat-box">
-      <div class="stat-box-title">Concerts Only</div>
-      <div class="stat-box-value">${concertOnly.length}</div>
-      <div class="stat-box-sub">Standard concert entries.</div>
-    </div>
-
-    <div class="stat-box">
-      <div class="stat-box-title">Festivals Only</div>
-      <div class="stat-box-value">${festivalOnly.length}</div>
-      <div class="stat-box-sub">Festival entries in GigBook.</div>
+      <div class="stat-box-sub">Concerts attended.</div>
     </div>
 
     ${renderListCard("Top 5 Seen Artists", topNEntries(artistCounts, 5), "No artist data yet.")}
