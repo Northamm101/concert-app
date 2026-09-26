@@ -1343,6 +1343,55 @@ function renderConcertStats() {
   `;
 }
 
+function renderFestivalStats() {
+  const target = document.getElementById("statsEntertainmentFestivalsContent");
+  if (!target) return;
+
+  const events = getVisibleEvents().filter(e => e.t === "festival");
+  const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
+  const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
+
+  const artistCounts = {};
+  events.forEach(event => {
+    parseArtistNamesFromEvent(event).forEach(name => {
+      artistCounts[name] = (artistCounts[name] || 0) + 1;
+    });
+  });
+
+  const outOfProvinceCount = events.filter(e => {
+    const region = extractRegionFromLocation(extractVenueLocation(e.v).location).toUpperCase();
+    return region && region !== "MB";
+  }).length;
+
+  const internationalCount = events.filter(e => {
+    return extractCountryFromLocation(extractVenueLocation(e.v).location) !== "Canada";
+  }).length;
+
+  target.innerHTML = `
+    <div class="stat-box">
+      <div class="stat-box-title">Total Festivals</div>
+      <div class="stat-box-value">${events.length}</div>
+      <div class="stat-box-sub">Festival events attended.</div>
+    </div>
+
+    ${renderListCard("Top 5 Seen Artists", topNEntries(artistCounts, 5), "No artist data yet.")}
+    ${renderListCard("Top 5 Festival Venues", topNEntries(venueCounts, 5), "No venue data yet.")}
+    ${renderListCard("Top 5 Festival Cities", topNEntries(cityCounts, 5), "No city data yet.")}
+
+    <div class="stat-box">
+      <div class="stat-box-title">Out of Province Festivals</div>
+      <div class="stat-box-value">${outOfProvinceCount}</div>
+      <div class="stat-box-sub">Outside Manitoba.</div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-box-title">International Festivals</div>
+      <div class="stat-box-value">${internationalCount}</div>
+      <div class="stat-box-sub">Outside Canada.</div>
+    </div>
+  `;
+}
+
 function renderSportTypeStats(type, targetId) {
   const target = document.getElementById(targetId);
   if (!target) return;
@@ -1438,6 +1487,7 @@ function renderWrestlingStats() {
 function renderStats() {
   renderOverallStats();
   renderConcertStats();
+  renderFestivalStats();
   renderSportTypeStats("hockey", "statsSportsHockeyContent");
   renderSportTypeStats("football", "statsSportsFootballContent");
   renderSportTypeStats("baseball", "statsSportsBaseballContent");
@@ -1448,6 +1498,7 @@ function renderStats() {
   renderWrestlingStats();
 
   setStatsTab(activeStatsTab);
+  setEntertainmentStatsTab(activeEntertainmentStatsTab);
   setSportStatsTab(activeSportStatsTab);
 }
 
