@@ -1578,6 +1578,28 @@ function renderKidsStats() {
   `;
 }
 
+function renderCancelledStats() {
+  const target = document.getElementById("statsEntertainmentCancelledContent");
+  if (!target) return;
+
+  const events = getVisibleEvents().filter(e => e.t === "cancelled");
+  const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
+  const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
+  const eventCounts = countItems(events.map(e => e.a).filter(Boolean));
+
+  target.innerHTML = `
+    <div class="stat-box">
+      <div class="stat-box-title">Total Cancelled Events</div>
+      <div class="stat-box-value">${events.length}</div>
+      <div class="stat-box-sub">Cancelled or missed events in your history.</div>
+    </div>
+
+    ${renderListCard("Cancelled Events", Object.entries(eventCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), "No cancelled events.")}
+    ${renderListCard("Cancelled Event Venues", topNEntries(venueCounts, 5), "No venue data yet.")}
+    ${renderListCard("Cancelled Event Cities", topNEntries(cityCounts, 5), "No city data yet.")}
+  `;
+}
+
 function renderSportTypeStats(type, targetId) {
   const target = document.getElementById(targetId);
   if (!target) return;
@@ -1678,6 +1700,7 @@ function renderStats() {
   renderTheatreStats();
   renderCirqueStats();
   renderKidsStats();
+  renderCancelledStats();
   renderSportTypeStats("hockey", "statsSportsHockeyContent");
   renderSportTypeStats("football", "statsSportsFootballContent");
   renderSportTypeStats("baseball", "statsSportsBaseballContent");
