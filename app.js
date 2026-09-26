@@ -1392,6 +1392,49 @@ function renderFestivalStats() {
   `;
 }
 
+function renderComedyStats() {
+  const target = document.getElementById("statsEntertainmentComedyContent");
+  if (!target) return;
+
+  const events = getVisibleEvents().filter(e => e.t === "comedy");
+  const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
+  const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
+  const performerCounts = countItems(events.map(e => e.a).filter(Boolean));
+
+  const outOfProvinceCount = events.filter(e => {
+    const region = extractRegionFromLocation(extractVenueLocation(e.v).location).toUpperCase();
+    return region && region !== "MB";
+  }).length;
+
+  const internationalCount = events.filter(e => {
+    return extractCountryFromLocation(extractVenueLocation(e.v).location) !== "Canada";
+  }).length;
+
+  target.innerHTML = `
+    <div class="stat-box">
+      <div class="stat-box-title">Total Comedy Shows</div>
+      <div class="stat-box-value">${events.length}</div>
+      <div class="stat-box-sub">Comedy events attended.</div>
+    </div>
+
+    ${renderListCard("Top 5 Seen Comedians", topNEntries(performerCounts, 5), "No comedian data yet.")}
+    ${renderListCard("Top 5 Comedy Venues", topNEntries(venueCounts, 5), "No venue data yet.")}
+    ${renderListCard("Top 5 Comedy Cities", topNEntries(cityCounts, 5), "No city data yet.")}
+
+    <div class="stat-box">
+      <div class="stat-box-title">Out of Province Comedy Shows</div>
+      <div class="stat-box-value">${outOfProvinceCount}</div>
+      <div class="stat-box-sub">Outside Manitoba.</div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-box-title">International Comedy Shows</div>
+      <div class="stat-box-value">${internationalCount}</div>
+      <div class="stat-box-sub">Outside Canada.</div>
+    </div>
+  `;
+}
+
 function renderSportTypeStats(type, targetId) {
   const target = document.getElementById(targetId);
   if (!target) return;
@@ -1488,6 +1531,7 @@ function renderStats() {
   renderOverallStats();
   renderConcertStats();
   renderFestivalStats();
+  renderComedyStats();
   renderSportTypeStats("hockey", "statsSportsHockeyContent");
   renderSportTypeStats("football", "statsSportsFootballContent");
   renderSportTypeStats("baseball", "statsSportsBaseballContent");
