@@ -15,7 +15,7 @@ const SPORT_LEAGUE_OPTIONS = {
   baseball: ["MLB", "American Association", "Northern League", "Other"],
   basketball: ["CEBL", "NBA", "NCAA", "Other"],
   football: ["CFL", "NFL", "NCAA", "Other"],
-  hockey: ["NHL", "AHL", "QMJHL", "OHL", "WHL", "IIHF (International)", "Other"],
+  hockey: ["NHL", "AHL", "QMJHL", "OHL", "WHL", "IIHF", "Other"],
   soccer: ["CPL", "MLS", "Other"]
 };
 
