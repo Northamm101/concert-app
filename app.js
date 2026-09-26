@@ -1207,6 +1207,35 @@ function setStatsTab(tab, el) {
   }
 }
 
+function setEntertainmentStatsTab(tab, el) {
+  activeEntertainmentStatsTab = tab;
+
+  document.querySelectorAll(".stats-entertainment-subtab").forEach(btn => btn.classList.remove("active"));
+  if (el) el.classList.add("active");
+  else {
+    const match = document.querySelector(`.stats-entertainment-subtab[data-entertainment-tab="${tab}"]`);
+    if (match) match.classList.add("active");
+  }
+
+  document.querySelectorAll(".stats-entertainment-panel").forEach(panel => panel.classList.remove("active"));
+
+  const map = {
+    concerts: "statsEntertainmentConcerts",
+    festivals: "statsEntertainmentFestivals",
+    comedy: "statsEntertainmentComedy",
+    theatre: "statsEntertainmentTheatre",
+    cirque: "statsEntertainmentCirque",
+    kids: "statsEntertainmentKids",
+    cancelled: "statsEntertainmentCancelled"
+  };
+
+  const panelId = map[tab];
+  if (panelId) {
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add("active");
+  }
+}
+
 function setSportStatsTab(tab, el) {
   activeSportStatsTab = tab;
 
