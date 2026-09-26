@@ -115,8 +115,78 @@
         </div>
 
         <div id="statsConcertsPanel" class="stats-panel">
-          <div id="statsConcertsContent" class="stats-grid"></div>
-        </div>
+  <div class="stats-subtabs">
+    <button class="stats-subtab stats-entertainment-subtab active"
+            data-entertainment-tab="concerts"
+            onclick="setEntertainmentStatsTab('concerts', this)">
+      Concerts
+    </button>
+
+    <button class="stats-subtab stats-entertainment-subtab"
+            data-entertainment-tab="festivals"
+            onclick="setEntertainmentStatsTab('festivals', this)">
+      Festivals
+    </button>
+
+    <button class="stats-subtab stats-entertainment-subtab"
+            data-entertainment-tab="comedy"
+            onclick="setEntertainmentStatsTab('comedy', this)">
+      Comedy
+    </button>
+
+    <button class="stats-subtab stats-entertainment-subtab"
+            data-entertainment-tab="theatre"
+            onclick="setEntertainmentStatsTab('theatre', this)">
+      Theatre
+    </button>
+
+    <button class="stats-subtab stats-entertainment-subtab"
+            data-entertainment-tab="cirque"
+            onclick="setEntertainmentStatsTab('cirque', this)">
+      Cirque
+    </button>
+
+    <button class="stats-subtab stats-entertainment-subtab"
+            data-entertainment-tab="kids"
+            onclick="setEntertainmentStatsTab('kids', this)">
+      Kids
+    </button>
+
+    <button class="stats-subtab stats-entertainment-subtab"
+            data-entertainment-tab="cancelled"
+            onclick="setEntertainmentStatsTab('cancelled', this)">
+      Cancelled
+    </button>
+  </div>
+
+  <div id="statsEntertainmentConcerts" class="stats-entertainment-panel active">
+    <div id="statsEntertainmentConcertsContent" class="stats-grid"></div>
+  </div>
+
+  <div id="statsEntertainmentFestivals" class="stats-entertainment-panel">
+    <div id="statsEntertainmentFestivalsContent" class="stats-grid"></div>
+  </div>
+
+  <div id="statsEntertainmentComedy" class="stats-entertainment-panel">
+    <div id="statsEntertainmentComedyContent" class="stats-grid"></div>
+  </div>
+
+  <div id="statsEntertainmentTheatre" class="stats-entertainment-panel">
+    <div id="statsEntertainmentTheatreContent" class="stats-grid"></div>
+  </div>
+
+  <div id="statsEntertainmentCirque" class="stats-entertainment-panel">
+    <div id="statsEntertainmentCirqueContent" class="stats-grid"></div>
+  </div>
+
+  <div id="statsEntertainmentKids" class="stats-entertainment-panel">
+    <div id="statsEntertainmentKidsContent" class="stats-grid"></div>
+  </div>
+
+  <div id="statsEntertainmentCancelled" class="stats-entertainment-panel">
+    <div id="statsEntertainmentCancelledContent" class="stats-grid"></div>
+  </div>
+</div>
 
         <div id="statsSportsPanel" class="stats-panel">
           <div class="stats-subtabs">
