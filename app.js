@@ -1276,7 +1276,7 @@ function renderOverallStats() {
   const target = document.getElementById("statsOverallContent");
   if (!target) return;
 
-  const visible = getVisibleEvents();
+  const visible = getStatsEvents();
   const venueCounts = countItems(visible.map(e => extractVenueLocation(e.v).name));
   const regionCounts = countItems(visible.map(e => extractRegionFromLocation(extractVenueLocation(e.v).location)).filter(Boolean));
   const countryCounts = countItems(visible.map(e => extractCountryFromLocation(extractVenueLocation(e.v).location)).filter(c => c !== "Unknown"));
@@ -1305,7 +1305,7 @@ function renderConcertStats() {
   const target = document.getElementById("statsEntertainmentConcertsContent");
   if (!target) return;
 
-  const events = getVisibleEvents().filter(e => e.t === "concert");
+  const events = getStatsEvents().filter(e => e.t === "concert");
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
   const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
 
@@ -1354,7 +1354,7 @@ function renderFestivalStats() {
   const target = document.getElementById("statsEntertainmentFestivalsContent");
   if (!target) return;
 
-  const events = getVisibleEvents().filter(e => e.t === "festival");
+  const events = getStatsEvents().filter(e => e.t === "festival");
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
   const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
 
@@ -1457,7 +1457,7 @@ function renderTheatreStats() {
   const target = document.getElementById("statsEntertainmentTheatreContent");
   if (!target) return;
 
-  const events = getVisibleEvents().filter(e => {
+  const events = getStatsEvents().filter(e => {
     if (e.t !== "theatre") return false;
 
     const hasCirqueTag = Array.isArray(e.tags) &&
@@ -1508,7 +1508,7 @@ function renderCirqueStats() {
   const target = document.getElementById("statsEntertainmentCirqueContent");
   if (!target) return;
 
-  const events = getVisibleEvents().filter(e => {
+  const events = getStatsEvents().filter(e => {
     if (e.t !== "theatre") return false;
 
     return Array.isArray(e.tags) &&
@@ -1557,7 +1557,7 @@ function renderKidsStats() {
   const target = document.getElementById("statsEntertainmentKidsContent");
   if (!target) return;
 
-  const events = getVisibleEvents().filter(e => e.t === "kids");
+  const events = getStatsEvents().filter(e => e.t === "kids");
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
   const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
   const showCounts = countItems(events.map(e => e.a).filter(Boolean));
@@ -1600,7 +1600,7 @@ function renderCancelledStats() {
   const target = document.getElementById("statsEntertainmentCancelledContent");
   if (!target) return;
 
-  const events = getVisibleEvents().filter(e => e.t === "cancelled");
+  const events = getStatsEvents().filter(e => e.t === "cancelled");
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
   const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
   const eventCounts = countItems(events.map(e => e.a).filter(Boolean));
@@ -1624,11 +1624,11 @@ function renderSportTypeStats(type, targetId) {
 
   let events = [];
   if (type === "other") {
-    events = getVisibleEvents().filter(e => getOtherSportEvents().includes(e));
+    events = getStatsEvents().filter(e => getOtherSportEvents().includes(e));
   } else if (type === "curling") {
-    events = getVisibleEvents().filter(e => getCurlingEvents().includes(e));
+    events = getStatsEvents().filter(e => getCurlingEvents().includes(e));
   } else {
-    events = getVisibleEvents().filter(e => getSportEventsByType(type).includes(e));
+    events = getStatsEvents().filter(e => getSportEventsByType(type).includes(e));
   }
 
   const leagueCounts = {};
@@ -1682,7 +1682,7 @@ function renderWrestlingStats() {
   const target = document.getElementById("statsWrestlingContent");
   if (!target) return;
 
-  const events = getVisibleEvents().filter(e => e.t === "wrestling");
+  const events = getStatsEvents().filter(e => e.t === "wrestling");
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
   const promotionCounts = {};
 
