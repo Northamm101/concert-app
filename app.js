@@ -510,6 +510,13 @@ function getVisibleEvents() {
     });
 }
 
+function getStatsEvents() {
+  return S
+    .map(s => ensureEventHasId(s))
+    .map(s => applyOverridesToEvent(s))
+    .filter(s => !isEventHidden(s));
+}
+
 function updateStats(a) {
   document.getElementById("sT").textContent = a.length;
   document.getElementById("sC").textContent = a.filter(s => s.t === "cancelled").length;
@@ -1396,7 +1403,7 @@ function renderComedyStats() {
   const target = document.getElementById("statsEntertainmentComedyContent");
   if (!target) return;
 
-  const events = getVisibleEvents().filter(e => e.t === "comedy");
+  const events = getStatsEvents().filter(e => e.t === "comedy");
   const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
   const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
   const performerCounts = countItems(events.map(e => e.a).filter(Boolean));
