@@ -1535,6 +1535,49 @@ function renderCirqueStats() {
   `;
 }
 
+function renderKidsStats() {
+  const target = document.getElementById("statsEntertainmentKidsContent");
+  if (!target) return;
+
+  const events = getVisibleEvents().filter(e => e.t === "kids");
+  const venueCounts = countItems(events.map(e => extractVenueLocation(e.v).name));
+  const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
+  const showCounts = countItems(events.map(e => e.a).filter(Boolean));
+
+  const outOfProvinceCount = events.filter(e => {
+    const region = extractRegionFromLocation(extractVenueLocation(e.v).location).toUpperCase();
+    return region && region !== "MB";
+  }).length;
+
+  const internationalCount = events.filter(e => {
+    return extractCountryFromLocation(extractVenueLocation(e.v).location) !== "Canada";
+  }).length;
+
+  target.innerHTML = `
+    <div class="stat-box">
+      <div class="stat-box-title">Total Kids Shows</div>
+      <div class="stat-box-value">${events.length}</div>
+      <div class="stat-box-sub">Kids and family events attended.</div>
+    </div>
+
+    ${renderListCard("Top 5 Kids Shows", topNEntries(showCounts, 5), "No kids show data yet.")}
+    ${renderListCard("Top 5 Kids Venues", topNEntries(venueCounts, 5), "No venue data yet.")}
+    ${renderListCard("Top 5 Kids Cities", topNEntries(cityCounts, 5), "No city data yet.")}
+
+    <div class="stat-box">
+      <div class="stat-box-title">Out of Province Kids Shows</div>
+      <div class="stat-box-value">${outOfProvinceCount}</div>
+      <div class="stat-box-sub">Outside Manitoba.</div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-box-title">International Kids Shows</div>
+      <div class="stat-box-value">${internationalCount}</div>
+      <div class="stat-box-sub">Outside Canada.</div>
+    </div>
+  `;
+}
+
 function renderSportTypeStats(type, targetId) {
   const target = document.getElementById(targetId);
   if (!target) return;
@@ -1634,6 +1677,7 @@ function renderStats() {
   renderComedyStats();
   renderTheatreStats();
   renderCirqueStats();
+  renderKidsStats();
   renderSportTypeStats("hockey", "statsSportsHockeyContent");
   renderSportTypeStats("football", "statsSportsFootballContent");
   renderSportTypeStats("baseball", "statsSportsBaseballContent");
