@@ -1,19 +1,36 @@
 {
   "venues": [
     {
-      "venueId": "SLV-00742",
-      "masterName": "Canada Life Centre",
-      "aliases": [
-        "MTS Centre",
-        "Bell MTS Place"
-      ],
-      "address": "300 Portage Ave",
-      "city": "Winnipeg",
-      "region": "Manitoba",
-      "country": "Canada",
-      "latitude": 49.8928,
-      "longitude": -97.1436
+  "venueId": "SLV-00742",
+  "masterName": "Canada Life Centre",
+  "aliases": [
+    "MTS Centre",
+    "Bell MTS Place"
+  ],
+  "nameHistory": [
+    {
+      "name": "MTS Centre",
+      "startDate": "2004-11-16",
+      "endDate": "2017-05-29"
     },
+    {
+      "name": "Bell MTS Place",
+      "startDate": "2017-05-30",
+      "endDate": "2021-06-30"
+    },
+    {
+      "name": "Canada Life Centre",
+      "startDate": "2021-07-01",
+      "endDate": null
+    }
+  ],
+  "address": "300 Portage Ave",
+  "city": "Winnipeg",
+  "region": "Manitoba",
+  "country": "Canada",
+  "latitude": 49.8928,
+  "longitude": -97.1436
+},
     {
       "venueId": "SLV-00743",
       "masterName": "Winnipeg Arena",
