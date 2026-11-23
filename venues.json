@@ -98,21 +98,38 @@
   "latitude": 49.8811,
   "longitude": -97.1975
 },
+   {
+  "venueId": "SLV-00596",
+  "masterName": "Blue Cross Park",
+  "aliases": [
+    "CanWest Global Park",
+    "Canwest Park",
+    "Shaw Park"
+  ],
+  "nameHistory": [
     {
-      "venueId": "SLV-00596",
-      "masterName": "Blue Cross Park",
-      "aliases": [
-        "CanWest Global Park",
-        "Canwest Park",
-        "Shaw Park"
-      ],
-      "address": "1 Portage Avenue East",
-      "city": "Winnipeg",
-      "region": "Manitoba",
-      "country": "Canada",
-      "latitude": 49.89383,
-      "longitude": -97.13331
+      "name": "CanWest Global Park",
+      "startDate": "1999-01-01",
+      "endDate": "2010-12-31"
     },
+    {
+      "name": "Shaw Park",
+      "startDate": "2011-01-01",
+      "endDate": "2023-11-07"
+    },
+    {
+      "name": "Blue Cross Park",
+      "startDate": "2023-11-08",
+      "endDate": null
+    }
+  ],
+  "address": "1 Portage Avenue East",
+  "city": "Winnipeg",
+  "region": "Manitoba",
+  "country": "Canada",
+  "latitude": 49.89383,
+  "longitude": -97.13331
+},
    {
   "venueId": "SLV-00578",
   "masterName": "SaskTel Centre",
