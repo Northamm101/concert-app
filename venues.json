@@ -80,6 +80,17 @@
       "country": "Canada",
       "latitude": 52.1570,
       "longitude": -106.7204
+    },
+    {
+      "venueId": "SLV-00575",
+      "masterName": "Mosaic Stadium",
+      "aliases": [],
+      "address": "1700 Elphinstone Street",
+      "city": "Regina",
+      "region": "Saskatchewan",
+      "country": "Canada",
+      "latitude": 50.45046,
+      "longitude": -104.63329
     }
   ]
 }
