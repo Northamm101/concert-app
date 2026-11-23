@@ -13,6 +13,31 @@
       "country": "Canada",
       "latitude": 49.8928,
       "longitude": -97.1436
+    },
+    {
+      "venueId": "SLV-00743",
+      "masterName": "Winnipeg Arena",
+      "aliases": [],
+      "address": "1430 Maroons Rd (former site)",
+      "city": "Winnipeg",
+      "region": "Manitoba",
+      "country": "Canada",
+      "latitude": 49.8836,
+      "longitude": -97.1967
+    },
+    {
+      "venueId": "SLV-00594",
+      "masterName": "Princess Auto Stadium",
+      "aliases": [
+        "Investors Group Field",
+        "IG Field"
+      ],
+      "address": "315 Chancellor Matheson Road",
+      "city": "Winnipeg",
+      "region": "Manitoba",
+      "country": "Canada",
+      "latitude": 49.8079,
+      "longitude": -97.1433
     }
   ]
 }
