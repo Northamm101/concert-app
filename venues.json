@@ -1,1 +1,18 @@
-
+{
+  "venues": [
+    {
+      "venueId": "SLV-00742",
+      "masterName": "Canada Life Centre",
+      "aliases": [
+        "MTS Centre",
+        "Bell MTS Place"
+      ],
+      "address": "300 Portage Ave",
+      "city": "Winnipeg",
+      "region": "Manitoba",
+      "country": "Canada",
+      "latitude": 49.8928,
+      "longitude": -97.1436
+    }
+  ]
+}
