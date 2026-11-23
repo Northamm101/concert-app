@@ -1299,7 +1299,10 @@ target.innerHTML = `
     <div class="stat-box-sub">All events in SceneLynx.</div>
   </div>
 
-  ${renderListCard("Events by Category", Object.entries(categoryCounts))}
+  ${renderListCard(
+  "Events by Category",
+  Object.entries(categoryCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+)}
   ${renderListCard("Top 5 Venues", topNEntries(venueCounts, 5))}
   ${renderListCard("Events per Province / State", Object.entries(regionCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
   ${renderListCard("Events per Country", Object.entries(countryCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
