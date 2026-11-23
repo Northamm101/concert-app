@@ -66,6 +66,20 @@
       "country": "Canada",
       "latitude": 49.89383,
       "longitude": -97.13331
+    },
+    {
+      "venueId": "SLV-00578",
+      "masterName": "SaskTel Centre",
+      "aliases": [
+        "Saskatchewan Place",
+        "Credit Union Centre"
+      ],
+      "address": "3515 Thatcher Avenue",
+      "city": "Saskatoon",
+      "region": "Saskatchewan",
+      "country": "Canada",
+      "latitude": 52.1570,
+      "longitude": -106.7204
     }
   ]
 }
