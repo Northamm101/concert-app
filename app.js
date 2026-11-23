@@ -2336,7 +2336,10 @@ document.getElementById("addEventOverlay").addEventListener("click", e => {
 updateHeaderLogo();
 setAddEventHeading();
 updateAddEventForm();
-render();
-renderStats();
-renderMap();
+
+loadVenueDatabase().then(() => {
+  render();
+  renderStats();
+  renderMap();
+});
 renderHiddenEventsManager();
