@@ -43,19 +43,36 @@
       "longitude": -97.1967
     },
     {
-      "venueId": "SLV-00594",
-      "masterName": "Princess Auto Stadium",
-      "aliases": [
-        "Investors Group Field",
-        "IG Field"
-      ],
-      "address": "315 Chancellor Matheson Road",
-      "city": "Winnipeg",
-      "region": "Manitoba",
-      "country": "Canada",
-      "latitude": 49.8079,
-      "longitude": -97.1433
+  "venueId": "SLV-00594",
+  "masterName": "Princess Auto Stadium",
+  "aliases": [
+    "Investors Group Field",
+    "IG Field"
+  ],
+  "nameHistory": [
+    {
+      "name": "Investors Group Field",
+      "startDate": "2013-05-26",
+      "endDate": "2019-05-09"
     },
+    {
+      "name": "IG Field",
+      "startDate": "2019-05-10",
+      "endDate": "2024-03-31"
+    },
+    {
+      "name": "Princess Auto Stadium",
+      "startDate": "2024-04-01",
+      "endDate": null
+    }
+  ],
+  "address": "315 Chancellor Matheson Road",
+  "city": "Winnipeg",
+  "region": "Manitoba",
+  "country": "Canada",
+  "latitude": 49.8079,
+  "longitude": -97.1433
+},
     {
       "venueId": "SLV-00597",
       "masterName": "Winnipeg Stadium",
