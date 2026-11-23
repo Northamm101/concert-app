@@ -871,30 +871,76 @@ function toast(m) {
   t._t = setTimeout(() => t.classList.remove("show"), 2500);
 }
 
+function findVenueDatabaseRecord(venueString) {
+  const originalName = venueString.split("·")[0].trim().toLowerCase();
+
+  return venueDatabase.find(venue => {
+    const names = [
+      venue.masterName,
+      ...(Array.isArray(venue.aliases) ? venue.aliases : [])
+    ]
+      .filter(Boolean)
+      .map(name => String(name).trim().toLowerCase());
+
+    return names.includes(originalName);
+  }) || null;
+}
+
 function getVenueGroups() {
   const groups = {};
 
   getVisibleEvents().forEach(event => {
     const originalVenue = event.v.split("·")[0].trim();
-    const venueKey = normalizeVenueName(event.v);
     const venueParts = extractVenueLocation(event.v);
 
-    if (!groups[venueKey]) {
-    let coords = getVenueCoords(venueKey);
+    const databaseVenue = findVenueDatabaseRecord(event.v);
 
-      if (!coords) {
-        const customCoords = getCustomVenueCoords();
-        customCoords[venueKey] = { lat: 49.8951, lng: -97.1384 };
-        saveCustomVenueCoords(customCoords);
-        coords = customCoords[venueKey];
+    const venueKey = databaseVenue
+      ? databaseVenue.venueId
+      : normalizeVenueName(event.v);
+
+    if (!groups[venueKey]) {
+      let displayName;
+      let location;
+      let coords;
+
+      if (databaseVenue) {
+        displayName = databaseVenue.masterName;
+
+        location = [
+          databaseVenue.city,
+          databaseVenue.region
+        ]
+          .filter(Boolean)
+          .join(", ");
+
+        if (
+          Number.isFinite(databaseVenue.latitude) &&
+          Number.isFinite(databaseVenue.longitude)
+        ) {
+          coords = {
+            lat: databaseVenue.latitude,
+            lng: databaseVenue.longitude
+          };
+        } else {
+          coords = null;
+        }
+      } else {
+        const legacyVenueKey = normalizeVenueName(event.v);
+
+        displayName = titleCase(legacyVenueKey);
+        location = venueParts.location;
+        coords = VENUE_COORDS[legacyVenueKey] || null;
       }
+
       groups[venueKey] = {
         key: venueKey,
-        displayName: titleCase(venueKey),
-        location: venueParts.location,
+        displayName,
+        location,
         coords,
         events: [],
-        historicalNames: {}
+        historicalNames: {},
+        venueId: databaseVenue ? databaseVenue.venueId : null
       };
     }
 
@@ -908,6 +954,8 @@ function getVenueGroups() {
   });
 
   Object.values(groups).forEach(group => {
+    if (group.venueId) return;
+
     if (group.key === "CANADA LIFE CENTRE") group.displayName = "Canada Life Centre";
     if (group.key === "SASKTEL CENTRE") group.displayName = "SaskTel Centre";
     if (group.key === "MALL OF AMERICA FIELD") group.displayName = "Mall of America Field";
