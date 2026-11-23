@@ -886,14 +886,49 @@ function findVenueDatabaseRecord(venueString) {
   }) || null;
 }
 
+function getHistoricalVenueName(databaseVenue, event, fallbackName) {
+  if (
+    !databaseVenue ||
+    !Array.isArray(databaseVenue.nameHistory) ||
+    !databaseVenue.nameHistory.length
+  ) {
+    return fallbackName;
+  }
+
+  const eventDate = eventSortableDate(event);
+
+  const match = databaseVenue.nameHistory.find(period => {
+    const startDate = period.startDate
+      ? new Date(`${period.startDate}T00:00:00`)
+      : null;
+
+    const endDate = period.endDate
+      ? new Date(`${period.endDate}T23:59:59`)
+      : null;
+
+    const afterStart = !startDate || eventDate >= startDate;
+    const beforeEnd = !endDate || eventDate <= endDate;
+
+    return afterStart && beforeEnd;
+  });
+
+  return match ? match.name : "⚠ Venue/date needs review";
+}
+
 function getVenueGroups() {
   const groups = {};
 
   getVisibleEvents().forEach(event => {
     const originalVenue = event.v.split("·")[0].trim();
-    const venueParts = extractVenueLocation(event.v);
+const venueParts = extractVenueLocation(event.v);
 
-    const databaseVenue = findVenueDatabaseRecord(event.v);
+const databaseVenue = findVenueDatabaseRecord(event.v);
+
+const historicalVenueName = getHistoricalVenueName(
+  databaseVenue,
+  event,
+  originalVenue
+);
 
     const venueKey = databaseVenue
       ? databaseVenue.venueId
@@ -946,11 +981,11 @@ function getVenueGroups() {
 
     groups[venueKey].events.push(event);
 
-    if (!groups[venueKey].historicalNames[originalVenue]) {
-      groups[venueKey].historicalNames[originalVenue] = [];
-    }
+    if (!groups[venueKey].historicalNames[historicalVenueName]) {
+  groups[venueKey].historicalNames[historicalVenueName] = [];
+}
 
-    groups[venueKey].historicalNames[originalVenue].push(event);
+groups[venueKey].historicalNames[historicalVenueName].push(event);
   });
 
   Object.values(groups).forEach(group => {
