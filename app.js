@@ -5,6 +5,7 @@ let cF = "all";
 let cQ = "";
 let activeScreen = "shows";
 let activeStatsTab = "overall";
+let activeEntertainmentStatsTab = "concerts";
 let activeSportStatsTab = "hockey";
 let editingEventId = null;
 
