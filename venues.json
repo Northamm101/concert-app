@@ -51,6 +51,21 @@
       "country": "Canada",
       "latitude": 49.8811,
       "longitude": -97.1975
+    },
+    {
+      "venueId": "SLV-00596",
+      "masterName": "Blue Cross Park",
+      "aliases": [
+        "CanWest Global Park",
+        "Canwest Park",
+        "Shaw Park"
+      ],
+      "address": "1 Portage Avenue East",
+      "city": "Winnipeg",
+      "region": "Manitoba",
+      "country": "Canada",
+      "latitude": 49.89383,
+      "longitude": -97.13331
     }
   ]
 }
