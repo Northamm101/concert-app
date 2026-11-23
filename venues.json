@@ -74,18 +74,30 @@
   "longitude": -97.1433
 },
     {
-      "venueId": "SLV-00597",
-      "masterName": "Winnipeg Stadium",
-      "aliases": [
-        "Canad Inns Stadium"
-      ],
-      "address": "1465 Maroons Road (former site)",
-      "city": "Winnipeg",
-      "region": "Manitoba",
-      "country": "Canada",
-      "latitude": 49.8811,
-      "longitude": -97.1975
+  "venueId": "SLV-00597",
+  "masterName": "Canad Inns Stadium",
+  "aliases": [
+    "Winnipeg Stadium"
+  ],
+  "nameHistory": [
+    {
+      "name": "Winnipeg Stadium",
+      "startDate": "1953-01-01",
+      "endDate": "2000-12-31"
     },
+    {
+      "name": "Canad Inns Stadium",
+      "startDate": "2001-01-01",
+      "endDate": "2012-12-31"
+    }
+  ],
+  "address": "1465 Maroons Road (former site)",
+  "city": "Winnipeg",
+  "region": "Manitoba",
+  "country": "Canada",
+  "latitude": 49.8811,
+  "longitude": -97.1975
+},
     {
       "venueId": "SLV-00596",
       "masterName": "Blue Cross Park",
