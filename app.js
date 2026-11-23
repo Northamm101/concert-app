@@ -761,7 +761,7 @@ function openModal(s, num) {
       ${sportCurlingDrawRow}
       ${sportNoteRow}
       ${wrestlingPromotionRow}
-      <div class="irow"><span class="ikey">Entry</span><span class="ival" style="color:var(--cyan)">#${num} in GigBook</span></div>
+      <div class="irow"><span class="ikey">Entry</span><span class="ival" style="color:var(--cyan)">#${num} in SceneLynx</span></div>
     </div>
 
     <div class="msec">
