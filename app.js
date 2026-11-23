@@ -1277,28 +1277,21 @@ function renderOverallStats() {
   if (!target) return;
 
   const visible = getStatsEvents();
-  const venueCounts = countItems(visible.map(e => extractVenueLocation(e.v).name));
-  const regionCounts = countItems(visible.map(e => extractRegionFromLocation(extractVenueLocation(e.v).location)).filter(Boolean));
-  const countryCounts = countItems(visible.map(e => extractCountryFromLocation(extractVenueLocation(e.v).location)).filter(c => c !== "Unknown"));
-  const hiddenCount = getHiddenEventIds().length;
+const venueCounts = countItems(visible.map(e => extractVenueLocation(e.v).name));
+const regionCounts = countItems(visible.map(e => extractRegionFromLocation(extractVenueLocation(e.v).location)).filter(Boolean));
+const countryCounts = countItems(visible.map(e => extractCountryFromLocation(extractVenueLocation(e.v).location)).filter(c => c !== "Unknown"));
 
-  target.innerHTML = `
-    <div class="stat-box">
-      <div class="stat-box-title">Total Events</div>
-      <div class="stat-box-value">${visible.length}</div>
-      <div class="stat-box-sub">All visible events in GigBook.</div>
-    </div>
+target.innerHTML = `
+  <div class="stat-box">
+    <div class="stat-box-title">Total Events</div>
+    <div class="stat-box-value">${visible.length}</div>
+    <div class="stat-box-sub">All events in SceneLynx.</div>
+  </div>
 
-    <div class="stat-box">
-      <div class="stat-box-title">Hidden Events</div>
-      <div class="stat-box-value">${hiddenCount}</div>
-      <div class="stat-box-sub">Events currently hidden from your lists.</div>
-    </div>
-
-    ${renderListCard("Top 5 Venues", topNEntries(venueCounts, 5))}
-    ${renderListCard("Events per Province / State", Object.entries(regionCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
-    ${renderListCard("Events per Country", Object.entries(countryCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
-  `;
+  ${renderListCard("Top 5 Venues", topNEntries(venueCounts, 5))}
+  ${renderListCard("Events per Province / State", Object.entries(regionCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
+  ${renderListCard("Events per Country", Object.entries(countryCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
+`;
 }
 
 function renderConcertStats() {
