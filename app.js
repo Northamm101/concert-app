@@ -1294,6 +1294,7 @@ const categoryCounts = {
 
   const yearCounts = countItems(
   visible
+    .filter(e => !isFutureEvent(e))
     .map(e => e.y)
     .filter(Boolean)
 );
