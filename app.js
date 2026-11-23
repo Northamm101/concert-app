@@ -1292,6 +1292,12 @@ const categoryCounts = {
   Cancelled: visible.filter(e => e.t === "cancelled").length
 };
 
+  const yearCounts = countItems(
+  visible
+    .map(e => e.y)
+    .filter(Boolean)
+);
+
 target.innerHTML = `
   <div class="stat-box">
     <div class="stat-box-title">Total Events</div>
@@ -1303,7 +1309,13 @@ target.innerHTML = `
   "Events by Category",
   Object.entries(categoryCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
 )}
-  ${renderListCard("Top 5 Venues", topNEntries(venueCounts, 5))}
+
+${renderListCard(
+  "Events by Year",
+  Object.entries(yearCounts).sort((a, b) => Number(b[0]) - Number(a[0]))
+)}
+
+${renderListCard("Top 5 Venues", topNEntries(venueCounts, 5))}
   ${renderListCard("Events per Province / State", Object.entries(regionCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
   ${renderListCard("Events per Country", Object.entries(countryCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
 `;
