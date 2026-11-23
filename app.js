@@ -1,4 +1,6 @@
 const IC = {};
+let venueDatabase = [];
+
 let cF = "all";
 let cQ = "";
 let activeScreen = "shows";
@@ -8,6 +10,24 @@ let editingEventId = null;
 
 const STORAGE_KEY = "gigbook_custom_events_v1";
 const HIDDEN_EVENTS_KEY = "gigbook_hidden_events_v1";
+async function loadVenueDatabase() {
+  try {
+    const response = await fetch("venues.json");
+
+    if (!response.ok) {
+      throw new Error(`Could not load venues.json: ${response.status}`);
+    }
+
+    const data = await response.json();
+    venueDatabase = Array.isArray(data.venues) ? data.venues : [];
+
+    console.log(`SceneLynx loaded ${venueDatabase.length} venues.`);
+  } catch (error) {
+    console.error("Could not load SceneLynx venue database:", error);
+    venueDatabase = [];
+  }
+}
+
 const OVERRIDES_KEY = "gigbook_event_overrides_v1";
 const CUSTOM_VENUE_COORDS_KEY = "gigbook_custom_venue_coords_v1";
 
