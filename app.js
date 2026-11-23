@@ -1331,29 +1331,41 @@ function renderConcertStats() {
   const cityCounts = countItems(events.map(e => extractVenueLocation(e.v).location).filter(Boolean));
 
   const artistCounts = {};
-  events.forEach(event => {
-    parseArtistNamesFromEvent(event).forEach(name => {
-      artistCounts[name] = (artistCounts[name] || 0) + 1;
-    });
+events.forEach(event => {
+  parseArtistNamesFromEvent(event).forEach(name => {
+    artistCounts[name] = (artistCounts[name] || 0) + 1;
   });
+});
 
-  const outOfProvinceCount = events.filter(e => {
-    const region = extractRegionFromLocation(extractVenueLocation(e.v).location).toUpperCase();
-    return region && region !== "MB";
-  }).length;
+const yearCounts = countItems(
+  events
+    .filter(e => !isFutureEvent(e))
+    .map(e => e.y)
+    .filter(Boolean)
+);
+
+const outOfProvinceCount = events.filter(e => {
+  const region = extractRegionFromLocation(extractVenueLocation(e.v).location).toUpperCase();
+  return region && region !== "MB";
+}).length;
 
   const internationalCount = events.filter(e => {
     return extractCountryFromLocation(extractVenueLocation(e.v).location) !== "Canada";
   }).length;
 
   target.innerHTML = `
-    <div class="stat-box">
-      <div class="stat-box-title">Total Concerts</div>
-      <div class="stat-box-value">${events.length}</div>
-      <div class="stat-box-sub">Concerts attended.</div>
-    </div>
+  <div class="stat-box">
+    <div class="stat-box-title">Total Concerts</div>
+    <div class="stat-box-value">${events.length}</div>
+    <div class="stat-box-sub">Concerts attended.</div>
+  </div>
 
-    ${renderListCard("Top 5 Seen Artists", topNEntries(artistCounts, 5), "No artist data yet.")}
+  ${renderListCard(
+    "Concerts by Year",
+    Object.entries(yearCounts).sort((a, b) => Number(b[0]) - Number(a[0]))
+  )}
+
+  ${renderListCard("Top 5 Seen Artists", topNEntries(artistCounts, 5), "No artist data yet.")}
     ${renderListCard("Top 5 Seen Venues", topNEntries(venueCounts, 5), "No venue data yet.")}
     ${renderListCard("Top 5 Concert Cities", topNEntries(cityCounts, 5), "No city data yet.")}
 
