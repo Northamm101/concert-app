@@ -1281,6 +1281,17 @@ const venueCounts = countItems(visible.map(e => extractVenueLocation(e.v).name))
 const regionCounts = countItems(visible.map(e => extractRegionFromLocation(extractVenueLocation(e.v).location)).filter(Boolean));
 const countryCounts = countItems(visible.map(e => extractCountryFromLocation(extractVenueLocation(e.v).location)).filter(c => c !== "Unknown"));
 
+const categoryCounts = {
+  Concerts: visible.filter(e => e.t === "concert").length,
+  Sports: visible.filter(e => e.t === "sport").length,
+  Wrestling: visible.filter(e => e.t === "wrestling").length,
+  Comedy: visible.filter(e => e.t === "comedy").length,
+  Theatre: visible.filter(e => e.t === "theatre").length,
+  Festivals: visible.filter(e => e.t === "festival").length,
+  Kids: visible.filter(e => e.t === "kids").length,
+  Cancelled: visible.filter(e => e.t === "cancelled").length
+};
+
 target.innerHTML = `
   <div class="stat-box">
     <div class="stat-box-title">Total Events</div>
@@ -1288,6 +1299,7 @@ target.innerHTML = `
     <div class="stat-box-sub">All events in SceneLynx.</div>
   </div>
 
+  ${renderListCard("Events by Category", Object.entries(categoryCounts))}
   ${renderListCard("Top 5 Venues", topNEntries(venueCounts, 5))}
   ${renderListCard("Events per Province / State", Object.entries(regionCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
   ${renderListCard("Events per Country", Object.entries(countryCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))}
